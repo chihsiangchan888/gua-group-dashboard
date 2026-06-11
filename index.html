@@ -115,16 +115,26 @@ header .subtitle {
   border: 3px solid var(--type-color);
   border-radius: 8px;
   background: linear-gradient(135deg, #e8e4d4, #d4cfc0);
-  padding: 1.2rem;
+  padding: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  min-height: 80px;
+  min-height: 100px;
 }
-.agent-avatar {
-  font-size: 2.5rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+.pokemon-sprite {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.pokemon-name {
+  text-align: center;
+  font-size: 0.65rem;
+  color: #888;
+  font-style: italic;
+  margin-top: -0.2rem;
+  margin-bottom: 0.2rem;
 }
 .status-indicator {
   position: absolute;
@@ -251,13 +261,13 @@ footer code {
 <body>
 <header>
   <h1>⚡ 呱集團 Pokémon Agent Dashboard</h1>
-  <p class="subtitle">最後更新：2026-06-11 11:35:33</p>
+  <p class="subtitle">最後更新：2026-06-11 11:46:48</p>
 </header>
 <div class="fleet-bar">
-  <span class="pill">🟢 活躍 <strong>4</strong></span>
+  <span class="pill">🟢 活躍 <strong>5</strong></span>
   <span class="pill">🟡 待命 <strong>4</strong></span>
   <span class="pill">🔴 停止 <strong>0</strong></span>
-  <span class="pill">📦 總計 <strong>8</strong></span>
+  <span class="pill">📦 總計 <strong>9</strong></span>
 </div>
 <div class="grid">
 
@@ -271,9 +281,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #A8A878">
-        <div class="agent-avatar">g</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/143.gif" alt="卡比獸 Snorlax" />
         <div class="status-indicator active">● 活躍中</div>
       </div>
+      <div class="pokemon-name">卡比獸 Snorlax</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -308,8 +319,8 @@ footer code {
 
       <!-- Card bottom -->
       <div class="card-bottom">
-        <span class="weakness">弱點: Fire</span>
-        <span class="retreat">撤退: ⚪</span>
+        <span class="weakness">弱點: Fighting</span>
+        <span class="retreat">撤退: ⚪⚪⚪⚪</span>
         <span class="last-seen">🕐 1m ago</span>
       </div>
     </div>
@@ -323,9 +334,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #F85888">
-        <div class="agent-avatar">高</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/65.gif" alt="胡地 Alakazam" />
         <div class="status-indicator idle">◐ 待命中</div>
       </div>
+      <div class="pokemon-name">胡地 Alakazam</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -375,9 +387,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #C03028">
-        <div class="agent-avatar">排</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/68.gif" alt="怪力 Machamp" />
         <div class="status-indicator idle">◐ 待命中</div>
       </div>
+      <div class="pokemon-name">怪力 Machamp</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -427,9 +440,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #EE99AC">
-        <div class="agent-avatar">報</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/36.gif" alt="皮可西 Clefable" />
         <div class="status-indicator idle">◐ 待命中</div>
       </div>
+      <div class="pokemon-name">皮可西 Clefable</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -479,9 +493,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #B8B8D0">
-        <div class="agent-avatar">不</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/376.gif" alt="巨金怪 Metagross" />
         <div class="status-indicator idle">◐ 待命中</div>
       </div>
+      <div class="pokemon-name">巨金怪 Metagross</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -531,9 +546,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #78C850">
-        <div class="agent-avatar">小</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/1.gif" alt="妙蛙種子 Bulbasaur" />
         <div class="status-indicator active">● 活躍中</div>
       </div>
+      <div class="pokemon-name">妙蛙種子 Bulbasaur</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -570,7 +586,7 @@ footer code {
       <div class="card-bottom">
         <span class="weakness">弱點: Fire</span>
         <span class="retreat">撤退: ⚪</span>
-        <span class="last-seen">🕐 11m ago</span>
+        <span class="last-seen">🕐 22m ago</span>
       </div>
     </div>
     <div class="pokemon-card">
@@ -583,9 +599,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #705898">
-        <div class="agent-avatar">任</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/94.gif" alt="耿鬼 Gengar" />
         <div class="status-indicator active">● 活躍中</div>
       </div>
+      <div class="pokemon-name">耿鬼 Gengar</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -635,9 +652,10 @@ footer code {
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: #F8D030">
-        <div class="agent-avatar">a</div>
+        <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="皮卡丘 Pikachu" />
         <div class="status-indicator active">● 活躍中</div>
       </div>
+      <div class="pokemon-name">皮卡丘 Pikachu</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -675,6 +693,45 @@ footer code {
         <span class="weakness">弱點: Ground</span>
         <span class="retreat">撤退: ⚪</span>
         <span class="last-seen">🕐 0s ago</span>
+      </div>
+    </div>
+    <div class="pokemon-card">
+      <!-- Card top: type color bar -->
+      <div class="card-top" style="--type-color: #A8A878">
+        <span class="card-stage">BASIC</span>
+        <span class="card-hp">HP 100</span>
+        <span class="card-type-icon">Normal</span>
+      </div>
+
+      <!-- Card image area -->
+      <div class="card-image" style="--type-color: #A8A878">
+        <img class="pokemon-sprite" src="" alt="" />
+        <div class="status-indicator active">● 活躍中</div>
+      </div>
+      <div class="pokemon-name"></div>
+
+      <!-- Card name -->
+      <div class="card-name-bar">
+        <h2>卡卡西-t1451</h2>
+        <span class="card-subtitle"></span>
+      </div>
+
+      <!-- Moves section -->
+      <div class="card-moves">
+        
+      </div>
+
+      <!-- Rules (Pokédex entry) -->
+      <div class="card-rules">
+        <div class="rules-header">📖 行為規範</div>
+        <ul></ul>
+      </div>
+
+      <!-- Card bottom -->
+      <div class="card-bottom">
+        <span class="weakness">弱點: ?</span>
+        <span class="retreat">撤退: ⚪</span>
+        <span class="last-seen">🕐 1m ago</span>
       </div>
     </div>
 </div>

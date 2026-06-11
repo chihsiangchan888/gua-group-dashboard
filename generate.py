@@ -6,6 +6,9 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+# PokeAPI Gen5 animated sprites (pixel art style)
+SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated"
+
 # Agent metadata with full rules extracted from steering files
 AGENT_META = {
     "general": {
@@ -13,6 +16,8 @@ AGENT_META = {
         "color": "#A8A878",
         "desc": "Fleet 總指揮",
         "hp": 200,
+        "pokemon": "卡比獸 Snorlax",
+        "sprite": f"{SPRITE_BASE}/143.gif",
         "skills": [
             {"name": "任務分類", "cost": "⚪", "desc": "分類請求並決定自己處理或委派"},
             {"name": "智能路由", "cost": "⚪⚪", "desc": "找到最適合的 agent 並委派任務"},
@@ -24,14 +29,16 @@ AGENT_META = {
             "跨多個 repo 的任務 → 協調多個 agent 平行處理（最多3個）",
             "優先重用現有 instance，不建立重複的",
         ],
-        "weakness": "Fire",
-        "retreat": "⚪",
+        "weakness": "Fighting",
+        "retreat": "⚪⚪⚪⚪",
     },
     "高二哥-t13": {
         "type": "Psychic",
         "color": "#F85888",
         "desc": "Skill Prompt 產生專家",
         "hp": 120,
+        "pokemon": "胡地 Alakazam",
+        "sprite": f"{SPRITE_BASE}/65.gif",
         "skills": [
             {"name": "Prompt 生成", "cost": "🟣", "desc": "根據需求產生完整 system prompt"},
             {"name": "人格設計", "cost": "🟣🟣", "desc": "設計 agent 角色定義與行為準則"},
@@ -50,6 +57,8 @@ AGENT_META = {
         "color": "#C03028",
         "desc": "老虎機機率與牌庫設計專家",
         "hp": 150,
+        "pokemon": "怪力 Machamp",
+        "sprite": f"{SPRITE_BASE}/68.gif",
         "skills": [
             {"name": "機率分析", "cost": "🔴", "desc": "計算老虎機各符號出現機率與期望值"},
             {"name": "牌庫設計", "cost": "🔴🔴", "desc": "設計平衡的牌庫配置與權重"},
@@ -69,6 +78,8 @@ AGENT_META = {
         "color": "#EE99AC",
         "desc": "文案修飾與報告大綱助手",
         "hp": 100,
+        "pokemon": "皮可西 Clefable",
+        "sprite": f"{SPRITE_BASE}/36.gif",
         "skills": [
             {"name": "郵件潤飾", "cost": "🩷", "desc": "讓信件更專業、清晰、有禮"},
             {"name": "大綱生成", "cost": "🩷🩷", "desc": "產出結構清晰的報告大綱"},
@@ -88,6 +99,8 @@ AGENT_META = {
         "color": "#B8B8D0",
         "desc": "A/B 測試分析專家",
         "hp": 160,
+        "pokemon": "巨金怪 Metagross",
+        "sprite": f"{SPRITE_BASE}/376.gif",
         "skills": [
             {"name": "版本比較", "cost": "⚪⚪", "desc": "分析兩版本數據差異與統計顯著性"},
             {"name": "玩家洞察", "cost": "⚪⚪⚪", "desc": "分析不同玩家族群行為差異"},
@@ -107,6 +120,8 @@ AGENT_META = {
         "color": "#78C850",
         "desc": "蘇格拉底式逼問釐清設計",
         "hp": 110,
+        "pokemon": "妙蛙種子 Bulbasaur",
+        "sprite": f"{SPRITE_BASE}/1.gif",
         "skills": [
             {"name": "逼問", "cost": "🟢", "desc": "針對計畫的每個面向提出質疑"},
             {"name": "釐清", "cost": "🟢🟢", "desc": "一題一題走過設計樹的每個分支"},
@@ -126,6 +141,8 @@ AGENT_META = {
         "color": "#705898",
         "desc": "Git 操作專員",
         "hp": 130,
+        "pokemon": "耿鬼 Gengar",
+        "sprite": f"{SPRITE_BASE}/94.gif",
         "skills": [
             {"name": "傳送", "cost": "🟣", "desc": "push/pull 同步 GitHub repo"},
             {"name": "時空管理", "cost": "🟣🟣", "desc": "版本管理、branch 操作、衝突解決"},
@@ -146,6 +163,8 @@ AGENT_META = {
         "color": "#F8D030",
         "desc": "AI 資訊分析助手",
         "hp": 120,
+        "pokemon": "皮卡丘 Pikachu",
+        "sprite": f"{SPRITE_BASE}/25.gif",
         "skills": [
             {"name": "閃電摘要", "cost": "⚡", "desc": "2-3 句話說明文章在講什麼"},
             {"name": "行動建議", "cost": "⚡⚡", "desc": "告訴你「你可以怎麼用」"},
@@ -239,9 +258,10 @@ def generate_html(agents):
 
       <!-- Card image area -->
       <div class="card-image" style="--type-color: {meta['color']}">
-        <div class="agent-avatar">{name[0] if name[0].isascii() else name[0]}</div>
+        <img class="pokemon-sprite" src="{meta.get('sprite', '')}" alt="{meta.get('pokemon', '')}" />
         <div class="status-indicator {health}">{status_text}</div>
       </div>
+      <div class="pokemon-name">{meta.get('pokemon', '')}</div>
 
       <!-- Card name -->
       <div class="card-name-bar">
@@ -390,16 +410,26 @@ header .subtitle {{
   border: 3px solid var(--type-color);
   border-radius: 8px;
   background: linear-gradient(135deg, #e8e4d4, #d4cfc0);
-  padding: 1.2rem;
+  padding: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  min-height: 80px;
+  min-height: 100px;
 }}
-.agent-avatar {{
-  font-size: 2.5rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+.pokemon-sprite {{
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}}
+.pokemon-name {{
+  text-align: center;
+  font-size: 0.65rem;
+  color: #888;
+  font-style: italic;
+  margin-top: -0.2rem;
+  margin-bottom: 0.2rem;
 }}
 .status-indicator {{
   position: absolute;
