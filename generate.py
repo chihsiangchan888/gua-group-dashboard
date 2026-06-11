@@ -301,7 +301,7 @@ def get_fleet_data():
     return json.loads(result.stdout)
 
 
-def generate_html(agents):
+def generate_html(agents, work_log=None):
     cards_html = ""
     for agent in agents:
         name = agent["name"]
@@ -721,6 +721,82 @@ footer code {{
   color: #888;
 }}
 
+/* === WORK LOG === */
+.work-log-section {{
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 1.2rem;
+  backdrop-filter: blur(5px);
+}}
+.work-log-title {{
+  color: #f8d030;
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+}}
+.work-log-controls {{
+  margin-bottom: 0.8rem;
+}}
+.work-log-controls input {{
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.3);
+  color: #eee;
+  font-size: 0.85rem;
+}}
+.work-log-controls input::placeholder {{ color: #888; }}
+.work-log-empty {{
+  color: #888;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.9rem;
+}}
+.log-day {{
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.2);
+  overflow: hidden;
+}}
+.log-day-header {{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  color: #eee;
+  font-size: 0.8rem;
+}}
+.log-day-header:hover {{ background: rgba(255,255,255,0.05); }}
+.log-date {{ font-weight: bold; }}
+.log-count {{ color: #aaa; font-size: 0.75rem; }}
+.log-toggle {{ color: #f8d030; transition: transform 0.2s; }}
+.log-day.expanded .log-toggle {{ transform: rotate(90deg); }}
+.log-day-content {{
+  display: none;
+  padding: 0 0.8rem 0.6rem;
+}}
+.log-day.expanded .log-day-content {{ display: block; }}
+.log-entry {{
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.75rem;
+  color: #ccc;
+}}
+.log-entry:last-child {{ border-bottom: none; }}
+.log-agent {{
+  color: #f8d030;
+  font-weight: bold;
+  white-space: nowrap;
+  min-width: 100px;
+}}
+.log-day.hidden {{ display: none; }}
+
 @media (max-width: 700px) {{
   .grid {{ grid-template-columns: 1fr; }}
   header h1 {{ font-size: 1.5rem; }}
@@ -784,17 +860,71 @@ footer code {{
     </div>
   </div>
 </details>
+<div class="work-log-section">
+  <h2 class="work-log-title">📋 工作日誌</h2>
+  <div class="work-log-controls">
+    <input type="text" id="logSearch" placeholder="搜尋 agent 或內容..." oninput="filterLog()" />
+  </div>
+  <div class="work-log-entries" id="logEntries">
+    {generate_work_log_html(work_log or [])}
+  </div>
+</div>
 <div class="grid">
 {cards_html}
 </div>
 <footer>regenerate: <code>python3 generate.py && git add -A && git commit -m "update" && git push</code></footer>
+<script>
+function filterLog() {{
+  const q = document.getElementById('logSearch').value.toLowerCase();
+  document.querySelectorAll('.log-day').forEach(day => {{
+    if (!q) {{ day.classList.remove('hidden'); return; }}
+    const text = day.textContent.toLowerCase();
+    day.classList.toggle('hidden', !text.includes(q));
+    if (text.includes(q)) day.classList.add('expanded');
+  }});
+}}
+</script>
 </body>
 </html>'''
 
 
+def get_work_log():
+    log_path = Path(__file__).parent / "work_log.json"
+    if log_path.exists():
+        return json.loads(log_path.read_text(encoding="utf-8"))
+    return []
+
+
+def generate_work_log_html(work_log):
+    if not work_log:
+        return '''<div class="work-log-empty">📭 尚無工作日誌紀錄</div>'''
+
+    entries_html = ""
+    for day in work_log:
+        date = day["date"]
+        reports = ""
+        for entry in day.get("entries", []):
+            reports += f'''<div class="log-entry">
+              <span class="log-agent">{entry["agent"]}</span>
+              <span class="log-report">{entry["report"]}</span>
+            </div>'''
+        entries_html += f'''
+        <div class="log-day" data-date="{date}">
+          <div class="log-day-header" onclick="this.parentElement.classList.toggle('expanded')">
+            <span class="log-date">📅 {date}</span>
+            <span class="log-count">{len(day.get("entries", []))} 筆報告</span>
+            <span class="log-toggle">▸</span>
+          </div>
+          <div class="log-day-content">{reports}</div>
+        </div>'''
+
+    return entries_html
+
+
 def main():
     agents = get_fleet_data()
-    html = generate_html(agents)
+    work_log = get_work_log()
+    html = generate_html(agents, work_log)
     out = Path(__file__).parent / "index.html"
     out.write_text(html, encoding="utf-8")
     print(f"✅ Dashboard generated: {out}")
