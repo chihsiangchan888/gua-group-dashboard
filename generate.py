@@ -900,7 +900,7 @@ def generate_work_log_html(work_log):
         return '''<div class="work-log-empty">📭 尚無工作日誌紀錄</div>'''
 
     entries_html = ""
-    for day in work_log:
+    for i, day in enumerate(work_log):
         date = day["date"]
         reports = ""
         for entry in day.get("entries", []):
@@ -908,8 +908,9 @@ def generate_work_log_html(work_log):
               <span class="log-agent">{entry["agent"]}</span>
               <span class="log-report">{entry["report"]}</span>
             </div>'''
+        expanded = " expanded" if i == 0 else ""
         entries_html += f'''
-        <div class="log-day" data-date="{date}">
+        <div class="log-day{expanded}" data-date="{date}">
           <div class="log-day-header" onclick="this.parentElement.classList.toggle('expanded')">
             <span class="log-date">📅 {date}</span>
             <span class="log-count">{len(day.get("entries", []))} 筆報告</span>
