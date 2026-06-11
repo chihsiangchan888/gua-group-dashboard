@@ -289,43 +289,47 @@ def generate_html(agents):
             rules_html += f'<li>{rule}</li>'
 
         cards_html += f'''
-    <div class="pokemon-card{card_extra}">
-      <!-- Card top: type color bar -->
-      <div class="card-top" style="--type-color: {meta['color']}">
-        <span class="card-stage">BASIC</span>
-        <span class="card-hp">HP {meta['hp']}</span>
-        <span class="card-type-icon">{meta['type']}</span>
-      </div>
-
-      <!-- Card image area -->
-      <div class="card-image" style="--type-color: {meta['color']}">
-        <img class="pokemon-sprite" src="{meta.get('sprite', '')}" alt="{meta.get('pokemon', '')}" />
-        <div class="status-indicator {health}">{status_text}</div>
-      </div>
-      <div class="pokemon-name">{meta.get('pokemon', '')}</div>
-
-      <!-- Card name -->
-      <div class="card-name-bar">
-        <h2>{name}</h2>
-        <span class="card-subtitle">{meta['desc']}</span>
-      </div>
-
-      <!-- Moves section -->
-      <div class="card-moves">
-        {skills_html}
-      </div>
-
-      <!-- Rules (Pokédex entry) -->
-      <div class="card-rules">
-        <div class="rules-header">📖 行為規範</div>
-        <ul>{rules_html}</ul>
-      </div>
-
-      <!-- Card bottom -->
-      <div class="card-bottom">
-        <span class="weakness">弱點: {meta.get('weakness', '?')}</span>
-        <span class="retreat">撤退: {meta.get('retreat', '⚪')}</span>
-        <span class="last-seen">🕐 {activity}</span>
+    <div class="card-container{card_extra}">
+      <div class="card-flipper" onclick="this.classList.toggle('flipped')">
+        <!-- FRONT -->
+        <div class="card-front" style="--type-color: {meta['color']}">
+          <div class="card-top" style="--type-color: {meta['color']}">
+            <span class="card-stage">BASIC</span>
+            <span class="card-hp">HP {meta['hp']}</span>
+            <span class="card-type-icon">{meta['type']}</span>
+          </div>
+          <div class="card-image" style="--type-color: {meta['color']}">
+            <img class="pokemon-sprite" src="{meta.get('sprite', '')}" alt="{meta.get('pokemon', '')}" />
+            <div class="status-indicator {health}">{status_text}</div>
+          </div>
+          <div class="pokemon-name">{meta.get('pokemon', '')}</div>
+          <div class="card-name-bar">
+            <h2>{name}</h2>
+            <span class="card-subtitle">{meta['desc']}</span>
+          </div>
+          <div class="card-moves">
+            {skills_html}
+          </div>
+          <div class="card-bottom">
+            <span class="weakness">弱點: {meta.get('weakness', '?')}</span>
+            <span class="retreat">撤退: {meta.get('retreat', '⚪')}</span>
+            <span class="last-seen">🕐 {activity}</span>
+          </div>
+          <div class="flip-hint">👆 點擊翻牌看完整規範</div>
+        </div>
+        <!-- BACK -->
+        <div class="card-back" style="--type-color: {meta['color']}">
+          <div class="card-top" style="--type-color: {meta['color']}">
+            <span class="card-stage">📖 規範</span>
+            <span class="card-hp">{name}</span>
+            <span class="card-type-icon">{meta['type']}</span>
+          </div>
+          <div class="back-content">
+            <h3>{meta['desc']}</h3>
+            <ul class="rules-list">{rules_html}</ul>
+          </div>
+          <div class="flip-hint">👆 點擊翻回正面</div>
+        </div>
       </div>
     </div>'''
 
@@ -388,32 +392,89 @@ header .subtitle {{
   margin: 0 auto;
 }}
 
-/* === POKEMON TCG CARD === */
-.pokemon-card {{
-  background: #f5f1e0;
+/* === POKEMON TCG CARD WITH FLIP === */
+.card-container {{
+  perspective: 1000px;
+  min-height: 480px;
+}}
+.card-container.fainted {{
+  filter: saturate(0.15) brightness(0.5);
+  opacity: 0.6;
+}}
+.card-flipper {{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  cursor: pointer;
+}}
+.card-flipper.flipped {{
+  transform: rotateY(180deg);
+}}
+.card-front, .card-back {{
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-radius: 14px;
   border: 10px solid #f8d030;
   box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
+  background: #f5f1e0;
+}}
+.card-front {{
+  z-index: 2;
+}}
+.card-back {{
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+}}
+.card-front:hover, .card-back:hover {{
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 20px color-mix(in srgb, var(--type-color) 30%, transparent);
+}}
+.flip-hint {{
+  text-align: center;
+  font-size: 0.65rem;
+  color: #999;
+  padding: 0.4rem;
+  background: rgba(0,0,0,0.03);
+  border-top: 1px solid #eee;
+}}
+.back-content {{
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.8rem;
+  max-height: 380px;
+}}
+.back-content h3 {{
+  font-size: 0.85rem;
+  color: var(--type-color);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--type-color);
+}}
+.rules-list {{
+  list-style: none;
+  padding: 0;
+}}
+.rules-list li {{
+  font-size: 0.72rem;
+  color: #333;
+  padding: 4px 0 4px 1rem;
   position: relative;
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 }}
-.pokemon-card::before {{
-  content: '';
+.rules-list li:last-child {{ border-bottom: none; }}
+.rules-list li::before {{
+  content: '▸';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
-  pointer-events: none;
-  border-radius: 4px;
-}}
-.pokemon-card:hover {{
-  transform: translateY(-5px) rotateX(2deg);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
-}}
-.pokemon-card.fainted {{
-  filter: saturate(0.1) brightness(0.6);
-  opacity: 0.6;
-  border-color: #666;
+  left: 0;
+  color: var(--type-color);
+  font-weight: bold;
 }}
 
 .card-top {{
@@ -528,44 +589,11 @@ header .subtitle {{
   padding-left: 0.3rem;
 }}
 
-.card-rules {{
-  margin: 0 0.8rem;
-  padding: 0.5rem;
-  background: rgba(0,0,0,0.04);
-  border-radius: 6px;
-  border: 1px solid #ddd;
-}}
-.rules-header {{
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: #555;
-  margin-bottom: 0.3rem;
-}}
-.card-rules ul {{
-  list-style: none;
-  padding: 0;
-}}
-.card-rules li {{
-  font-size: 0.65rem;
-  color: #444;
-  padding: 2px 0;
-  padding-left: 0.8rem;
-  position: relative;
-  line-height: 1.4;
-}}
-.card-rules li::before {{
-  content: '▸';
-  position: absolute;
-  left: 0;
-  color: #999;
-}}
-
 .card-bottom {{
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.4rem 0.8rem;
-  margin-top: 0.3rem;
   border-top: 2px solid #ddd;
   font-size: 0.65rem;
   color: #777;
