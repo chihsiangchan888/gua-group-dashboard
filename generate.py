@@ -6,16 +6,72 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-# Agent metadata (manually assigned Pokémon types + descriptions)
+# Agent metadata: type, color, description, skills (moves), rules
 AGENT_META = {
-    "general": {"type": "Normal", "color": "#A8A878", "desc": "通用入口"},
-    "高二哥-t13": {"type": "Psychic", "color": "#F85888", "desc": "Skill Prompt 產生專家"},
-    "排骨達人-t84": {"type": "Fighting", "color": "#C03028", "desc": "老虎機機率與牌庫設計專家"},
-    "報告大師-t246": {"type": "Fairy", "color": "#EE99AC", "desc": "文案修飾與報告大綱助手"},
-    "不准帶ab幾-t433": {"type": "Steel", "color": "#B8B8D0", "desc": "A/B 測試分析專家"},
-    "小綠人-t858": {"type": "Grass", "color": "#78C850", "desc": "蘇格拉底式逼問釐清設計"},
-    "任意門-t986": {"type": "Ghost", "color": "#705898", "desc": "Git 操作專員"},
-    "ai菜雞-t1167": {"type": "Electric", "color": "#F8D030", "desc": "AI 資訊分析助手"},
+    "general": {
+        "type": "Normal",
+        "color": "#A8A878",
+        "bg": "#f5f5dc",
+        "desc": "通用入口",
+        "skills": ["接收所有頻道訊息", "路由到對應 agent", "通用問答"],
+        "rules": "所有未分類的訊息都會進來這裡，負責判斷要不要轉給其他 agent。",
+    },
+    "高二哥-t13": {
+        "type": "Psychic",
+        "color": "#F85888",
+        "bg": "#fce4ec",
+        "desc": "Skill Prompt 產生專家",
+        "skills": ["產生 steering 設定檔", "設計 agent 人格", "撰寫 system prompt"],
+        "rules": "使用者想建立新 agent 或修改現有 agent 的行為規則時找他。輸入需求，輸出完整 prompt。",
+    },
+    "排骨達人-t84": {
+        "type": "Fighting",
+        "color": "#C03028",
+        "bg": "#ffebee",
+        "desc": "老虎機機率與牌庫設計專家",
+        "skills": ["機率計算", "牌庫設計", "賠率分析", "遊戲平衡"],
+        "rules": "丟給他老虎機相關的機率問題、牌庫配置需求。會用數學模型分析並給建議。",
+    },
+    "報告大師-t246": {
+        "type": "Fairy",
+        "color": "#EE99AC",
+        "bg": "#fce4ec",
+        "desc": "文案修飾與報告大綱助手",
+        "skills": ["郵件撰寫", "報告大綱", "文案潤飾", "商業寫作"],
+        "rules": "需要寫正式郵件、產報告大綱、潤飾文案時找他。給他草稿或重點，他產出完整版。",
+    },
+    "不准帶ab幾-t433": {
+        "type": "Steel",
+        "color": "#B8B8D0",
+        "bg": "#eceff1",
+        "desc": "A/B 測試分析專家",
+        "skills": ["版本比較分析", "玩家行為差異", "統計顯著性", "版本推薦"],
+        "rules": "丟 A/B 測試數據給他，會分析哪個版本較好、差異是否顯著、建議採用哪版。",
+    },
+    "小綠人-t858": {
+        "type": "Grass",
+        "color": "#78C850",
+        "bg": "#e8f5e9",
+        "desc": "蘇格拉底式逼問釐清設計",
+        "skills": ["質疑假設", "逼問細節", "找出盲點", "釐清需求"],
+        "rules": "當你有一個計畫或設計但不確定有沒有漏洞時，找他被逼問。他會一題一題挑戰你的想法。",
+    },
+    "任意門-t986": {
+        "type": "Ghost",
+        "color": "#705898",
+        "bg": "#ede7f6",
+        "desc": "Git 操作專員",
+        "skills": ["git push/pull", "建立 repo", "branch 管理", "GitHub Pages"],
+        "rules": "所有 Git 相關操作都找他。push、建 repo、設 Pages、解 conflict。",
+    },
+    "ai菜雞-t1167": {
+        "type": "Electric",
+        "color": "#F8D030",
+        "bg": "#fff9c4",
+        "desc": "AI 資訊分析助手",
+        "skills": ["文章摘要", "重點整理", "行動建議", "連結/截圖分析"],
+        "rules": "丟任何 AI 相關的文章、連結、截圖給他，會給你摘要 + 重點 + 你可以怎麼用。",
+    },
 }
 
 
@@ -24,7 +80,6 @@ def parse_activity(activity_str):
     if not activity_str:
         return "idle"
     s = activity_str.strip().lower()
-    # "0s ago", "4m ago" → active; "1d ago", "2h ago" (>60m) → idle
     match = re.match(r"(\d+)([smhd])", s)
     if not match:
         return "idle"
@@ -55,26 +110,36 @@ def generate_html(agents):
     cards_html = ""
     for agent in agents:
         name = agent["name"]
-        meta = AGENT_META.get(name, {"type": "Normal", "color": "#A8A878", "desc": ""})
+        meta = AGENT_META.get(name, {
+            "type": "Normal", "color": "#A8A878", "bg": "#f5f5dc",
+            "desc": "", "skills": [], "rules": ""
+        })
         health = get_health(agent["status"], agent.get("lastActivity", ""))
-        
-        # HP bar
+
         if health == "active":
-            hp_pct, hp_class = 100, "hp-full"
+            hp_pct, hp_class, hp_text = 100, "hp-full", "滿血"
         elif health == "idle":
-            hp_pct, hp_class = 50, "hp-half"
+            hp_pct, hp_class, hp_text = 50, "hp-half", "待命中"
         else:
-            hp_pct, hp_class = 0, "hp-fainted"
-        
+            hp_pct, hp_class, hp_text = 0, "hp-fainted", "瀕死"
+
         card_class = "card fainted" if health == "fainted" else "card"
         activity = agent.get("lastActivity", "unknown")
         mem = agent.get("memMb", "?")
-        ctx = agent.get("context") or "-"
+
+        skills_html = "".join(f'<li>{s}</li>' for s in meta.get("skills", []))
 
         cards_html += f'''
-    <div class="{card_class}" style="--type-color: {meta['color']}">
-      <div class="hp-bar-container">
-        <span class="hp-label">HP</span>
+    <div class="{card_class}" style="--type-color: {meta['color']}; --type-bg: {meta['bg']}">
+      <div class="card-header">
+        <div class="pokeball"></div>
+        <span class="type-badge">{meta['type']}</span>
+      </div>
+      <div class="hp-section">
+        <div class="hp-info">
+          <span class="hp-label">HP</span>
+          <span class="hp-status">{hp_text}</span>
+        </div>
         <div class="hp-bar">
           <div class="hp-fill {hp_class}" style="width: {hp_pct}%"></div>
         </div>
@@ -82,140 +147,247 @@ def generate_html(agents):
       <div class="card-body">
         <h2 class="agent-name">{name}</h2>
         <p class="agent-desc">{meta['desc']}</p>
-        <div class="stats">
-          <span class="type-badge" style="background: {meta['color']}">{meta['type']}</span>
-          <span class="activity">🕐 {activity}</span>
+        <div class="section">
+          <h3>⚔️ 招式</h3>
+          <ul class="skills">{skills_html}</ul>
         </div>
-        <div class="meta">
+        <div class="section">
+          <h3>📖 圖鑑說明</h3>
+          <p class="rules">{meta.get('rules', '')}</p>
+        </div>
+        <div class="card-footer">
+          <span>🕐 {activity}</span>
           <span>💾 {mem}MB</span>
-          <span>📊 Ctx: {ctx}</span>
         </div>
       </div>
     </div>'''
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
     return f'''<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎮 Agent Dashboard — Pokémon Edition</title>
+<title>⚡ 呱集團 Agent Dashboard — Pokémon Edition</title>
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #1a1a2e;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   color: #eee;
   min-height: 100vh;
   padding: 2rem 1rem;
 }}
 header {{
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }}
 header h1 {{
-  font-size: 1.8rem;
-  margin-bottom: 0.3rem;
+  font-size: 2rem;
+  background: linear-gradient(90deg, #f8d030, #f85888, #78c850);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }}
 header .subtitle {{
-  color: #888;
-  font-size: 0.9rem;
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}}
+.fleet-summary {{
+  text-align: center;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}}
+.fleet-summary .stat {{
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.85rem;
+}}
+.fleet-summary .stat strong {{
+  display: block;
+  font-size: 1.3rem;
 }}
 .grid {{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.2rem;
-  max-width: 1100px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
   margin: 0 auto;
 }}
 .card {{
-  background: #16213e;
-  border-radius: 12px;
-  border-left: 5px solid var(--type-color);
-  padding: 1rem 1.2rem;
-  transition: transform 0.2s;
-}}
-.card:hover {{ transform: translateY(-3px); }}
-.card.fainted {{
-  filter: saturate(0.2) brightness(0.6);
-  opacity: 0.7;
-}}
-.hp-bar-container {{
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.8rem;
-}}
-.hp-label {{
-  font-weight: bold;
-  font-size: 0.75rem;
-  color: #aaa;
-}}
-.hp-bar {{
-  flex: 1;
-  height: 8px;
-  background: #333;
-  border-radius: 4px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px;
+  border: 2px solid var(--type-color);
+  padding: 0;
   overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }}
-.hp-fill {{
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s;
+.card:hover {{
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 15px color-mix(in srgb, var(--type-color) 30%, transparent);
 }}
-.hp-full {{ background: linear-gradient(90deg, #4caf50, #8bc34a); }}
-.hp-half {{ background: linear-gradient(90deg, #ff9800, #ffc107); }}
-.hp-fainted {{ background: #f44336; }}
-.agent-name {{
-  font-size: 1.1rem;
-  margin-bottom: 0.3rem;
+.card.fainted {{
+  filter: saturate(0.15) brightness(0.5);
+  opacity: 0.6;
 }}
-.agent-desc {{
-  font-size: 0.85rem;
-  color: #aaa;
-  margin-bottom: 0.7rem;
-}}
-.stats {{
+.card-header {{
+  background: linear-gradient(135deg, var(--type-color), color-mix(in srgb, var(--type-color) 60%, #000));
+  padding: 0.6rem 1rem;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.5rem;
+}}
+.pokeball {{
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ff0000 50%, #fff 50%);
+  border: 2px solid #333;
+  position: relative;
+}}
+.pokeball::after {{
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #333;
 }}
 .type-badge {{
-  padding: 2px 8px;
-  border-radius: 10px;
+  padding: 3px 10px;
+  border-radius: 12px;
   font-size: 0.7rem;
   font-weight: bold;
   color: #fff;
+  background: rgba(0,0,0,0.3);
+  letter-spacing: 0.5px;
 }}
-.activity {{
-  font-size: 0.8rem;
+.hp-section {{
+  padding: 0.8rem 1rem 0.4rem;
+}}
+.hp-info {{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}}
+.hp-label {{
+  font-weight: bold;
+  font-size: 0.7rem;
+  color: #aaa;
+}}
+.hp-status {{
+  font-size: 0.7rem;
   color: #ccc;
 }}
-.meta {{
-  display: flex;
-  gap: 1rem;
+.hp-bar {{
+  height: 10px;
+  background: #2a2a2a;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #444;
+}}
+.hp-fill {{
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.8s ease;
+}}
+.hp-full {{ background: linear-gradient(90deg, #4caf50, #8bc34a); box-shadow: 0 0 6px #4caf50; }}
+.hp-half {{ background: linear-gradient(90deg, #ff9800, #ffc107); box-shadow: 0 0 6px #ff9800; }}
+.hp-fainted {{ background: #f44336; box-shadow: 0 0 6px #f44336; }}
+.card-body {{
+  padding: 0.8rem 1rem 1rem;
+}}
+.agent-name {{
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+  color: #fff;
+}}
+.agent-desc {{
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}}
+.section {{
+  margin-bottom: 0.7rem;
+}}
+.section h3 {{
   font-size: 0.75rem;
+  color: var(--type-color);
+  margin-bottom: 0.3rem;
+}}
+.skills {{
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}}
+.skills li {{
+  background: rgba(255,255,255,0.08);
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  color: #ddd;
+  border: 1px solid rgba(255,255,255,0.1);
+}}
+.rules {{
+  font-size: 0.75rem;
+  color: #bbb;
+  line-height: 1.4;
+}}
+.card-footer {{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.8rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.7rem;
   color: #777;
 }}
 footer {{
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   color: #555;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+}}
+footer code {{
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}}
+@media (max-width: 700px) {{
+  .grid {{ grid-template-columns: 1fr; }}
+  header h1 {{ font-size: 1.5rem; }}
 }}
 </style>
 </head>
 <body>
 <header>
-  <h1>⚡ 呱集團 Agent Dashboard</h1>
-  <p class="subtitle">Pokémon Edition — Generated {now}</p>
+  <h1>⚡ 呱集團 Pokémon Agent Dashboard</h1>
+  <p class="subtitle">最後更新：{now}</p>
 </header>
+<div class="fleet-summary">
+  <div class="stat"><strong>{sum(1 for a in agents if a['status']=='running')}</strong>運行中</div>
+  <div class="stat"><strong>{sum(1 for a in agents if get_health(a['status'], a.get('lastActivity',''))=='active')}</strong>活躍</div>
+  <div class="stat"><strong>{sum(1 for a in agents if get_health(a['status'], a.get('lastActivity',''))=='idle')}</strong>待命</div>
+  <div class="stat"><strong>{sum(1 for a in agents if a['status']!='running')}</strong>停止</div>
+</div>
 <div class="grid">
 {cards_html}
 </div>
-<footer>regenerate: <code>python3 generate.py</code></footer>
+<footer>重新產生：<code>python3 generate.py</code> → <code>git add -A && git commit -m "update" && git push</code></footer>
 </body>
 </html>'''
 
