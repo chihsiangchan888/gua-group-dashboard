@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "date": "2026-06-11",
+    "entries": [
+      {"agent": "general", "report": "建立卡卡西-t1451（規格書bot）和魔牆人偶-t1514（dashboard bot）。設定 AW送審/E槽存取規則。與小綠人討論自動打封包 bot 架構。設定每日 9AM 工作日誌 cron。建立「行為規則變更需通知 general」fleet policy。"},
+      {"agent": "高二哥-t13", "report": "回報行為規則自檢（無未持久化改動）。無其他產出。"},
+      {"agent": "排骨達人-t84", "report": "回應 steering 一致性檢查，確認無未持久化改動。無其他產出。"},
+      {"agent": "報告大師-t246", "report": "回覆 steering 一致性自查，確認無未持久化改動。無其他產出。"},
+      {"agent": "不准帶ab幾-t433", "report": "回答呱老大兩個關於黃金神殿的問題：1) 哪個版本最好（E版）；2) E版的設計理念分析。回報無未持久化改動。"},
+      {"agent": "小綠人-t858", "report": "3 場逼問：1) Dashboard 設計定案 2) 自動打封包 pipeline bot 架構（5輪逼問）3) 技能樹功能釐清（建議改做 Skill Pokédex）"},
+      {"agent": "任意門-t986", "report": "無產出"},
+      {"agent": "ai菜雞-t1167", "report": "與小綠人協作設計並實作寶可夢 TCG 風格 Agent Dashboard（v1→v6），部署到 GitHub Pages。最後交接給魔牆人偶。"},
+      {"agent": "卡卡西-t1451", "report": "無產出（今日新建）"},
+      {"agent": "魔牆人偶-t1514", "report": "接手 dashboard 專案、新增卡卡西和魔牆人偶兩張卡片、實作工作日誌功能（搜尋/篩選/按日展開）、設定每日 9AM 排程、部署兩次到 GitHub Pages。"}
+    ]
+  }
+]
