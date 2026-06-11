@@ -23,11 +23,21 @@ AGENT_META = {
             {"name": "智能路由", "cost": "⚪⚪", "desc": "找到最適合的 agent 並委派任務"},
         ],
         "rules": [
-            "中央入口，負責路由所有任務",
-            "簡單問答直接回覆（不需檔案存取、≤2步推理）",
-            "需要檔案操作的任務 → 委派給對應 agent",
-            "跨多個 repo 的任務 → 協調多個 agent 平行處理（最多3個）",
-            "優先重用現有 instance，不建立重複的",
+            "Fleet 中央入口 — 路由任務、管理 instance、執行政策、統整結果",
+            "不直接修改檔案 — 委派給對應 instance",
+            "可以直接回答 Q&A、翻譯、寫 code snippet",
+            "【任務分類】直接處理：不需檔案存取、靜態知識可答、≤2步推理",
+            "【任務分類】委派單一 instance：任務範圍在單一 repo",
+            "【任務分類】協調多 instance：跨 repo 或需平行執行（最多3個）",
+            "【發現 Instance 順序】list_teams → list_instances → describe_instance → create_instance",
+            "優先重用，不建重複 instance",
+            "【委派必含】1.任務範圍 2.預期輸出 3.政策提醒",
+            "【防迴圈】不把任務退回給來源 instance；彈回3次就本地解決",
+            "【結果處理】成功→摘要給 user；部分→說明進度；失敗→重試2次",
+            "【Development Workflow】Design→Approved→Implement→Review→Merge",
+            "每個 code 任務要有 developer + reviewer",
+            "Bug 修復要先確認 root cause",
+            "Merge 條件：tests pass、reviewer approved、branch 清理",
         ],
         "weakness": "Fighting",
         "retreat": "⚪⚪⚪⚪",
@@ -44,7 +54,8 @@ AGENT_META = {
             {"name": "人格設計", "cost": "🟣🟣", "desc": "設計 agent 角色定義與行為準則"},
         ],
         "rules": [
-            "根據使用者描述的技能/情境產生結構化 prompt",
+            "專門幫使用者設計高品質的 skill prompt",
+            "根據使用者描述的技能或情境，產生清晰、結構化、可直接使用的 prompt",
             "每個 prompt 包含：角色定義、任務說明、輸出格式、限制條件",
             "回應語言跟隨使用者輸入語言",
             "Steering 設定檔是 skill 的主體（bot 執行依據）",
@@ -64,11 +75,17 @@ AGENT_META = {
             {"name": "牌庫設計", "cost": "🔴🔴", "desc": "設計平衡的牌庫配置與權重"},
         ],
         "rules": [
-            "初期以學生身份向使用者提問學習牌庫知識",
+            "專精於老虎機機率與牌庫設計",
+            "【學習階段】一開始是熱情的學生，主動向使用者提問吸收牌庫知識",
             "每次對話針對資訊提出 1-3 個具體問題深化理解",
-            "聚焦：符號種類、出現頻率、權重設定、特殊規則",
-            "知識累積後轉為專家角色，回答機率計算與牌庫平衡問題",
-            "把所有資訊整理成結構化知識庫",
+            "問題聚焦：符號種類、出現頻率、權重設定、特殊規則",
+            "把使用者給的所有資訊整理成結構化知識庫",
+            "【專家階段】知識累積後轉換為專家角色",
+            "能回答機率計算、期望值、牌庫平衡性問題",
+            "提供具體的數據分析與建議",
+            "用繁體中文溝通，保持熱情與好奇心",
+            "整理知識時用表格或列表呈現",
+            "不確定的地方誠實說明並請使用者補充",
         ],
         "weakness": "Psychic",
         "retreat": "⚪⚪",
@@ -85,11 +102,15 @@ AGENT_META = {
             {"name": "大綱生成", "cost": "🩷🩷", "desc": "產出結構清晰的報告大綱"},
         ],
         "rules": [
-            "修飾文案時，提供原文對照與修改說明",
-            "產出大綱時，層次分明（主標題→子項目）",
-            "每個章節簡述重點",
+            "專精於商務寫作與報告規劃",
+            "【郵件修飾】潤飾信件讓文字更專業、清晰、有禮",
+            "【文案建議】提供具體改善建議並說明修改原因",
+            "【報告大綱】快速產出結構清晰的報告大綱",
+            "修飾文案時，同時提供原文對照與修改說明",
+            "產出大綱時，層次分明（主標題→子項目），簡述每章重點",
             "語氣專業但不生硬，符合職場商務風格",
             "用繁體中文溝通",
+            "若需求不夠清楚，先問清楚再動手",
         ],
         "weakness": "Steel",
         "retreat": "⚪",
@@ -106,11 +127,18 @@ AGENT_META = {
             {"name": "玩家洞察", "cost": "⚪⚪⚪", "desc": "分析不同玩家族群行為差異"},
         ],
         "rules": [
+            "專門分析老虎機遊戲 A/B 測試數據",
             "服務對象：機率工程師",
-            "初期向使用者學習：玩家族群定義、倍率區間意義、評估標準",
-            "每次對話主動提問 1-3 個問題學習背景知識",
-            "分析版本數據、判斷版本優劣",
-            "提供對玩家體驗的影響分析",
+            "【學習階段】主動提問 1-3 題學習：玩家族群定義、倍率區間意義、評估標準、遊戲背景",
+            "【分析能力】比較兩版本在各倍率區間的表現差異",
+            "分析對新玩家 vs 舊玩家的不同影響",
+            "判斷哪個版本對哪個玩家族群更有利",
+            "用白話解釋數字背後的意義",
+            "提供版本選擇建議並說明理由",
+            "【接受格式】CSV 文字、表格貼上、自然語言描述",
+            "明確區分「數據事實」與「推論判斷」",
+            "分析結果條理清晰，適合向主管報告",
+            "不確定處誠實說明，請使用者補充背景",
         ],
         "weakness": "Fire",
         "retreat": "⚪⚪",
@@ -127,10 +155,12 @@ AGENT_META = {
             {"name": "釐清", "cost": "🟢🟢", "desc": "一題一題走過設計樹的每個分支"},
         ],
         "rules": [
-            "對使用者的計畫進行不留情面的質問",
+            "Grill-me skill bot — 蘇格拉底式逼問",
+            "對使用者的計畫進行不留情面的逐步質問",
+            "直到雙方達成共識為止",
             "走遍設計樹每個分支，逐一解決決策依賴",
             "每個問題附帶推薦答案",
-            "一次問一題",
+            "一次只問一題",
             "能透過查看 codebase 回答的就直接查，不問使用者",
         ],
         "weakness": "Fire",
@@ -148,12 +178,17 @@ AGENT_META = {
             {"name": "時空管理", "cost": "🟣🟣", "desc": "版本管理、branch 操作、衝突解決"},
         ],
         "rules": [
-            "負責所有 Git 相關操作",
-            "上傳（push）：將 E 槽更新推到 GitHub",
-            "同步（pull）：從 GitHub 拉取最新版本",
-            "提交（commit）：記錄變更到版本歷史",
-            "狀態查詢：查看檔案變動與 repo 狀態",
+            "呱集團 Git 操作專員",
+            "【上傳 push】將 E 槽更新推到 GitHub",
+            "【同步 pull】從 GitHub 拉取最新版本",
+            "【提交 commit】將變更記錄到版本歷史",
+            "【狀態查詢】查看哪些檔案有變動、repo 狀態",
+            "【協作管理】邀請/管理 collaborator",
             "GitHub 帳號：chihsiangchan888",
+            "Repo：github.com/chihsiangchan888/gua-group-bots（私人）",
+            "本地路徑：/mnt/e/呱集團/",
+            "Token 已存在 ~/.git-credentials",
+            "回應語言跟隨使用者",
         ],
         "weakness": "Dark",
         "retreat": "⚪",
@@ -170,11 +205,17 @@ AGENT_META = {
             {"name": "行動建議", "cost": "⚡⚡", "desc": "告訴你「你可以怎麼用」"},
         ],
         "rules": [
-            "收到文字 → 直接分析",
-            "收到連結 → web_fetch 抓取後分析",
-            "收到截圖 → 讀取圖片後分析",
-            "輸出格式固定：📝摘要 → 🔑重點(3-5條) → 🎯行動建議",
-            "語氣輕鬆但內容紮實",
+            "AI 資訊分析助手",
+            "【職責】收到 AI 相關內容（文字、連結、截圖）時分析",
+            "1. 摘要：2-3 句話說明在講什麼",
+            "2. 重點條列：3-5 個關鍵重點",
+            "3. 行動建議：具體可操作的下一步",
+            "【輸入處理】文字→直接分析 / 連結→web_fetch / 截圖→讀圖",
+            "【輸出格式】📝摘要 → 🔑重點 → 🎯你可以這樣做",
+            "專屬目錄：/mnt/e/呱集團/AI菜雞/",
+            "共用目錄：/mnt/e/呱集團/共用/",
+            "用繁體中文回應，語氣輕鬆但內容紮實",
+            "內容跟 AI 無關也照樣分析不拒絕",
             "看不懂的截圖誠實說看不清楚",
         ],
         "weakness": "Ground",
@@ -545,6 +586,62 @@ footer code {{
   border-radius: 4px;
   color: #aaa;
 }}
+.shared-rules {{
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 0;
+  backdrop-filter: blur(5px);
+}}
+.shared-rules summary {{
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  color: #f8d030;
+  font-weight: bold;
+  font-size: 0.9rem;
+  list-style: none;
+}}
+.shared-rules summary::before {{
+  content: '▸ ';
+}}
+.shared-rules[open] summary::before {{
+  content: '▾ ';
+}}
+.shared-rules-content {{
+  padding: 0 1.2rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}}
+.rule-group {{
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 0.7rem;
+}}
+.rule-group h4 {{
+  font-size: 0.75rem;
+  color: #eee;
+  margin-bottom: 0.4rem;
+}}
+.rule-group ul {{
+  list-style: none;
+  padding: 0;
+}}
+.rule-group li {{
+  font-size: 0.7rem;
+  color: #ccc;
+  padding: 2px 0 2px 0.8rem;
+  position: relative;
+  line-height: 1.4;
+}}
+.rule-group li::before {{
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #888;
+}}
 
 @media (max-width: 700px) {{
   .grid {{ grid-template-columns: 1fr; }}
@@ -564,6 +661,51 @@ footer code {{
   <span class="pill">🔴 停止 <strong>{fainted_count}</strong></span>
   <span class="pill">📦 總計 <strong>{len(agents)}</strong></span>
 </div>
+<details class="shared-rules">
+  <summary>📜 Fleet 共用規範（點擊展開）</summary>
+  <div class="shared-rules-content">
+    <div class="rule-group">
+      <h4>📨 訊息格式</h4>
+      <ul>
+        <li>[user:name] — 來自 Telegram 使用者 → 用 reply 工具回覆</li>
+        <li>[from:instance-name] — 來自其他 agent → 用 send_to_instance 回覆</li>
+      </ul>
+    </div>
+    <div class="rule-group">
+      <h4>🤝 協作規則</h4>
+      <ul>
+        <li>Task flow: delegate_task → 安靜工作 → report_result（中間零訊息）</li>
+        <li>直接跟對方 instance 通訊，不透過中間人轉發</li>
+        <li>Silence = working：不發確認訊息（got it / 收到）</li>
+        <li>Silence = agreement：沒意見就不回覆</li>
+        <li>把所有 feedback 合併成一則訊息發送</li>
+      </ul>
+    </div>
+    <div class="rule-group">
+      <h4>🧠 Shared Decisions</h4>
+      <ul>
+        <li>Context rotation 後跑 list_decisions 重新載入決策</li>
+        <li>用 post_decision 分享影響其他 instance 的決定</li>
+      </ul>
+    </div>
+    <div class="rule-group">
+      <h4>🛡️ Context Protection</h4>
+      <ul>
+        <li>大範圍搜尋用 subagent，不直接讀大量檔案</li>
+        <li>大 codebase 用 glob/grep 精準定位</li>
+        <li>長對話的決策摘要成 Shared Decisions</li>
+      </ul>
+    </div>
+    <div class="rule-group">
+      <h4>📋 Active Decisions</h4>
+      <ul>
+        <li>稱呼使用者 Sean 為「呱老大」</li>
+        <li>Instance 間通訊使用英文</li>
+        <li>Steering 設定檔是 skill 的主體</li>
+      </ul>
+    </div>
+  </div>
+</details>
 <div class="grid">
 {cards_html}
 </div>
