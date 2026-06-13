@@ -398,18 +398,16 @@ def generate_html(agents, work_log=None):
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: #2d5a27;
+  background-color: #3a7a32;
   background-image:
-    linear-gradient(45deg, #265222 25%, transparent 25%),
-    linear-gradient(-45deg, #265222 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #347a2c 75%),
-    linear-gradient(-45deg, transparent 75%, #347a2c 75%);
-  background-size: 16px 16px;
-  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    linear-gradient(0deg, rgba(0,0,0,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,0.05) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 2px, transparent 2px);
+  background-size: 16px 16px, 16px 16px, 32px 32px, 32px 32px;
   min-height: 100vh;
   padding: 2rem 1rem;
   color: #333;
-  image-rendering: pixelated;
 }}
 header {{
   text-align: center;
