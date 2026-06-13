@@ -398,10 +398,18 @@ def generate_html(agents, work_log=None):
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background-color: #2d5a27;
+  background-image:
+    linear-gradient(45deg, #265222 25%, transparent 25%),
+    linear-gradient(-45deg, #265222 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #347a2c 75%),
+    linear-gradient(-45deg, transparent 75%, #347a2c 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
   min-height: 100vh;
   padding: 2rem 1rem;
   color: #333;
+  image-rendering: pixelated;
 }}
 header {{
   text-align: center;

@@ -8,10 +8,18 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background-color: #2d5a27;
+  background-image:
+    linear-gradient(45deg, #265222 25%, transparent 25%),
+    linear-gradient(-45deg, #265222 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #347a2c 75%),
+    linear-gradient(-45deg, transparent 75%, #347a2c 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
   min-height: 100vh;
   padding: 2rem 1rem;
   color: #333;
+  image-rendering: pixelated;
 }
 header {
   text-align: center;
@@ -417,13 +425,13 @@ footer code {
 <body>
 <header>
   <h1>⚡ 呱集團 Pokémon Agent Dashboard</h1>
-  <p class="subtitle">最後更新：2026-06-13 09:06:22</p>
+  <p class="subtitle">最後更新：2026-06-13 16:04:31</p>
 </header>
 <div class="fleet-bar">
-  <span class="pill">🟢 活躍 <strong>10</strong></span>
-  <span class="pill">🟡 待命 <strong>0</strong></span>
+  <span class="pill">🟢 活躍 <strong>3</strong></span>
+  <span class="pill">🟡 待命 <strong>8</strong></span>
   <span class="pill">🔴 停止 <strong>0</strong></span>
-  <span class="pill">📦 總計 <strong>10</strong></span>
+  <span class="pill">📦 總計 <strong>11</strong></span>
 </div>
 <details class="shared-rules">
   <summary>📜 Fleet 共用規範（點擊展開）</summary>
@@ -606,7 +614,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #A8A878">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/143.gif" alt="卡比獸 Snorlax" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">卡比獸 Snorlax</div>
           <div class="card-name-bar">
@@ -633,7 +641,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fighting</span>
             <span class="retreat">撤退: ⚪⚪⚪⚪</span>
-            <span class="last-seen">🕐 39s ago</span>
+            <span class="last-seen">🕐 1h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -663,7 +671,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #F85888">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/65.gif" alt="胡地 Alakazam" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">胡地 Alakazam</div>
           <div class="card-name-bar">
@@ -690,7 +698,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Dark</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 2m ago</span>
+            <span class="last-seen">🕐 7h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -720,7 +728,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #C03028">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/68.gif" alt="怪力 Machamp" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">怪力 Machamp</div>
           <div class="card-name-bar">
@@ -747,7 +755,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Psychic</span>
             <span class="retreat">撤退: ⚪⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 6h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -777,7 +785,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #EE99AC">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/36.gif" alt="皮可西 Clefable" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">皮可西 Clefable</div>
           <div class="card-name-bar">
@@ -804,7 +812,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Steel</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 3m ago</span>
+            <span class="last-seen">🕐 7h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -834,7 +842,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #B8B8D0">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/376.gif" alt="巨金怪 Metagross" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">巨金怪 Metagross</div>
           <div class="card-name-bar">
@@ -861,7 +869,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fire</span>
             <span class="retreat">撤退: ⚪⚪</span>
-            <span class="last-seen">🕐 3m ago</span>
+            <span class="last-seen">🕐 7h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -891,7 +899,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #78C850">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/1.gif" alt="妙蛙種子 Bulbasaur" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">妙蛙種子 Bulbasaur</div>
           <div class="card-name-bar">
@@ -918,7 +926,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fire</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 6h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -975,7 +983,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Dark</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 0s ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -1005,7 +1013,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #A8A878">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/235.gif" alt="圖圖犬 Smeargle" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">圖圖犬 Smeargle</div>
           <div class="card-name-bar">
@@ -1032,7 +1040,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fire</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 45s ago</span>
+            <span class="last-seen">🕐 6h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -1119,7 +1127,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #F8D030">
             <img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="皮卡丘 Pikachu" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">皮卡丘 Pikachu</div>
           <div class="card-name-bar">
@@ -1146,7 +1154,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Ground</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 6h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -1160,6 +1168,49 @@ footer code {
           <div class="back-content">
             <h3>AI 資訊分析助手</h3>
             <ul class="rules-list"><li>AI 資訊分析助手</li><li>【職責】收到 AI 相關內容（文字、連結、截圖）時分析</li><li>1. 摘要：2-3 句話說明在講什麼</li><li>2. 重點條列：3-5 個關鍵重點</li><li>3. 行動建議：具體可操作的下一步</li><li>【輸入處理】文字→直接分析 / 連結→web_fetch / 截圖→讀圖</li><li>【輸出格式】📝摘要 → 🔑重點 → 🎯你可以這樣做</li><li>專屬目錄：/mnt/e/呱集團/AI菜雞/</li><li>共用目錄：/mnt/e/呱集團/共用/</li><li>用繁體中文回應，語氣輕鬆但內容紮實</li><li>內容跟 AI 無關也照樣分析不拒絕</li><li>看不懂的截圖誠實說看不清楚</li></ul>
+          </div>
+          <div class="flip-hint">👆 點擊翻回正面</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-container">
+      <div class="card-flipper" onclick="this.classList.toggle('flipped')">
+        <!-- FRONT -->
+        <div class="card-front" style="--type-color: #A8A878">
+          <div class="card-top" style="--type-color: #A8A878">
+            <span class="card-stage">BASIC</span>
+            <span class="card-hp">HP 100</span>
+            <span class="card-type-icon">Normal</span>
+          </div>
+          <div class="card-image" style="--type-color: #A8A878">
+            <img class="pokemon-sprite" src="" alt="" />
+            <div class="status-indicator active">● 活躍中</div>
+          </div>
+          <div class="pokemon-name"></div>
+          <div class="card-name-bar">
+            <h2>未知圖騰-t1837</h2>
+            <span class="card-subtitle"></span>
+          </div>
+          <div class="card-moves">
+            
+          </div>
+          <div class="card-bottom">
+            <span class="weakness">弱點: ?</span>
+            <span class="retreat">撤退: ⚪</span>
+            <span class="last-seen">🕐 0s ago</span>
+          </div>
+          <div class="flip-hint">👆 點擊翻牌看完整規範</div>
+        </div>
+        <!-- BACK -->
+        <div class="card-back" style="--type-color: #A8A878">
+          <div class="card-top" style="--type-color: #A8A878">
+            <span class="card-stage">📖 規範</span>
+            <span class="card-hp">未知圖騰-t1837</span>
+            <span class="card-type-icon">Normal</span>
+          </div>
+          <div class="back-content">
+            <h3></h3>
+            <ul class="rules-list"></ul>
           </div>
           <div class="flip-hint">👆 點擊翻回正面</div>
         </div>
