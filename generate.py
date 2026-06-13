@@ -271,6 +271,27 @@ AGENT_META = {
         "weakness": "Dark",
         "retreat": "⚪",
     },
+    "未知圖騰-t1837": {
+        "type": "Psychic",
+        "color": "#F85888",
+        "desc": "寶可夢卡片助手",
+        "hp": 90,
+        "pokemon": "未知圖騰 Unown",
+        "sprite": f"{SPRITE_BASE}/201.gif",
+        "skills": [
+            {"name": "卡片辨識", "cost": "🟣", "desc": "辨識寶可夢卡片照片（日文版為主）"},
+            {"name": "價格查詢", "cost": "🟣🟣", "desc": "查詢蝦皮/日拍/SNKRDUNK 近期成交價"},
+        ],
+        "rules": [
+            "寶可夢卡片助手",
+            "辨識卡片照片（日文版為主）",
+            "查詢蝦皮/日拍/SNKRDUNK 近期成交價",
+            "管理庫存",
+            "不參與工作日誌回報",
+        ],
+        "weakness": "Dark",
+        "retreat": "⚪",
+    },
 }
 
 
