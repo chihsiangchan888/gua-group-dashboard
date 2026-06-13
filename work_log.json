@@ -1,5 +1,21 @@
 [
   {
+    "date": "2026-06-12",
+    "time": "09:05",
+    "entries": [
+      {"agent": "general", "report": "整合 Sugar Rush 1000 體感報告（兩次修正版）、重啟 AI菜雞、建立「Agent 異常需主動通知呱老大」policy、完成首次工作日誌收集並發送。"},
+      {"agent": "高二哥-t13", "report": "產出 GPT 產圖提示詞（Sex Bomb 牌庫設計關鍵控制點）、完成 Sugar Rush 1000 遊戲體感報告（含兩次數據修正）、整理 Sex Bomb 設計方向文件。"},
+      {"agent": "排骨達人-t84", "report": "無產出。"},
+      {"agent": "報告大師-t246", "report": "無產出。"},
+      {"agent": "不准帶ab幾-t433", "report": "回答呱老大關於幸運寶石哪個版本較好的問題，分析結論為 D 版全面優勝並已上線。"},
+      {"agent": "小綠人-t858", "report": "Review Sugar Rush 1000 體感報告邏輯，建議用「機制結構描述」取代不可驗證的 MG/FG RTP 拆分數據。"},
+      {"agent": "任意門-t986", "report": "推了 2 次 dashboard 更新：更新官方工作日誌資料、修復保留所有 log entries + 新增上傳時間顯示。"},
+      {"agent": "ai菜雞-t1167", "report": "無產出。"},
+      {"agent": "卡卡西-t1451", "report": "無產出（未回應）。"},
+      {"agent": "魔牆人偶-t1514", "report": "修復工作日誌功能 — 恢復被覆蓋的紀錄、加上上傳時間顯示、建立「部署完成必須通知呱老大」規則。部署 1 次。"}
+    ]
+  },
+  {
     "date": "2026-06-11",
     "time": "15:43",
     "entries": [
