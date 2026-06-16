@@ -1,5 +1,21 @@
 [
   {
+    "date": "2026-06-16",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無任務"},
+      {"agent": "嘎拉嘎拉", "report": "無任務，知識庫已就緒"},
+      {"agent": "波克比", "report": "無任務"},
+      {"agent": "傑尼龜", "report": "無任務（備註：昨日曾準備黃金神殿版本比較回覆但未送出）"},
+      {"agent": "木守宮", "report": "無任務"},
+      {"agent": "達克萊伊", "report": "無任務（昨日完成 dashboard push）"},
+      {"agent": "火雉雞", "report": "無任務"},
+      {"agent": "未知圖騰", "report": "無任務"},
+      {"agent": "魔牆人偶", "report": "無任務"},
+      {"agent": "魔尼尼", "report": "無任務"}
+    ]
+  },
+  {
     "date": "2026-06-15",
     "time": "15:32",
     "entries": [
