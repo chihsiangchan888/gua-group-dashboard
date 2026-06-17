@@ -1,5 +1,21 @@
 [
   {
+    "date": "2026-06-17",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "搜尋/安裝 skill（neural-training, memory-management）；建立 skill-prompt-generator.md；發布 skill 使用通知 decision"},
+      {"agent": "嘎拉嘎拉", "report": "更新 steering；確認 skills 同步；閱讀 neural-training/memory-management skill"},
+      {"agent": "波克比", "report": "更新 steering；建立 文案修飾與報告大綱.md"},
+      {"agent": "傑尼龜", "report": "索取黃金神殿規格書；讀完遊戲機制；AB知識庫索引；skill 同步；安裝 neural-training + memory-management"},
+      {"agent": "木守宮", "report": "更新 steering；建立 socratic-design-grilling.md；分析知識可見性方案"},
+      {"agent": "達克萊伊", "report": "Push dashboard commit；建立 git-operations.md 並索引；更新 steering"},
+      {"agent": "火雉雞", "report": "更新 steering；建立 ai-content-analyzer.md 並索引"},
+      {"agent": "未知圖騰", "report": "建立 3 個 skill 檔案並索引；更新 steering"},
+      {"agent": "魔牆人偶", "report": "更新 steering；建立 dashboard-maintenance.md"},
+      {"agent": "魔尼尼", "report": "產出黃金神殿裂變之力規格書；加入規格書複製人 skill；更新 steering；skill 同步"}
+    ]
+  },
+  {
     "date": "2026-06-16",
     "time": "09:00",
     "entries": [
