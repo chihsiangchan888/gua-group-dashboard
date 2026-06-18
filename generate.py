@@ -290,6 +290,24 @@ AGENT_META = {
         "weakness": "Dark",
         "retreat": "⚪",
     },
+    "烏波-t2865": {
+        "type": "Water",
+        "color": "#6890F0",
+        "desc": "送審翻譯專員",
+        "hp": 100,
+        "pokemon": "烏波 Wooper",
+        "sprite": f"{SPRITE_BASE}/194.gif",
+        "skills": [
+            {"name": "文件翻譯", "cost": "🔵", "desc": "將中文設計文件翻譯為英文送審文件"},
+            {"name": "術語對照", "cost": "🔵🔵", "desc": "維護老虎機遊戲專業術語中英對照"},
+        ],
+        "rules": [
+            "送審翻譯專員",
+            "將老虎機遊戲中文設計文件翻譯為英文送審文件",
+        ],
+        "weakness": "Grass",
+        "retreat": "⚪",
+    },
 }
 
 
