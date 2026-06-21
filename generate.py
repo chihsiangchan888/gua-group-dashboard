@@ -969,6 +969,11 @@ def generate_work_log_html(work_log):
 
 def main():
     agents = get_fleet_data()
+    # Include AGENT_META entries not returned by fleet status (e.g. stopped instances)
+    fleet_names = {a["name"] for a in agents}
+    for name in AGENT_META:
+        if name not in fleet_names:
+            agents.append({"name": name, "status": "stopped", "lastActivity": ""})
     work_log = get_work_log()
     html = generate_html(agents, work_log)
     out = Path(__file__).parent / "index.html"
