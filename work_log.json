@@ -28,7 +28,7 @@
       {"agent": "達克萊伊", "report": "Push dashboard 2026-06-20"},
       {"agent": "火雉雞", "report": "無任務"},
       {"agent": "未知圖騰", "report": "無任務"},
-      {"agent": "魔牆人偶", "report": "更新 work_log.json（2026-06-20，首次納入烏波）、generate.py、委派 push"},
+      {"agent": "魔牆人偶", "report": "更新 work_log.json（2026-06-21 匯報）並委派 push；修正 generate.py bug，讓停止的 instance 也能顯示卡片（解決烏波破圖問題）"},
       {"agent": "魔尼尼", "report": "無任務"},
       {"agent": "烏波", "report": "無任務"}
     ]
