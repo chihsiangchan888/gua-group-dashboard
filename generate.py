@@ -290,7 +290,7 @@ AGENT_META = {
         "weakness": "Dark",
         "retreat": "⚪",
     },
-    "烏波-t2865": {
+    "烏波-t2910": {
         "type": "Water",
         "color": "#6890F0",
         "desc": "送審翻譯專員",
