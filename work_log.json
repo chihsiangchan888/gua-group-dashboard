@@ -1,5 +1,23 @@
 [
   {
+    "date": "2026-06-23",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "完成「伊布」（老虎機產品策略智囊）的完整 system prompt 設計，包含五層診斷框架、會議論述準備、協作分工等結構"},
+      {"agent": "嘎拉嘎拉", "report": "無任務"},
+      {"agent": "波克比", "report": "無任務"},
+      {"agent": "傑尼龜", "report": "完成「人均押注較高遊戲的共同特徵」結構化分析報告，基於 4 款遊戲 A/B 測試數據歸納核心設計因子"},
+      {"agent": "木守宮", "report": "與呱老大進行「人均押注低」議題蘇格拉底式探討，逐步排除假說指向「副機效應」，產出行動清單與五層遊戲表現歸因分析框架"},
+      {"agent": "達克萊伊", "report": "推送 1 個 commit（新增伊布 agent card），完成每日 Skill 備份確認"},
+      {"agent": "火雉雞", "report": "無任務"},
+      {"agent": "未知圖騰", "report": "無任務"},
+      {"agent": "魔牆人偶", "report": "新增伊布-t3218 (Eevee) 卡片到 dashboard，commit 並委派達克萊伊 push"},
+      {"agent": "魔尼尼", "report": "無任務"},
+      {"agent": "烏波", "report": "無任務"},
+      {"agent": "伊布", "report": "新建立，因 rate limit 未產出"}
+    ]
+  },
+  {
     "date": "2026-06-22",
     "time": "09:00",
     "entries": [
