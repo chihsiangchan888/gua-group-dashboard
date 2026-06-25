@@ -1,5 +1,23 @@
 [
   {
+    "date": "2026-06-25",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無，等 A/B 數據"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "無"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "無"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無，等翻譯需求"},
+      {"agent": "伊布", "report": "重建中（model 修正），已恢復運作"}
+    ]
+  },
+  {
     "date": "2026-06-23",
     "time": "09:00",
     "entries": [
