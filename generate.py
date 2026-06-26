@@ -326,6 +326,25 @@ AGENT_META = {
         "weakness": "Fighting",
         "retreat": "⚪",
     },
+    "伊布-t3473": {
+        "type": "Normal",
+        "color": "#A8A878",
+        "desc": "老虎機產品策略智囊",
+        "hp": 120,
+        "pokemon": "伊布 Eevee",
+        "sprite": f"{SPRITE_BASE}/133.gif",
+        "skills": [
+            {"name": "數據歸因", "cost": "⚪", "desc": "分析產品數據並歸因 KPI 表現"},
+            {"name": "策略建議", "cost": "⚪⚪", "desc": "根據數據提出產品策略建議"},
+        ],
+        "rules": [
+            "老虎機產品策略智囊",
+            "分析產品數據、歸因 KPI 表現、提出策略建議",
+            "幫呱老大在 KPI 會議中站穩腳步",
+        ],
+        "weakness": "Fighting",
+        "retreat": "⚪",
+    },
 }
 
 
