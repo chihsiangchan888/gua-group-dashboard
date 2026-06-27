@@ -1,3 +1,42 @@
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║   機率部門專案時程管理儀表板 — 設定指南                          ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║ 步驟 1：建立 Google Sheet                                       ║
+║   建立一個新的 Google Sheet，包含兩個工作表：                     ║
+║   • 工作表 1 名稱：「進行中」                                    ║
+║   • 工作表 2 名稱：「已完成」                                    ║
+║   兩個工作表的欄位結構完全相同（第一列為標題列）：                 ║
+║     A: 機台名稱                                                  ║
+║     B: 負責人                                                    ║
+║     C: 目前階段                                                  ║
+║     D: 預計開始日 (格式: YYYY-MM-DD)                             ║
+║     E: 預計結束日 (格式: YYYY-MM-DD)                             ║
+║     F: 實際開始日 (格式: YYYY-MM-DD)                             ║
+║     G: 實際結束日 (格式: YYYY-MM-DD)                             ║
+║     H: 備註                                                      ║
+║                                                                  ║
+║   「目前階段」欄位限定以下值之一：                                ║
+║     未開始、規劃中、設計中、開發中、測試中、送審中、修正中、      ║
+║     待上線、已完成                                                ║
+║                                                                  ║
+║ 步驟 2：發佈到網路                                               ║
+║   在 Google Sheet 中：                                           ║
+║   「檔案」→「共用」→「發佈到網路」→ 選「整份文件」→ 點「發佈」   ║
+║                                                                  ║
+║ 步驟 3：設定 Sheet ID                                           ║
+║   從 Google Sheet 網址中複製 Sheet ID：                          ║
+║   https://docs.google.com/spreadsheets/d/{這段就是SHEET_ID}/edit ║
+║   將 ID 貼到下方 CONFIG.SHEET_ID 變數中                          ║
+║                                                                  ║
+║ 步驟 4：權限設定                                                 ║
+║   「共用」設定：                                                  ║
+║   • 編輯者：呱老大 + 各負責工程師                                ║
+║   • 檢視者：「知道連結的任何人」（必須，否則儀表板無法讀取）      ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -10,6 +49,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .dashboard-header { text-align: center; margin-bottom: 32px; }
 .dashboard-title { font-size: 26px; color: #1a1a2e; font-weight: 700; }
 .dashboard-subtitle { font-size: 13px; color: #888; margin-top: 6px; }
+.data-source-note { font-size: 12px; color: #aaa; margin-top: 4px; }
+.loading { text-align: center; padding: 40px; color: #888; font-size: 15px; }
+.loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-banner { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; font-size: 13px; display: none; }
 .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .metric-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #6366f1; }
 .metric-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -19,21 +63,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 .filters select { background: #fff; color: #333; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
 .filters select:focus { outline: none; border-color: #6366f1; }
-
-/* Table - desktop */
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #eee; color: #888; font-size: 12px; text-transform: uppercase; }
 .data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
 .data-table tr:hover { background: #f8f5ff; }
-
-/* Mobile card view */
 .card-list { display: none; }
 .project-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
 .project-card-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
 .project-card-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: #555; }
 .project-card-row span:first-child { color: #888; }
-
-/* Stage badges */
 .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .stage-未開始 { background: #f1f1f1; color: #888; }
 .stage-規劃中 { background: #fff3cd; color: #b8860b; }
@@ -44,8 +82,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .stage-修正中 { background: #fee2e2; color: #dc2626; }
 .stage-待上線 { background: #cffafe; color: #0e7490; }
 .stage-已完成 { background: #d1fae5; color: #15803d; border: 1px solid #86efac; }
-
-/* Gantt */
 .gantt-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .gantt { min-width: 750px; }
 .gantt-header { display: flex; border-bottom: 2px solid #eee; }
@@ -64,8 +100,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .legend-planned { width: 20px; height: 10px; border-radius: 5px; background: #6366f1; }
 .legend-actual { width: 20px; height: 10px; border-radius: 5px; background: rgba(99,102,241,0.4); border: 2px dashed rgba(0,0,0,0.2); }
 .footer { text-align: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #aaa; }
-
-/* Responsive */
 @media (max-width: 768px) {
   body { padding: 12px; }
   .dashboard-title { font-size: 20px; }
@@ -91,49 +125,64 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 
 <div class="dashboard-header">
   <h1 class="dashboard-title">機率部門專案時程管理儀表板</h1>
-  <p class="dashboard-subtitle">產生時間：2026-06-27 | 呱集團 機率部門</p>
+  <p class="dashboard-subtitle">產生時間：<span id="gen-time"></span> | 呱集團 機率部門</p>
+  <p class="data-source-note" id="source-note"></p>
 </div>
 
-<div class="grid" id="kpi-cards"></div>
+<div class="error-banner" id="error-banner"></div>
+<div class="loading" id="loading">正在從 Google Sheet 載入資料</div>
 
-<div class="section">
-  <h2 class="section-title">專案總覽</h2>
-  <div class="filters">
-    <select id="filter-owner"><option value="">全部負責人</option></select>
-    <select id="filter-stage"><option value="">全部階段</option></select>
+<div id="main-content" style="display:none;">
+  <div class="grid" id="kpi-cards"></div>
+  <div class="section">
+    <h2 class="section-title">專案總覽</h2>
+    <div class="filters">
+      <select id="filter-owner"><option value="">全部負責人</option></select>
+      <select id="filter-stage"><option value="">全部階段</option></select>
+    </div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>機台名稱</th><th>負責人</th><th>目前階段</th><th>預計開始</th><th>預計結束</th><th>實際開始</th><th>實際結束</th><th>備註</th></tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <div class="card-list" id="card-list"></div>
   </div>
-  <div class="data-table-wrapper">
-    <table class="data-table">
-      <thead>
-        <tr><th>機台名稱</th><th>負責人</th><th>目前階段</th><th>預計開始</th><th>預計結束</th><th>實際開始</th><th>實際結束</th><th>備註</th></tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
-  </div>
-  <div class="card-list" id="card-list"></div>
-</div>
-
-<div class="section">
-  <h2 class="section-title">甘特圖 — 時間軸（週粒度）</h2>
-  <div class="gantt-container">
-    <div class="gantt" id="gantt-chart"></div>
-  </div>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-planned"></div>預計時程</div>
-    <div class="legend-item"><div class="legend-actual"></div>實際時程</div>
+  <div class="section">
+    <h2 class="section-title">甘特圖 — 時間軸（週粒度）</h2>
+    <div class="gantt-container"><div class="gantt" id="gantt-chart"></div></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-planned"></div>預計時程</div>
+      <div class="legend-item"><div class="legend-actual"></div>實際時程</div>
+    </div>
   </div>
 </div>
 
 <div class="footer">由 呱集團 AI Fleet 自動產生</div>
 
 <script>
+// ╔═══════════════════════════════════════════╗
+// ║        設定區 — 只需修改這裡              ║
+// ╚═══════════════════════════════════════════╝
+const CONFIG = {
+  // 將你的 Google Sheet ID 貼在這裡
+  // 從網址 https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit 中取得
+  SHEET_ID: '',
+
+  // 工作表名稱（需與 Google Sheet 中的工作表名稱一致）
+  SHEET_ACTIVE: '進行中',
+  SHEET_DONE: '已完成'
+};
+
+// ═══════════════════════════════════════════
 const STAGES = ['未開始','規劃中','設計中','開發中','測試中','送審中','修正中','待上線','已完成'];
 const STAGE_COLORS = {
   '未開始':'#9ca3af','規劃中':'#eab308','設計中':'#3b82f6','開發中':'#10b981',
   '測試中':'#8b5cf6','送審中':'#f97316','修正中':'#ef4444','待上線':'#06b6d4','已完成':'#22c55e'
 };
 
-const projects = [
+// Demo fallback data
+const DEMO_DATA = [
   { name:'龍之谷 v2.0', owner:'阿凱', stage:'開發中', planStart:'2026-06-02', planEnd:'2026-08-10', actualStart:'2026-06-02', actualEnd:'', note:'核心玩法重構' },
   { name:'麻將至尊', owner:'小美', stage:'測試中', planStart:'2026-05-12', planEnd:'2026-07-20', actualStart:'2026-05-12', actualEnd:'', note:'第二輪 QA 進行中' },
   { name:'水果盤 Deluxe', owner:'志明', stage:'設計中', planStart:'2026-06-16', planEnd:'2026-09-07', actualStart:'2026-06-23', actualEnd:'', note:'美術需求待確認' },
@@ -141,28 +190,104 @@ const projects = [
   { name:'幸運輪盤', owner:'雅婷', stage:'規劃中', planStart:'2026-07-07', planEnd:'2026-09-28', actualStart:'', actualEnd:'', note:'等待企劃定案' }
 ];
 
-function weekStart(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return d;
+let projects = [];
+
+// CSV Parser
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const results = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    if (cols.length >= 3) {
+      results.push({
+        name: cols[0] || '', owner: cols[1] || '', stage: cols[2] || '',
+        planStart: cols[3] || '', planEnd: cols[4] || '',
+        actualStart: cols[5] || '', actualEnd: cols[6] || '', note: cols[7] || ''
+      });
+    }
+  }
+  return results;
 }
-function getWeekRange() {
-  const min = new Date('2026-04-07'), max = new Date('2026-10-05'), weeks = [];
-  const cur = new Date(min);
-  while (cur <= max) { weeks.push(new Date(cur)); cur.setDate(cur.getDate() + 7); }
-  return weeks;
+
+function parseCSVLine(line) {
+  const result = []; let current = ''; let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i+1] === '"') { current += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { current += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',') { result.push(current.trim()); current = ''; }
+      else { current += ch; }
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function sheetURL(sheetName) {
+  return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+}
+
+async function fetchSheet(sheetName) {
+  const resp = await fetch(sheetURL(sheetName));
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const text = await resp.text();
+  return parseCSV(text);
+}
+
+async function loadData() {
+  const loading = document.getElementById('loading');
+  const errorBanner = document.getElementById('error-banner');
+  const sourceNote = document.getElementById('source-note');
+
+  if (!CONFIG.SHEET_ID) {
+    projects = DEMO_DATA;
+    sourceNote.textContent = '資料來源：內建 Demo 資料（尚未設定 Google Sheet ID）';
+    loading.style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    render();
+    return;
+  }
+
+  try {
+    const [active, done] = await Promise.all([
+      fetchSheet(CONFIG.SHEET_ACTIVE),
+      fetchSheet(CONFIG.SHEET_DONE)
+    ]);
+    projects = [...active, ...done];
+    sourceNote.textContent = '資料來源：Google Sheet（即時讀取）';
+    loading.style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    render();
+  } catch (e) {
+    errorBanner.textContent = `無法讀取 Google Sheet：${e.message}。請確認 Sheet 已發佈到網路且 ID 正確。已切換至 Demo 資料顯示。`;
+    errorBanner.style.display = 'block';
+    projects = DEMO_DATA;
+    sourceNote.textContent = '資料來源：內建 Demo 資料（Google Sheet 讀取失敗）';
+    loading.style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    render();
+  }
+}
+
+// ═══ Render Functions ═══
+function render() {
+  renderKPI(); renderFilters(); renderTable(); renderGantt();
 }
 
 function renderKPI() {
   const counts = {}; STAGES.forEach(s => counts[s] = 0);
   projects.forEach(p => counts[p.stage]++);
-  const active = projects.length - counts['已完成'] - counts['未開始'];
+  const active = projects.length - (counts['已完成']||0) - (counts['未開始']||0);
   document.getElementById('kpi-cards').innerHTML = `
     <div class="metric-card"><div class="metric-label">總機台數</div><div class="metric-value">${projects.length}</div></div>
     <div class="metric-card"><div class="metric-label">進行中</div><div class="metric-value">${active}</div></div>
-    <div class="metric-card"><div class="metric-label">已完成</div><div class="metric-value">${counts['已完成']}</div></div>
-    <div class="metric-card"><div class="metric-label">未開始</div><div class="metric-value">${counts['未開始']}</div></div>`;
+    <div class="metric-card"><div class="metric-label">已完成</div><div class="metric-value">${counts['已完成']||0}</div></div>
+    <div class="metric-card"><div class="metric-label">未開始</div><div class="metric-value">${counts['未開始']||0}</div></div>`;
 }
 
 function getFiltered() {
@@ -178,7 +303,6 @@ function renderTable() {
     <td><span class="badge stage-${p.stage}">${p.stage}</span></td>
     <td>${p.planStart}</td><td>${p.planEnd}</td>
     <td>${p.actualStart || '—'}</td><td>${p.actualEnd || '—'}</td><td>${p.note}</td></tr>`).join('');
-  // Card view for mobile
   document.getElementById('card-list').innerHTML = filtered.map(p => `<div class="project-card">
     <div class="project-card-title">${p.name} <span class="badge stage-${p.stage}">${p.stage}</span></div>
     <div class="project-card-row"><span>負責人</span><span>${p.owner}</span></div>
@@ -188,13 +312,38 @@ function renderTable() {
 }
 
 function renderFilters() {
-  const owners = [...new Set(projects.map(p => p.owner))];
   const ownerSel = document.getElementById('filter-owner');
-  owners.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; ownerSel.appendChild(opt); });
   const stageSel = document.getElementById('filter-stage');
+  ownerSel.innerHTML = '<option value="">全部負責人</option>';
+  stageSel.innerHTML = '<option value="">全部階段</option>';
+  const owners = [...new Set(projects.map(p => p.owner).filter(Boolean))];
+  owners.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; ownerSel.appendChild(opt); });
   STAGES.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.textContent = s; stageSel.appendChild(opt); });
-  ownerSel.addEventListener('change', renderTable);
-  stageSel.addEventListener('change', renderTable);
+  ownerSel.onchange = renderTable;
+  stageSel.onchange = renderTable;
+}
+
+function weekStart(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+
+function getWeekRange() {
+  let min = Infinity, max = -Infinity;
+  projects.forEach(p => {
+    [p.planStart, p.planEnd, p.actualStart, p.actualEnd].forEach(d => {
+      if (d) { const t = new Date(d).getTime(); if (t < min) min = t; if (t > max) max = t; }
+    });
+  });
+  if (min === Infinity) { min = Date.now(); max = Date.now() + 86400000 * 90; }
+  const start = weekStart(new Date(min - 86400000 * 7).toISOString().slice(0,10));
+  const end = new Date(max + 86400000 * 14);
+  const weeks = [];
+  const cur = new Date(start);
+  while (cur <= end) { weeks.push(new Date(cur)); cur.setDate(cur.getDate() + 7); }
+  return weeks;
 }
 
 function renderGantt() {
@@ -211,7 +360,7 @@ function renderGantt() {
       const si = Math.max(0, weeks.findIndex(w => w >= weekStart(p.planStart)));
       let ei = weeks.findIndex(w => w >= weekStart(p.planEnd));
       ei = ei === -1 ? total - 1 : Math.min(ei, total - 1);
-      html += `<div class="gantt-bar-planned" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]};"></div>`;
+      html += `<div class="gantt-bar-planned" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;
     }
     if (p.actualStart) {
       const as = weekStart(p.actualStart);
@@ -219,14 +368,16 @@ function renderGantt() {
       const si = Math.max(0, weeks.findIndex(w => w >= as));
       let ei = weeks.findIndex(w => w >= ae);
       ei = ei === -1 ? total - 1 : Math.min(ei, total - 1);
-      html += `<div class="gantt-bar-actual" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]};"></div>`;
+      html += `<div class="gantt-bar-actual" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;
     }
     html += `</div></div>`;
   });
   container.innerHTML = html;
 }
 
-renderKPI(); renderFilters(); renderTable(); renderGantt();
+// ═══ Init ═══
+document.getElementById('gen-time').textContent = new Date().toISOString().slice(0,16).replace('T',' ');
+loadData();
 </script>
 </body>
 </html>
