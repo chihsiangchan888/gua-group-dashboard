@@ -28,15 +28,16 @@
 ║   （不需要「發佈到網路」，gviz 端點只需檢視權限即可）            ║
 ║                                                                  ║
 ║ 步驟 3：設定 Sheet ID                                           ║
-║   從 Google Sheet 網址中複製 Sheet ID：                          ║
-║   https://docs.google.com/spreadsheets/d/{這段就是SHEET_ID}/edit ║
-║   將 ID 貼到下方 CONFIG.SHEET_ID 變數中                          ║
+║   將 Sheet ID 貼到 CONFIG.SHEET_ID 變數中                        ║
 ║   （目前已設定為：10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8）║
 ║                                                                  ║
-║ 注意：工作表名稱                                                  ║
-║   • CONFIG.SHEET_ACTIVE = '進行中'（第 1 個工作表）              ║
-║   • CONFIG.SHEET_DONE = '已完成'（第 2 個工作表）                ║
-║   如果工作表名稱不同，修改 CONFIG 中對應值即可                    ║
+║ 步驟 4：部署 Apps Script（啟用編輯功能）                         ║
+║   a. 在 Google Sheet 中：擴充功能 → Apps Script                  ║
+║   b. 將 apps-script-code.gs 內容貼入 Code.gs                    ║
+║   c. 部署 → 新增部署 → 類型「網頁應用程式」                      ║
+║   d. 執行身分：自己 / 存取權限：任何人                           ║
+║   e. 部署後複製 Web App URL，貼入 CONFIG.APPS_SCRIPT_URL         ║
+║   （若不設定 APPS_SCRIPT_URL，儀表板為純閱讀模式）               ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 -->
@@ -62,19 +63,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .metric-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
 .metric-value { font-size: 28px; font-weight: 700; color: #1a1a2e; margin: 4px 0; }
 .section { background: #fff; border-radius: 10px; padding: 24px; margin-top: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.section-title { font-size: 17px; color: #1a1a2e; margin-bottom: 16px; font-weight: 600; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.section-title { font-size: 17px; color: #1a1a2e; font-weight: 600; }
+.btn { padding: 8px 16px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.btn:hover { opacity: 0.85; }
+.btn-primary { background: #6366f1; color: #fff; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-edit { background: #e0f2fe; color: #0369a1; }
+.btn-delete { background: #fee2e2; color: #dc2626; }
 .filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 .filters select { background: #fff; color: #333; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
 .filters select:focus { outline: none; border-color: #6366f1; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #eee; color: #888; font-size: 12px; text-transform: uppercase; }
-.data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; vertical-align: middle; }
 .data-table tr:hover { background: #f8f5ff; }
 .card-list { display: none; }
 .project-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
 .project-card-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
 .project-card-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: #555; }
 .project-card-row span:first-child { color: #888; }
+.project-card-actions { display: flex; gap: 8px; margin-top: 10px; }
 .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .stage-未開始 { background: #f1f1f1; color: #888; }
 .stage-規劃中 { background: #fff3cd; color: #b8860b; }
@@ -85,6 +94,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .stage-修正中 { background: #fee2e2; color: #dc2626; }
 .stage-待上線 { background: #cffafe; color: #0e7490; }
 .stage-已完成 { background: #d1fae5; color: #15803d; border: 1px solid #86efac; }
+.stage-select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; cursor: pointer; background: #fff; }
 .gantt-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .gantt { min-width: 750px; }
 .gantt-header { display: flex; border-bottom: 2px solid #eee; }
@@ -103,6 +113,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .legend-planned { width: 20px; height: 10px; border-radius: 5px; background: #6366f1; }
 .legend-actual { width: 20px; height: 10px; border-radius: 5px; background: rgba(99,102,241,0.4); border: 2px dashed rgba(0,0,0,0.2); }
 .footer { text-align: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #aaa; }
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 28px; width: 90%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.modal h3 { font-size: 18px; color: #1a1a2e; margin-bottom: 20px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+.form-group textarea { resize: vertical; height: 60px; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #6366f1; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-cancel { background: #f1f1f1; color: #666; }
+.action-cell { white-space: nowrap; }
 @media (max-width: 768px) {
   body { padding: 12px; }
   .dashboard-title { font-size: 20px; }
@@ -138,21 +161,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 <div id="main-content" style="display:none;">
   <div class="grid" id="kpi-cards"></div>
   <div class="section">
-    <h2 class="section-title">專案總覽</h2>
+    <div class="section-header">
+      <h2 class="section-title">專案總覽</h2>
+      <button class="btn btn-primary edit-only" onclick="openAddModal()" style="display:none;">+ 新增機台</button>
+    </div>
     <div class="filters">
       <select id="filter-owner"><option value="">全部負責人</option></select>
       <select id="filter-stage"><option value="">全部階段</option></select>
     </div>
     <div class="data-table-wrapper">
       <table class="data-table">
-        <thead><tr><th>機台名稱</th><th>負責人</th><th>目前階段</th><th>預計開始</th><th>預計結束</th><th>實際開始</th><th>實際結束</th><th>備註</th></tr></thead>
+        <thead><tr><th>機台名稱</th><th>負責人</th><th>目前階段</th><th>預計開始</th><th>預計結束</th><th>實際開始</th><th>實際結束</th><th>備註</th><th class="edit-only" style="display:none;">操作</th></tr></thead>
         <tbody id="table-body"></tbody>
       </table>
     </div>
     <div class="card-list" id="card-list"></div>
   </div>
   <div class="section">
-    <h2 class="section-title">甘特圖 — 時間軸（週粒度）</h2>
+    <h2 class="section-title" style="margin-bottom:16px;">甘特圖 — 時間軸（週粒度）</h2>
     <div class="gantt-container"><div class="gantt" id="gantt-chart"></div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-planned"></div>預計時程</div>
@@ -163,18 +189,37 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 
 <div class="footer">由 呱集團 AI Fleet 自動產生</div>
 
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">新增機台</h3>
+    <div class="form-group"><label>機台名稱</label><input type="text" id="f-name"></div>
+    <div class="form-group"><label>負責人</label><input type="text" id="f-owner"></div>
+    <div class="form-group"><label>目前階段</label><select id="f-stage"></select></div>
+    <div class="form-group"><label>預計開始日</label><input type="date" id="f-planStart"></div>
+    <div class="form-group"><label>預計結束日</label><input type="date" id="f-planEnd"></div>
+    <div class="form-group"><label>實際開始日</label><input type="date" id="f-actualStart"></div>
+    <div class="form-group"><label>實際結束日</label><input type="date" id="f-actualEnd"></div>
+    <div class="form-group"><label>備註</label><textarea id="f-note"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="modal-submit">確認</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ╔═══════════════════════════════════════════╗
 // ║        設定區 — 只需修改這裡              ║
 // ╚═══════════════════════════════════════════╝
 const CONFIG = {
-  // 將你的 Google Sheet ID 貼在這裡
-  // 從網址 https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit 中取得
   SHEET_ID: '10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8',
-
-  // 工作表名稱（需與 Google Sheet 中的工作表名稱一致）
   SHEET_ACTIVE: '進行中',
-  SHEET_DONE: '已完成'
+  SHEET_DONE: '已完成',
+
+  // Apps Script Web App URL（部署後貼這裡，啟用編輯功能）
+  // 留空 = 純閱讀模式
+  APPS_SCRIPT_URL: ''
 };
 
 // ═══════════════════════════════════════════
@@ -183,86 +228,61 @@ const STAGE_COLORS = {
   '未開始':'#9ca3af','規劃中':'#eab308','設計中':'#3b82f6','開發中':'#10b981',
   '測試中':'#8b5cf6','送審中':'#f97316','修正中':'#ef4444','待上線':'#06b6d4','已完成':'#22c55e'
 };
-
-// Demo fallback data
 const DEMO_DATA = [
-  { name:'龍之谷 v2.0', owner:'阿凱', stage:'開發中', planStart:'2026-06-02', planEnd:'2026-08-10', actualStart:'2026-06-02', actualEnd:'', note:'核心玩法重構' },
-  { name:'麻將至尊', owner:'小美', stage:'測試中', planStart:'2026-05-12', planEnd:'2026-07-20', actualStart:'2026-05-12', actualEnd:'', note:'第二輪 QA 進行中' },
-  { name:'水果盤 Deluxe', owner:'志明', stage:'設計中', planStart:'2026-06-16', planEnd:'2026-09-07', actualStart:'2026-06-23', actualEnd:'', note:'美術需求待確認' },
-  { name:'百家樂 Pro', owner:'阿杰', stage:'送審中', planStart:'2026-04-14', planEnd:'2026-06-29', actualStart:'2026-04-14', actualEnd:'', note:'GLI 文件已送出' },
-  { name:'幸運輪盤', owner:'雅婷', stage:'規劃中', planStart:'2026-07-07', planEnd:'2026-09-28', actualStart:'', actualEnd:'', note:'等待企劃定案' }
+  { name:'龍之谷 v2.0', owner:'阿凱', stage:'開發中', planStart:'2026-06-02', planEnd:'2026-08-10', actualStart:'2026-06-02', actualEnd:'', note:'核心玩法重構', _sheet:'進行中', _row:2 },
+  { name:'麻將至尊', owner:'小美', stage:'測試中', planStart:'2026-05-12', planEnd:'2026-07-20', actualStart:'2026-05-12', actualEnd:'', note:'第二輪 QA 進行中', _sheet:'進行中', _row:3 },
+  { name:'水果盤 Deluxe', owner:'志明', stage:'設計中', planStart:'2026-06-16', planEnd:'2026-09-07', actualStart:'2026-06-23', actualEnd:'', note:'美術需求待確認', _sheet:'進行中', _row:4 },
+  { name:'百家樂 Pro', owner:'阿杰', stage:'送審中', planStart:'2026-04-14', planEnd:'2026-06-29', actualStart:'2026-04-14', actualEnd:'', note:'GLI 文件已送出', _sheet:'進行中', _row:5 },
+  { name:'幸運輪盤', owner:'雅婷', stage:'規劃中', planStart:'2026-07-07', planEnd:'2026-09-28', actualStart:'', actualEnd:'', note:'等待企劃定案', _sheet:'進行中', _row:6 }
 ];
 
 let projects = [];
+const canEdit = () => !!CONFIG.APPS_SCRIPT_URL;
 
-// CSV Parser
+// ═══ Google Sheet Read (gviz) ═══
 function parseCSV(text) {
   const lines = text.split('\n').filter(l => l.trim());
   if (lines.length < 2) return [];
   const results = [];
   for (let i = 1; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
-    if (cols.length >= 3) {
-      results.push({
-        name: cols[0] || '', owner: cols[1] || '', stage: cols[2] || '',
-        planStart: cols[3] || '', planEnd: cols[4] || '',
-        actualStart: cols[5] || '', actualEnd: cols[6] || '', note: cols[7] || ''
-      });
-    }
+    if (cols.length >= 3) results.push({ name:cols[0]||'', owner:cols[1]||'', stage:cols[2]||'', planStart:cols[3]||'', planEnd:cols[4]||'', actualStart:cols[5]||'', actualEnd:cols[6]||'', note:cols[7]||'' });
   }
   return results;
 }
-
 function parseCSVLine(line) {
-  const result = []; let current = ''; let inQuotes = false;
+  const result = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
-    if (inQuotes) {
-      if (ch === '"' && line[i+1] === '"') { current += '"'; i++; }
-      else if (ch === '"') { inQuotes = false; }
-      else { current += ch; }
-    } else {
-      if (ch === '"') { inQuotes = true; }
-      else if (ch === ',') { result.push(current.trim()); current = ''; }
-      else { current += ch; }
-    }
+    if (inQ) { if (ch === '"' && line[i+1] === '"') { cur += '"'; i++; } else if (ch === '"') inQ = false; else cur += ch; }
+    else { if (ch === '"') inQ = true; else if (ch === ',') { result.push(cur.trim()); cur = ''; } else cur += ch; }
   }
-  result.push(current.trim());
-  return result;
+  result.push(cur.trim()); return result;
 }
-
-function gvizURL(sheetName, format) {
-  return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${format}&sheet=${encodeURIComponent(sheetName)}`;
-}
-
+function gvizURL(sheetName, format) { return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${format}&sheet=${encodeURIComponent(sheetName)}`; }
 function parseGvizJSON(text) {
-  // Strip google.visualization.Query.setResponse(...) wrapper
-  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);
-  const json = JSON.parse(match ? match[1] : text);
-  const cols = json.table.cols.length;
-  return json.table.rows.map(row => {
-    const c = row.c || [];
-    const val = i => (c[i] && c[i].v != null) ? String(c[i].v) : '';
-    return { name: val(0), owner: val(1), stage: val(2), planStart: val(3), planEnd: val(4), actualStart: val(5), actualEnd: val(6), note: val(7) };
-  });
+  const m = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);
+  const json = JSON.parse(m ? m[1] : text);
+  return json.table.rows.map(row => { const c = row.c||[]; const v = i => (c[i]&&c[i].v!=null)?String(c[i].v):''; return { name:v(0), owner:v(1), stage:v(2), planStart:v(3), planEnd:v(4), actualStart:v(5), actualEnd:v(6), note:v(7) }; });
 }
 
-async function fetchSheet(sheetName) {
-  // Try gviz CSV first
-  try {
-    const resp = await fetch(gvizURL(sheetName, 'csv'));
-    if (resp.ok) {
-      const text = await resp.text();
-      return parseCSV(text);
-    }
-  } catch (e) {}
-  // Fallback: gviz JSON
-  const resp = await fetch(gvizURL(sheetName, 'json'));
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const text = await resp.text();
-  return parseGvizJSON(text);
+async function fetchSheetGviz(sheetName) {
+  try { const r = await fetch(gvizURL(sheetName,'csv')); if (r.ok) return parseCSV(await r.text()); } catch(e){}
+  const r = await fetch(gvizURL(sheetName,'json')); if (!r.ok) throw new Error(`HTTP ${r.status}`); return parseGvizJSON(await r.text());
 }
 
+// ═══ Apps Script CRUD ═══
+async function apiCall(body) {
+  const r = await fetch(CONFIG.APPS_SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(body), redirect:'follow' });
+  // Apps Script redirects; fetch with redirect:'follow' handles it
+  return r.json();
+}
+async function apiRead() {
+  const r = await fetch(CONFIG.APPS_SCRIPT_URL + '?action=read', { redirect:'follow' });
+  return r.json();
+}
+
+// ═══ Data Loading ═══
 async function loadData() {
   const loading = document.getElementById('loading');
   const errorBanner = document.getElementById('error-banner');
@@ -271,41 +291,45 @@ async function loadData() {
   if (!CONFIG.SHEET_ID) {
     projects = DEMO_DATA;
     sourceNote.textContent = '資料來源：內建 Demo 資料（尚未設定 Google Sheet ID）';
-    loading.style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    render();
-    return;
+    finishLoad(); return;
   }
 
   try {
-    const [active, done] = await Promise.all([
-      fetchSheet(CONFIG.SHEET_ACTIVE),
-      fetchSheet(CONFIG.SHEET_DONE)
-    ]);
-    projects = [...active, ...done];
+    if (canEdit()) {
+      // Use Apps Script for reading (includes row numbers)
+      const res = await apiRead();
+      if (res.success) {
+        const active = (res.data.active||[]).map(r => ({...r, _sheet:CONFIG.SHEET_ACTIVE, _row:r.row}));
+        const done = (res.data.done||[]).map(r => ({...r, _sheet:CONFIG.SHEET_DONE, _row:r.row}));
+        projects = [...active, ...done];
+      } else throw new Error(res.error||'API error');
+    } else {
+      const [active, done] = await Promise.all([fetchSheetGviz(CONFIG.SHEET_ACTIVE), fetchSheetGviz(CONFIG.SHEET_DONE)]);
+      projects = [...active.map((p,i)=>({...p,_sheet:CONFIG.SHEET_ACTIVE,_row:i+2})), ...done.map((p,i)=>({...p,_sheet:CONFIG.SHEET_DONE,_row:i+2}))];
+    }
     sourceNote.textContent = '資料來源：Google Sheet（即時讀取）';
-    loading.style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    render();
+    finishLoad();
   } catch (e) {
-    errorBanner.textContent = `無法讀取 Google Sheet：${e.message}。請確認 Sheet 已發佈到網路且 ID 正確。已切換至 Demo 資料顯示。`;
+    errorBanner.textContent = `無法讀取 Google Sheet：${e.message}。已切換至 Demo 資料。`;
     errorBanner.style.display = 'block';
     projects = DEMO_DATA;
-    sourceNote.textContent = '資料來源：內建 Demo 資料（Google Sheet 讀取失敗）';
-    loading.style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    render();
+    sourceNote.textContent = '資料來源：內建 Demo 資料（讀取失敗）';
+    finishLoad();
   }
 }
 
-// ═══ Render Functions ═══
-function render() {
-  renderKPI(); renderFilters(); renderTable(); renderGantt();
+function finishLoad() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  if (canEdit()) document.querySelectorAll('.edit-only').forEach(el => el.style.display = '');
+  render();
 }
 
+// ═══ Render ═══
+function render() { renderKPI(); renderFilters(); renderTable(); renderGantt(); }
+
 function renderKPI() {
-  const counts = {}; STAGES.forEach(s => counts[s] = 0);
-  projects.forEach(p => counts[p.stage]++);
+  const counts = {}; STAGES.forEach(s => counts[s]=0); projects.forEach(p => counts[p.stage]++);
   const active = projects.length - (counts['已完成']||0) - (counts['未開始']||0);
   document.getElementById('kpi-cards').innerHTML = `
     <div class="metric-card"><div class="metric-label">總機台數</div><div class="metric-value">${projects.length}</div></div>
@@ -315,93 +339,140 @@ function renderKPI() {
 }
 
 function getFiltered() {
-  const o = document.getElementById('filter-owner').value;
-  const s = document.getElementById('filter-stage').value;
-  return projects.filter(p => (!o || p.owner === o) && (!s || p.stage === s));
+  const o = document.getElementById('filter-owner').value, s = document.getElementById('filter-stage').value;
+  return projects.filter(p => (!o||p.owner===o) && (!s||p.stage===s));
+}
+
+function stageSelectHTML(current, idx) {
+  if (!canEdit()) return `<span class="badge stage-${current}">${current}</span>`;
+  return `<select class="stage-select" onchange="quickStageChange(${idx},this.value)">${STAGES.map(s=>`<option value="${s}"${s===current?' selected':''}>${s}</option>`).join('')}</select>`;
 }
 
 function renderTable() {
   const filtered = getFiltered();
-  document.getElementById('table-body').innerHTML = filtered.map(p => `<tr>
+  const editCol = canEdit() ? '<td class="action-cell"><button class="btn btn-sm btn-edit" onclick="openEditModal(${idx})">✎</button> <button class="btn btn-sm btn-delete" onclick="deleteProject(${idx})">✕</button></td>' : '';
+  document.getElementById('table-body').innerHTML = filtered.map(p => {
+    const idx = projects.indexOf(p);
+    return `<tr>
     <td>${p.name}</td><td>${p.owner}</td>
-    <td><span class="badge stage-${p.stage}">${p.stage}</span></td>
+    <td>${stageSelectHTML(p.stage, idx)}</td>
     <td>${p.planStart}</td><td>${p.planEnd}</td>
-    <td>${p.actualStart || '—'}</td><td>${p.actualEnd || '—'}</td><td>${p.note}</td></tr>`).join('');
-  document.getElementById('card-list').innerHTML = filtered.map(p => `<div class="project-card">
+    <td>${p.actualStart||'—'}</td><td>${p.actualEnd||'—'}</td><td>${p.note}</td>
+    ${canEdit()?`<td class="action-cell"><button class="btn btn-sm btn-edit" onclick="openEditModal(${idx})">✎</button> <button class="btn btn-sm btn-delete" onclick="deleteProject(${idx})">✕</button></td>`:''}</tr>`;
+  }).join('');
+
+  document.getElementById('card-list').innerHTML = filtered.map(p => {
+    const idx = projects.indexOf(p);
+    return `<div class="project-card">
     <div class="project-card-title">${p.name} <span class="badge stage-${p.stage}">${p.stage}</span></div>
     <div class="project-card-row"><span>負責人</span><span>${p.owner}</span></div>
     <div class="project-card-row"><span>預計</span><span>${p.planStart} ~ ${p.planEnd}</span></div>
-    <div class="project-card-row"><span>實際</span><span>${p.actualStart || '—'} ~ ${p.actualEnd || '—'}</span></div>
-    <div class="project-card-row"><span>備註</span><span>${p.note}</span></div></div>`).join('');
+    <div class="project-card-row"><span>實際</span><span>${p.actualStart||'—'} ~ ${p.actualEnd||'—'}</span></div>
+    <div class="project-card-row"><span>備註</span><span>${p.note}</span></div>
+    ${canEdit()?`<div class="project-card-actions"><button class="btn btn-sm btn-edit" onclick="openEditModal(${idx})">✎ 編輯</button><button class="btn btn-sm btn-delete" onclick="deleteProject(${idx})">✕ 刪除</button></div>`:''}</div>`;
+  }).join('');
 }
 
 function renderFilters() {
-  const ownerSel = document.getElementById('filter-owner');
-  const stageSel = document.getElementById('filter-stage');
+  const ownerSel = document.getElementById('filter-owner'), stageSel = document.getElementById('filter-stage');
   ownerSel.innerHTML = '<option value="">全部負責人</option>';
   stageSel.innerHTML = '<option value="">全部階段</option>';
-  const owners = [...new Set(projects.map(p => p.owner).filter(Boolean))];
-  owners.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; ownerSel.appendChild(opt); });
-  STAGES.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.textContent = s; stageSel.appendChild(opt); });
-  ownerSel.onchange = renderTable;
-  stageSel.onchange = renderTable;
+  [...new Set(projects.map(p=>p.owner).filter(Boolean))].forEach(o => { ownerSel.innerHTML += `<option value="${o}">${o}</option>`; });
+  STAGES.forEach(s => { stageSel.innerHTML += `<option value="${s}">${s}</option>`; });
+  ownerSel.onchange = renderTable; stageSel.onchange = renderTable;
 }
 
-function weekStart(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return d;
-}
-
+function weekStart(dateStr) { if (!dateStr) return null; const d = new Date(dateStr); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }
 function getWeekRange() {
-  let min = Infinity, max = -Infinity;
-  projects.forEach(p => {
-    [p.planStart, p.planEnd, p.actualStart, p.actualEnd].forEach(d => {
-      if (d) { const t = new Date(d).getTime(); if (t < min) min = t; if (t > max) max = t; }
-    });
+  let min=Infinity, max=-Infinity;
+  projects.forEach(p => { [p.planStart,p.planEnd,p.actualStart,p.actualEnd].forEach(d => { if(d){const t=new Date(d).getTime();if(t<min)min=t;if(t>max)max=t;} }); });
+  if (min===Infinity){min=Date.now();max=Date.now()+86400000*90;}
+  const start=weekStart(new Date(min-86400000*7).toISOString().slice(0,10)), end=new Date(max+86400000*14), weeks=[];
+  const cur=new Date(start); while(cur<=end){weeks.push(new Date(cur));cur.setDate(cur.getDate()+7);} return weeks;
+}
+function renderGantt() {
+  const weeks=getWeekRange(), total=weeks.length, container=document.getElementById('gantt-chart');
+  let html=`<div class="gantt-header"><div class="gantt-header-label">機台</div><div class="gantt-header-timeline">`;
+  weeks.forEach(w=>{html+=`<div class="gantt-week">${w.getMonth()+1}/${w.getDate()}</div>`;});
+  html+=`</div></div>`;
+  projects.forEach(p=>{
+    html+=`<div class="gantt-row"><div class="gantt-row-label" title="${p.name}">${p.name}</div><div class="gantt-row-timeline">`;
+    weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`;});
+    if(p.planStart&&p.planEnd){const si=Math.max(0,weeks.findIndex(w=>w>=weekStart(p.planStart)));let ei=weeks.findIndex(w=>w>=weekStart(p.planEnd));ei=ei===-1?total-1:Math.min(ei,total-1);html+=`<div class="gantt-bar-planned" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;}
+    if(p.actualStart){const as=weekStart(p.actualStart),ae=p.actualEnd?weekStart(p.actualEnd):weekStart(new Date().toISOString().slice(0,10));const si=Math.max(0,weeks.findIndex(w=>w>=as));let ei=weeks.findIndex(w=>w>=ae);ei=ei===-1?total-1:Math.min(ei,total-1);html+=`<div class="gantt-bar-actual" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;}
+    html+=`</div></div>`;
   });
-  if (min === Infinity) { min = Date.now(); max = Date.now() + 86400000 * 90; }
-  const start = weekStart(new Date(min - 86400000 * 7).toISOString().slice(0,10));
-  const end = new Date(max + 86400000 * 14);
-  const weeks = [];
-  const cur = new Date(start);
-  while (cur <= end) { weeks.push(new Date(cur)); cur.setDate(cur.getDate() + 7); }
-  return weeks;
+  container.innerHTML=html;
 }
 
-function renderGantt() {
-  const weeks = getWeekRange(), total = weeks.length;
-  const container = document.getElementById('gantt-chart');
-  let html = `<div class="gantt-header"><div class="gantt-header-label">機台</div><div class="gantt-header-timeline">`;
-  weeks.forEach(w => { html += `<div class="gantt-week">${w.getMonth()+1}/${w.getDate()}</div>`; });
-  html += `</div></div>`;
+// ═══ CRUD Operations ═══
+let editingIdx = -1;
 
-  projects.forEach(p => {
-    html += `<div class="gantt-row"><div class="gantt-row-label" title="${p.name}">${p.name}</div><div class="gantt-row-timeline">`;
-    weeks.forEach(() => { html += `<div class="gantt-cell"></div>`; });
-    if (p.planStart && p.planEnd) {
-      const si = Math.max(0, weeks.findIndex(w => w >= weekStart(p.planStart)));
-      let ei = weeks.findIndex(w => w >= weekStart(p.planEnd));
-      ei = ei === -1 ? total - 1 : Math.min(ei, total - 1);
-      html += `<div class="gantt-bar-planned" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;
-    }
-    if (p.actualStart) {
-      const as = weekStart(p.actualStart);
-      const ae = p.actualEnd ? weekStart(p.actualEnd) : weekStart(new Date().toISOString().slice(0,10));
-      const si = Math.max(0, weeks.findIndex(w => w >= as));
-      let ei = weeks.findIndex(w => w >= ae);
-      ei = ei === -1 ? total - 1 : Math.min(ei, total - 1);
-      html += `<div class="gantt-bar-actual" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;
-    }
-    html += `</div></div>`;
-  });
-  container.innerHTML = html;
+function openAddModal() {
+  editingIdx = -1;
+  document.getElementById('modal-title').textContent = '新增機台';
+  ['f-name','f-owner','f-planStart','f-planEnd','f-actualStart','f-actualEnd','f-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-stage').value = '未開始';
+  document.getElementById('modal-submit').onclick = submitAdd;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function openEditModal(idx) {
+  editingIdx = idx;
+  const p = projects[idx];
+  document.getElementById('modal-title').textContent = '編輯機台';
+  document.getElementById('f-name').value = p.name;
+  document.getElementById('f-owner').value = p.owner;
+  document.getElementById('f-stage').value = p.stage;
+  document.getElementById('f-planStart').value = p.planStart;
+  document.getElementById('f-planEnd').value = p.planEnd;
+  document.getElementById('f-actualStart').value = p.actualStart;
+  document.getElementById('f-actualEnd').value = p.actualEnd;
+  document.getElementById('f-note').value = p.note;
+  document.getElementById('modal-submit').onclick = submitEdit;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
+
+function getFormData() {
+  return { name:document.getElementById('f-name').value, owner:document.getElementById('f-owner').value, stage:document.getElementById('f-stage').value, planStart:document.getElementById('f-planStart').value, planEnd:document.getElementById('f-planEnd').value, actualStart:document.getElementById('f-actualStart').value, actualEnd:document.getElementById('f-actualEnd').value, note:document.getElementById('f-note').value };
+}
+
+async function submitAdd() {
+  const data = getFormData();
+  if (!data.name) { alert('請輸入機台名稱'); return; }
+  closeModal();
+  try { await apiCall({ action:'add', data }); await loadData(); } catch(e) { alert('新增失敗：'+e.message); }
+}
+
+async function submitEdit() {
+  const p = projects[editingIdx];
+  const data = getFormData();
+  closeModal();
+  try { await apiCall({ action:'update', sheet:p._sheet, row:p._row, data }); await loadData(); } catch(e) { alert('更新失敗：'+e.message); }
+}
+
+async function quickStageChange(idx, newStage) {
+  const p = projects[idx];
+  const data = { name:p.name, owner:p.owner, stage:newStage, planStart:p.planStart, planEnd:p.planEnd, actualStart:p.actualStart, actualEnd:p.actualEnd, note:p.note };
+  try { await apiCall({ action:'update', sheet:p._sheet, row:p._row, data }); await loadData(); } catch(e) { alert('更新失敗：'+e.message); }
+}
+
+async function deleteProject(idx) {
+  const p = projects[idx];
+  if (!confirm(`確定要刪除「${p.name}」嗎？`)) return;
+  try { await apiCall({ action:'delete', sheet:p._sheet, row:p._row }); await loadData(); } catch(e) { alert('刪除失敗：'+e.message); }
 }
 
 // ═══ Init ═══
-document.getElementById('gen-time').textContent = new Date().toISOString().slice(0,16).replace('T',' ');
-loadData();
+(function init() {
+  // Populate stage select in modal
+  const sel = document.getElementById('f-stage');
+  STAGES.forEach(s => { sel.innerHTML += `<option value="${s}">${s}</option>`; });
+  document.getElementById('gen-time').textContent = new Date().toISOString().slice(0,16).replace('T',' ');
+  loadData();
+})();
 </script>
 </body>
 </html>
