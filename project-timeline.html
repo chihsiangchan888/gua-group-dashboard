@@ -3,41 +3,16 @@
 ║   機率部門專案時程管理儀表板 — 設定指南                          ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
-║ 步驟 1：建立 Google Sheet                                       ║
-║   建立一個新的 Google Sheet，包含兩個工作表：                     ║
-║   • 工作表 1 名稱：「進行中」                                    ║
-║   • 工作表 2 名稱：「已完成」                                    ║
-║   兩個工作表的欄位結構完全相同（第一列為標題列）：                 ║
-║     A: 機台名稱                                                  ║
-║     B: 負責人                                                    ║
-║     C: 目前階段                                                  ║
-║     D: 預計開始日 (格式: YYYY-MM-DD)                             ║
-║     E: 預計結束日 (格式: YYYY-MM-DD)                             ║
-║     F: 實際開始日 (格式: YYYY-MM-DD)                             ║
-║     G: 實際結束日 (格式: YYYY-MM-DD)                             ║
-║     H: 備註                                                      ║
+║ Google Sheet 欄位（工作表名稱：進行中）：                        ║
+║   A: 機台名稱 | B: 階段名稱 | C: 計畫開始日 | D: 計畫結束日     ║
+║   E: 實際開始日 | F: 實際結束日 | G: 負責人 | H: 備註            ║
+║   一台機台多列，每列代表一個階段                                  ║
 ║                                                                  ║
-║   「目前階段」欄位限定以下值之一：                                ║
-║     未開始、規劃中、設計中、開發中、測試中、送審中、修正中、      ║
-║     待上線、已完成                                                ║
-║                                                                  ║
-║ 步驟 2：權限設定                                                 ║
-║   「共用」設定：                                                  ║
-║   • 編輯者：呱老大 + 各負責工程師                                ║
-║   • 檢視者：「知道連結的任何人」（必須，否則儀表板無法讀取）      ║
-║   （不需要「發佈到網路」，gviz 端點只需檢視權限即可）            ║
-║                                                                  ║
-║ 步驟 3：設定 Sheet ID                                           ║
-║   將 Sheet ID 貼到 CONFIG.SHEET_ID 變數中                        ║
-║   （目前已設定為：10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8）║
-║                                                                  ║
-║ 步驟 4：部署 Apps Script（啟用編輯功能）                         ║
-║   a. 在 Google Sheet 中：擴充功能 → Apps Script                  ║
-║   b. 將 apps-script-code.gs 內容貼入 Code.gs                    ║
-║   c. 部署 → 新增部署 → 類型「網頁應用程式」                      ║
-║   d. 執行身分：自己 / 存取權限：任何人                           ║
-║   e. 部署後複製 Web App URL，貼入 CONFIG.APPS_SCRIPT_URL         ║
-║   （若不設定 APPS_SCRIPT_URL，儀表板為純閱讀模式）               ║
+║ 設定步驟：                                                        ║
+║ 1. CONFIG.SHEET_ID = Google Sheet ID                             ║
+║ 2. 共用設定：知道連結的任何人可檢視                               ║
+║ 3. （選用）部署 Apps Script → 貼 URL 到 CONFIG.APPS_SCRIPT_URL   ║
+║    啟用頁面編輯功能；留空 = 純閱讀模式                           ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 -->
@@ -48,431 +23,349 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>機率部門專案時程管理儀表板</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f8f9fa; color: #333; padding: 24px; line-height: 1.5; }
-.dashboard-header { text-align: center; margin-bottom: 32px; }
-.dashboard-title { font-size: 26px; color: #1a1a2e; font-weight: 700; }
-.dashboard-subtitle { font-size: 13px; color: #888; margin-top: 6px; }
-.data-source-note { font-size: 12px; color: #aaa; margin-top: 4px; }
-.loading { text-align: center; padding: 40px; color: #888; font-size: 15px; }
-.loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 8px; vertical-align: middle; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.error-banner { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; font-size: 13px; display: none; }
-.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-.metric-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #6366f1; }
-.metric-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-.metric-value { font-size: 28px; font-weight: 700; color: #1a1a2e; margin: 4px 0; }
-.section { background: #fff; border-radius: 10px; padding: 24px; margin-top: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.section-title { font-size: 17px; color: #1a1a2e; font-weight: 600; }
-.btn { padding: 8px 16px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-.btn:hover { opacity: 0.85; }
-.btn-primary { background: #6366f1; color: #fff; }
-.btn-sm { padding: 4px 10px; font-size: 12px; }
-.btn-edit { background: #e0f2fe; color: #0369a1; }
-.btn-delete { background: #fee2e2; color: #dc2626; }
-.filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-.filters select { background: #fff; color: #333; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
-.filters select:focus { outline: none; border-color: #6366f1; }
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #eee; color: #888; font-size: 12px; text-transform: uppercase; }
-.data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; vertical-align: middle; }
-.data-table tr:hover { background: #f8f5ff; }
-.card-list { display: none; }
-.project-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.project-card-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
-.project-card-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: #555; }
-.project-card-row span:first-child { color: #888; }
-.project-card-actions { display: flex; gap: 8px; margin-top: 10px; }
-.badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.stage-未開始 { background: #f1f1f1; color: #888; }
-.stage-規劃中 { background: #fff3cd; color: #b8860b; }
-.stage-設計中 { background: #e0f2fe; color: #0369a1; }
-.stage-開發中 { background: #d1fae5; color: #047857; }
-.stage-測試中 { background: #ede9fe; color: #6d28d9; }
-.stage-送審中 { background: #ffedd5; color: #c2410c; }
-.stage-修正中 { background: #fee2e2; color: #dc2626; }
-.stage-待上線 { background: #cffafe; color: #0e7490; }
-.stage-已完成 { background: #d1fae5; color: #15803d; border: 1px solid #86efac; }
-.stage-select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; cursor: pointer; background: #fff; }
-.gantt-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.gantt { min-width: 750px; }
-.gantt-header { display: flex; border-bottom: 2px solid #eee; }
-.gantt-header-label { width: 140px; min-width: 140px; padding: 8px 10px; font-size: 12px; color: #888; text-transform: uppercase; }
-.gantt-header-timeline { display: flex; flex: 1; }
-.gantt-week { flex: 1; text-align: center; padding: 6px 2px; font-size: 10px; color: #aaa; border-left: 1px solid #f0f0f0; }
-.gantt-row { display: flex; border-bottom: 1px solid #f5f5f5; align-items: center; min-height: 38px; }
-.gantt-row:hover { background: #fafafa; }
-.gantt-row-label { width: 140px; min-width: 140px; padding: 6px 10px; font-size: 13px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gantt-row-timeline { display: flex; flex: 1; position: relative; height: 38px; }
-.gantt-cell { flex: 1; border-left: 1px solid #f8f8f8; }
-.gantt-bar-planned { position: absolute; top: 6px; height: 12px; border-radius: 6px; }
-.gantt-bar-actual { position: absolute; top: 22px; height: 10px; border-radius: 5px; opacity: 0.45; border: 2px dashed rgba(0,0,0,0.2); }
-.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
-.legend-planned { width: 20px; height: 10px; border-radius: 5px; background: #6366f1; }
-.legend-actual { width: 20px; height: 10px; border-radius: 5px; background: rgba(99,102,241,0.4); border: 2px dashed rgba(0,0,0,0.2); }
-.footer { text-align: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #aaa; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8f9fa;color:#333;padding:24px;line-height:1.5}
+.header{text-align:center;margin-bottom:28px}
+.header h1{font-size:24px;color:#1a1a2e;font-weight:700}
+.header p{font-size:12px;color:#999;margin-top:4px}
+.error-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:16px;color:#dc2626;font-size:13px;display:none}
+.loading{text-align:center;padding:40px;color:#888}
+.loading::after{content:'';display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);border-left:4px solid #6366f1}
+.kpi-label{font-size:11px;color:#888;text-transform:uppercase}
+.kpi-val{font-size:26px;font-weight:700;color:#1a1a2e}
+.section{background:#fff;border-radius:10px;padding:20px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.section-hdr h2{font-size:16px;color:#1a1a2e;font-weight:600}
+.btn{padding:7px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer}
+.btn:hover{opacity:.85}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-sm{padding:3px 8px;font-size:11px}
+.btn-edit{background:#e0f2fe;color:#0369a1}
+.btn-delete{background:#fee2e2;color:#dc2626}
+.btn-add-stage{background:#d1fae5;color:#047857}
+/* Table */
+.machine-group{border:1px solid #eee;border-radius:8px;margin-bottom:12px;overflow:hidden}
+.machine-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fafafa;cursor:pointer;user-select:none}
+.machine-header:hover{background:#f3f0ff}
+.machine-name{font-weight:600;font-size:14px;color:#1a1a2e}
+.machine-meta{font-size:12px;color:#888;display:flex;gap:12px;align-items:center}
+.machine-actions{display:flex;gap:6px}
+.progress-bar{width:80px;height:6px;background:#eee;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:#6366f1;border-radius:3px}
+.stage-table{width:100%;border-collapse:collapse;display:none}
+.stage-table.open{display:table}
+.stage-table th{text-align:left;padding:8px 12px;border-bottom:1px solid #eee;color:#888;font-size:11px;text-transform:uppercase}
+.stage-table td{padding:8px 12px;border-bottom:1px solid #f5f5f5;font-size:13px}
+.badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.stage-未開始{background:#f1f1f1;color:#888}.stage-規劃中{background:#fff3cd;color:#b8860b}.stage-設計中{background:#e0f2fe;color:#0369a1}.stage-開發中{background:#d1fae5;color:#047857}.stage-測試中{background:#ede9fe;color:#6d28d9}.stage-送審中{background:#ffedd5;color:#c2410c}.stage-修正中{background:#fee2e2;color:#dc2626}.stage-待上線{background:#cffafe;color:#0e7490}.stage-已完成{background:#d1fae5;color:#15803d}
+/* Gantt */
+.gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.gantt{min-width:800px}
+.gantt-hdr{display:flex;border-bottom:2px solid #eee}
+.gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:#888}
+.gantt-timeline{display:flex;flex:1}
+.gantt-wk{flex:1;text-align:center;padding:4px 2px;font-size:9px;color:#bbb;border-left:1px solid #f0f0f0}
+.gantt-group-label{padding:6px 10px;font-size:12px;font-weight:600;color:#1a1a2e;background:#fafafa;border-bottom:1px solid #eee}
+.gantt-row{display:flex;border-bottom:1px solid #f8f8f8;min-height:28px;align-items:center}
+.gantt-row:hover{background:#fafafa}
+.gantt-row-lbl{width:180px;min-width:180px;padding:4px 10px 4px 24px;font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt-row-tl{display:flex;flex:1;position:relative;height:28px}
+.gantt-cell{flex:1;border-left:1px solid #fafafa}
+.g-plan{position:absolute;top:4px;height:8px;border-radius:4px;opacity:.4}
+.g-actual{position:absolute;top:14px;height:10px;border-radius:4px}
+.g-milestone{position:absolute;top:6px;width:12px;height:12px;transform:rotate(45deg);border:2px solid}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#666}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-plan{width:16px;height:6px;border-radius:3px;background:#6366f1;opacity:.4}
+.legend-actual{width:16px;height:8px;border-radius:3px;background:#6366f1}
+.legend-ms{width:8px;height:8px;transform:rotate(45deg);border:2px solid #6366f1;background:#fff}
+.footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#bbb}
 /* Modal */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
-.modal-overlay.active { display: flex; }
-.modal { background: #fff; border-radius: 12px; padding: 28px; width: 90%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-.modal h3 { font-size: 18px; color: #1a1a2e; margin-bottom: 20px; }
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-.form-group textarea { resize: vertical; height: 60px; }
-.form-group input:focus, .form-group select:focus { outline: none; border-color: #6366f1; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-.btn-cancel { background: #f1f1f1; color: #666; }
-.action-cell { white-space: nowrap; }
-@media (max-width: 768px) {
-  body { padding: 12px; }
-  .dashboard-title { font-size: 20px; }
-  .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .metric-card { padding: 14px; }
-  .metric-value { font-size: 22px; }
-  .section { padding: 16px; }
-  .data-table-wrapper { display: none; }
-  .card-list { display: block; }
-  .gantt-header-label, .gantt-row-label { width: 100px; min-width: 100px; font-size: 11px; }
-  .gantt-week { font-size: 9px; }
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;justify-content:center;align-items:center}
+.modal-bg.active{display:flex}
+.modal{background:#fff;border-radius:12px;padding:24px;width:90%;max-width:440px;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.modal h3{font-size:16px;margin-bottom:16px;color:#1a1a2e}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:12px;color:#666;margin-bottom:3px}
+.fg input,.fg select,.fg textarea{width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.fg textarea{height:50px;resize:vertical}
+.fg input:focus,.fg select:focus{outline:none;border-color:#6366f1}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn-cancel{background:#f1f1f1;color:#666}
+@media(max-width:768px){
+  body{padding:12px}
+  .header h1{font-size:18px}
+  .grid{grid-template-columns:1fr 1fr}
+  .kpi{padding:12px}.kpi-val{font-size:20px}
+  .section{padding:14px}
+  .gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}
+  .machine-header{flex-direction:column;align-items:flex-start;gap:6px}
 }
-@media (max-width: 480px) {
-  .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .metric-card { padding: 12px; }
-  .metric-value { font-size: 20px; }
-  .filters { flex-direction: column; }
-  .filters select { width: 100%; }
-}
+@media(max-width:480px){.grid{grid-template-columns:1fr 1fr}.gantt-lbl,.gantt-row-lbl{width:90px;min-width:90px}}
 </style>
 </head>
 <body>
-
-<div class="dashboard-header">
-  <h1 class="dashboard-title">機率部門專案時程管理儀表板</h1>
-  <p class="dashboard-subtitle">產生時間：<span id="gen-time"></span> | 呱集團 機率部門</p>
-  <p class="data-source-note" id="source-note"></p>
+<div class="header">
+  <h1>機率部門專案時程管理儀表板</h1>
+  <p><span id="gen-time"></span> | 呱集團 機率部門 | <span id="source-note"></span></p>
 </div>
-
 <div class="error-banner" id="error-banner"></div>
-<div class="loading" id="loading">正在從 Google Sheet 載入資料</div>
-
-<div id="main-content" style="display:none;">
-  <div class="grid" id="kpi-cards"></div>
+<div class="loading" id="loading">正在載入資料</div>
+<div id="app" style="display:none">
+  <div class="grid" id="kpis"></div>
   <div class="section">
-    <div class="section-header">
-      <h2 class="section-title">專案總覽</h2>
-      <button class="btn btn-primary edit-only" onclick="openAddModal()" style="display:none;">+ 新增機台</button>
-    </div>
-    <div class="filters">
-      <select id="filter-owner"><option value="">全部負責人</option></select>
-      <select id="filter-stage"><option value="">全部階段</option></select>
-    </div>
-    <div class="data-table-wrapper">
-      <table class="data-table">
-        <thead><tr><th>機台名稱</th><th>負責人</th><th>目前階段</th><th>預計開始</th><th>預計結束</th><th>實際開始</th><th>實際結束</th><th>備註</th><th class="edit-only" style="display:none;">操作</th></tr></thead>
-        <tbody id="table-body"></tbody>
-      </table>
-    </div>
-    <div class="card-list" id="card-list"></div>
+    <div class="section-hdr"><h2>專案總覽</h2><button class="btn btn-primary edit-only" onclick="openAddMachine()" style="display:none">+ 新增機台</button></div>
+    <div id="table-area"></div>
   </div>
   <div class="section">
-    <h2 class="section-title" style="margin-bottom:16px;">甘特圖 — 時間軸（週粒度）</h2>
-    <div class="gantt-container"><div class="gantt" id="gantt-chart"></div></div>
+    <div class="section-hdr"><h2>甘特圖（週粒度）</h2></div>
+    <div class="gantt-wrap"><div class="gantt" id="gantt"></div></div>
     <div class="legend">
-      <div class="legend-item"><div class="legend-planned"></div>預計時程</div>
-      <div class="legend-item"><div class="legend-actual"></div>實際時程</div>
+      <div class="legend-item"><div class="legend-plan"></div>計畫區間</div>
+      <div class="legend-item"><div class="legend-actual"></div>實際執行</div>
+      <div class="legend-item"><div class="legend-ms"></div>Deadline（里程碑）</div>
     </div>
   </div>
 </div>
-
 <div class="footer">由 呱集團 AI Fleet 自動產生</div>
 
 <!-- Modal -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <h3 id="modal-title">新增機台</h3>
-    <div class="form-group"><label>機台名稱</label><input type="text" id="f-name"></div>
-    <div class="form-group"><label>負責人</label><input type="text" id="f-owner"></div>
-    <div class="form-group"><label>目前階段</label><select id="f-stage"></select></div>
-    <div class="form-group"><label>預計開始日</label><input type="date" id="f-planStart"></div>
-    <div class="form-group"><label>預計結束日</label><input type="date" id="f-planEnd"></div>
-    <div class="form-group"><label>實際開始日</label><input type="date" id="f-actualStart"></div>
-    <div class="form-group"><label>實際結束日</label><input type="date" id="f-actualEnd"></div>
-    <div class="form-group"><label>備註</label><textarea id="f-note"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-cancel" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" id="modal-submit">確認</button>
-    </div>
-  </div>
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-content"></div>
 </div>
 
 <script>
-// ╔═══════════════════════════════════════════╗
-// ║        設定區 — 只需修改這裡              ║
-// ╚═══════════════════════════════════════════╝
 const CONFIG = {
   SHEET_ID: '10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8',
-  SHEET_ACTIVE: '進行中',
-  SHEET_DONE: '已完成',
-
-  // Apps Script Web App URL（部署後貼這裡，啟用編輯功能）
-  // 留空 = 純閱讀模式
+  SHEET_NAME: '進行中',
   APPS_SCRIPT_URL: ''
 };
 
-// ═══════════════════════════════════════════
 const STAGES = ['未開始','規劃中','設計中','開發中','測試中','送審中','修正中','待上線','已完成'];
-const STAGE_COLORS = {
-  '未開始':'#9ca3af','規劃中':'#eab308','設計中':'#3b82f6','開發中':'#10b981',
-  '測試中':'#8b5cf6','送審中':'#f97316','修正中':'#ef4444','待上線':'#06b6d4','已完成':'#22c55e'
-};
+const STAGE_COLORS = {'未開始':'#9ca3af','規劃中':'#eab308','設計中':'#3b82f6','開發中':'#10b981','測試中':'#8b5cf6','送審中':'#f97316','修正中':'#ef4444','待上線':'#06b6d4','已完成':'#22c55e'};
+
 const DEMO_DATA = [
-  { name:'龍之谷 v2.0', owner:'阿凱', stage:'開發中', planStart:'2026-06-02', planEnd:'2026-08-10', actualStart:'2026-06-02', actualEnd:'', note:'核心玩法重構', _sheet:'進行中', _row:2 },
-  { name:'麻將至尊', owner:'小美', stage:'測試中', planStart:'2026-05-12', planEnd:'2026-07-20', actualStart:'2026-05-12', actualEnd:'', note:'第二輪 QA 進行中', _sheet:'進行中', _row:3 },
-  { name:'水果盤 Deluxe', owner:'志明', stage:'設計中', planStart:'2026-06-16', planEnd:'2026-09-07', actualStart:'2026-06-23', actualEnd:'', note:'美術需求待確認', _sheet:'進行中', _row:4 },
-  { name:'百家樂 Pro', owner:'阿杰', stage:'送審中', planStart:'2026-04-14', planEnd:'2026-06-29', actualStart:'2026-04-14', actualEnd:'', note:'GLI 文件已送出', _sheet:'進行中', _row:5 },
-  { name:'幸運輪盤', owner:'雅婷', stage:'規劃中', planStart:'2026-07-07', planEnd:'2026-09-28', actualStart:'', actualEnd:'', note:'等待企劃定案', _sheet:'進行中', _row:6 }
+  {machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天'},
+  {machine:'龍之谷 v2.0',stage:'設計中',planStart:'2026-06-02',planEnd:'2026-06-22',actualStart:'2026-06-04',actualEnd:'2026-06-20',owner:'阿凱',note:''},
+  {machine:'龍之谷 v2.0',stage:'開發中',planStart:'2026-06-23',planEnd:'2026-08-03',actualStart:'2026-06-23',actualEnd:'',owner:'阿凱',note:'進行中'},
+  {machine:'龍之谷 v2.0',stage:'測試中',planStart:'',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline only'},
+  {machine:'龍之谷 v2.0',stage:'送審中',planStart:'',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline only'},
+  {machine:'麻將至尊',stage:'設計中',planStart:'2026-05-05',planEnd:'2026-05-25',actualStart:'2026-05-05',actualEnd:'2026-05-23',owner:'小美',note:'提前完成'},
+  {machine:'麻將至尊',stage:'開發中',planStart:'2026-05-26',planEnd:'2026-07-06',actualStart:'2026-05-26',actualEnd:'2026-07-10',owner:'小美',note:'延遲 4 天'},
+  {machine:'麻將至尊',stage:'測試中',planStart:'2026-07-07',planEnd:'2026-07-27',actualStart:'2026-07-11',actualEnd:'',owner:'小美',note:'進行中'},
+  {machine:'麻將至尊',stage:'送審中',planStart:'2026-07-28',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'小美',note:''},
+  {machine:'水果盤 Deluxe',stage:'規劃中',planStart:'2026-06-16',planEnd:'2026-06-29',actualStart:'2026-06-23',actualEnd:'',owner:'志明',note:'晚一週開始'},
+  {machine:'水果盤 Deluxe',stage:'設計中',planStart:'',planEnd:'2026-07-20',actualStart:'',actualEnd:'',owner:'志明',note:'Deadline'},
+  {machine:'水果盤 Deluxe',stage:'開發中',planStart:'2026-07-21',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'志明',note:''},
 ];
 
-let projects = [];
+let rawData = [];
 const canEdit = () => !!CONFIG.APPS_SCRIPT_URL;
 
-// ═══ Google Sheet Read (gviz) ═══
-function parseCSV(text) {
-  const lines = text.split('\n').filter(l => l.trim());
-  if (lines.length < 2) return [];
-  const results = [];
-  for (let i = 1; i < lines.length; i++) {
-    const cols = parseCSVLine(lines[i]);
-    if (cols.length >= 3) results.push({ name:cols[0]||'', owner:cols[1]||'', stage:cols[2]||'', planStart:cols[3]||'', planEnd:cols[4]||'', actualStart:cols[5]||'', actualEnd:cols[6]||'', note:cols[7]||'' });
-  }
-  return results;
-}
-function parseCSVLine(line) {
-  const result = []; let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (inQ) { if (ch === '"' && line[i+1] === '"') { cur += '"'; i++; } else if (ch === '"') inQ = false; else cur += ch; }
-    else { if (ch === '"') inQ = true; else if (ch === ',') { result.push(cur.trim()); cur = ''; } else cur += ch; }
-  }
-  result.push(cur.trim()); return result;
-}
-function gvizURL(sheetName, format) { return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${format}&sheet=${encodeURIComponent(sheetName)}`; }
-function parseGvizJSON(text) {
-  const m = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);
-  const json = JSON.parse(m ? m[1] : text);
-  return json.table.rows.map(row => { const c = row.c||[]; const v = i => (c[i]&&c[i].v!=null)?String(c[i].v):''; return { name:v(0), owner:v(1), stage:v(2), planStart:v(3), planEnd:v(4), actualStart:v(5), actualEnd:v(6), note:v(7) }; });
+// === Data grouping ===
+function groupByMachine(data) {
+  const map = new Map();
+  data.forEach(r => {
+    if (!map.has(r.machine)) map.set(r.machine, []);
+    map.get(r.machine).push(r);
+  });
+  return map;
 }
 
-async function fetchSheetGviz(sheetName) {
-  try { const r = await fetch(gvizURL(sheetName,'csv')); if (r.ok) return parseCSV(await r.text()); } catch(e){}
-  const r = await fetch(gvizURL(sheetName,'json')); if (!r.ok) throw new Error(`HTTP ${r.status}`); return parseGvizJSON(await r.text());
-}
-
-// ═══ Apps Script CRUD ═══
-async function apiCall(body) {
-  const r = await fetch(CONFIG.APPS_SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(body), redirect:'follow' });
-  // Apps Script redirects; fetch with redirect:'follow' handles it
-  return r.json();
-}
-async function apiRead() {
-  const r = await fetch(CONFIG.APPS_SCRIPT_URL + '?action=read', { redirect:'follow' });
-  return r.json();
-}
-
-// ═══ Data Loading ═══
+// === Load ===
 async function loadData() {
   const loading = document.getElementById('loading');
-  const errorBanner = document.getElementById('error-banner');
-  const sourceNote = document.getElementById('source-note');
-
-  if (!CONFIG.SHEET_ID) {
-    projects = DEMO_DATA;
-    sourceNote.textContent = '資料來源：內建 Demo 資料（尚未設定 Google Sheet ID）';
-    finishLoad(); return;
-  }
-
+  const err = document.getElementById('error-banner');
+  const src = document.getElementById('source-note');
+  if (!CONFIG.SHEET_ID) { rawData = DEMO_DATA; src.textContent='Demo 資料'; finish(); return; }
   try {
     if (canEdit()) {
-      // Use Apps Script for reading (includes row numbers)
-      const res = await apiRead();
-      if (res.success) {
-        const active = (res.data.active||[]).map(r => ({...r, _sheet:CONFIG.SHEET_ACTIVE, _row:r.row}));
-        const done = (res.data.done||[]).map(r => ({...r, _sheet:CONFIG.SHEET_DONE, _row:r.row}));
-        projects = [...active, ...done];
-      } else throw new Error(res.error||'API error');
-    } else {
-      const [active, done] = await Promise.all([fetchSheetGviz(CONFIG.SHEET_ACTIVE), fetchSheetGviz(CONFIG.SHEET_DONE)]);
-      projects = [...active.map((p,i)=>({...p,_sheet:CONFIG.SHEET_ACTIVE,_row:i+2})), ...done.map((p,i)=>({...p,_sheet:CONFIG.SHEET_DONE,_row:i+2}))];
+      const r = await (await fetch(CONFIG.APPS_SCRIPT_URL+'?action=read',{redirect:'follow'})).json();
+      if (r.success) { rawData = r.data; src.textContent='Google Sheet（即時）'; finish(); return; }
     }
-    sourceNote.textContent = '資料來源：Google Sheet（即時讀取）';
-    finishLoad();
-  } catch (e) {
-    errorBanner.textContent = `無法讀取 Google Sheet：${e.message}。已切換至 Demo 資料。`;
-    errorBanner.style.display = 'block';
-    projects = DEMO_DATA;
-    sourceNote.textContent = '資料來源：內建 Demo 資料（讀取失敗）';
-    finishLoad();
+    // gviz
+    let text;
+    try { const r=await fetch(gvizUrl('csv')); if(r.ok) text=await r.text(); } catch(e){}
+    if (text) { rawData = parseCsv(text); }
+    else { const r=await fetch(gvizUrl('json')); text=await r.text(); rawData=parseGvizJson(text); }
+    src.textContent='Google Sheet（即時）';
+    finish();
+  } catch(e) {
+    err.textContent='無法讀取 Google Sheet：'+e.message+'。顯示 Demo 資料。'; err.style.display='block';
+    rawData = DEMO_DATA; src.textContent='Demo 資料'; finish();
   }
 }
+function gvizUrl(fmt){return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${fmt}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
+function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({machine:c[0],stage:c[1],planStart:c[2]||'',planEnd:c[3]||'',actualStart:c[4]||'',actualEnd:c[5]||'',owner:c[6]||'',note:c[7]||''});}return res;}
+function csvLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch==='"'&&l[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}else{if(ch==='"')q=true;else if(ch===','){r.push(c.trim());c=''}else c+=ch}}r.push(c.trim());return r}
+function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);const j=JSON.parse(m?m[1]:text);return j.table.rows.map(row=>{const c=row.c||[];const v=i=>(c[i]&&c[i].v!=null)?String(c[i].v):'';return{machine:v(0),stage:v(1),planStart:v(2),planEnd:v(3),actualStart:v(4),actualEnd:v(5),owner:v(6),note:v(7)}})}
 
-function finishLoad() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('main-content').style.display = 'block';
-  if (canEdit()) document.querySelectorAll('.edit-only').forEach(el => el.style.display = '');
+function finish(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='';
+  if(canEdit())document.querySelectorAll('.edit-only').forEach(el=>el.style.display='');
   render();
 }
 
-// ═══ Render ═══
-function render() { renderKPI(); renderFilters(); renderTable(); renderGantt(); }
+// === Render ===
+function render(){ renderKPI(); renderTable(); renderGantt(); }
 
-function renderKPI() {
-  const counts = {}; STAGES.forEach(s => counts[s]=0); projects.forEach(p => counts[p.stage]++);
-  const active = projects.length - (counts['已完成']||0) - (counts['未開始']||0);
-  document.getElementById('kpi-cards').innerHTML = `
-    <div class="metric-card"><div class="metric-label">總機台數</div><div class="metric-value">${projects.length}</div></div>
-    <div class="metric-card"><div class="metric-label">進行中</div><div class="metric-value">${active}</div></div>
-    <div class="metric-card"><div class="metric-label">已完成</div><div class="metric-value">${counts['已完成']||0}</div></div>
-    <div class="metric-card"><div class="metric-label">未開始</div><div class="metric-value">${counts['未開始']||0}</div></div>`;
-}
-
-function getFiltered() {
-  const o = document.getElementById('filter-owner').value, s = document.getElementById('filter-stage').value;
-  return projects.filter(p => (!o||p.owner===o) && (!s||p.stage===s));
-}
-
-function stageSelectHTML(current, idx) {
-  if (!canEdit()) return `<span class="badge stage-${current}">${current}</span>`;
-  return `<select class="stage-select" onchange="quickStageChange(${idx},this.value)">${STAGES.map(s=>`<option value="${s}"${s===current?' selected':''}>${s}</option>`).join('')}</select>`;
-}
-
-function renderTable() {
-  const filtered = getFiltered();
-  const editCol = canEdit() ? '<td class="action-cell"><button class="btn btn-sm btn-edit" onclick="openEditModal(${idx})">✎</button> <button class="btn btn-sm btn-delete" onclick="deleteProject(${idx})">✕</button></td>' : '';
-  document.getElementById('table-body').innerHTML = filtered.map(p => {
-    const idx = projects.indexOf(p);
-    return `<tr>
-    <td>${p.name}</td><td>${p.owner}</td>
-    <td>${stageSelectHTML(p.stage, idx)}</td>
-    <td>${p.planStart}</td><td>${p.planEnd}</td>
-    <td>${p.actualStart||'—'}</td><td>${p.actualEnd||'—'}</td><td>${p.note}</td>
-    ${canEdit()?`<td class="action-cell"><button class="btn btn-sm btn-edit" onclick="openEditModal(${idx})">✎</button> <button class="btn btn-sm btn-delete" onclick="deleteProject(${idx})">✕</button></td>`:''}</tr>`;
-  }).join('');
-
-  document.getElementById('card-list').innerHTML = filtered.map(p => {
-    const idx = projects.indexOf(p);
-    return `<div class="project-card">
-    <div class="project-card-title">${p.name} <span class="badge stage-${p.stage}">${p.stage}</span></div>
-    <div class="project-card-row"><span>負責人</span><span>${p.owner}</span></div>
-    <div class="project-card-row"><span>預計</span><span>${p.planStart} ~ ${p.planEnd}</span></div>
-    <div class="project-card-row"><span>實際</span><span>${p.actualStart||'—'} ~ ${p.actualEnd||'—'}</span></div>
-    <div class="project-card-row"><span>備註</span><span>${p.note}</span></div>
-    ${canEdit()?`<div class="project-card-actions"><button class="btn btn-sm btn-edit" onclick="openEditModal(${idx})">✎ 編輯</button><button class="btn btn-sm btn-delete" onclick="deleteProject(${idx})">✕ 刪除</button></div>`:''}</div>`;
-  }).join('');
-}
-
-function renderFilters() {
-  const ownerSel = document.getElementById('filter-owner'), stageSel = document.getElementById('filter-stage');
-  ownerSel.innerHTML = '<option value="">全部負責人</option>';
-  stageSel.innerHTML = '<option value="">全部階段</option>';
-  [...new Set(projects.map(p=>p.owner).filter(Boolean))].forEach(o => { ownerSel.innerHTML += `<option value="${o}">${o}</option>`; });
-  STAGES.forEach(s => { stageSel.innerHTML += `<option value="${s}">${s}</option>`; });
-  ownerSel.onchange = renderTable; stageSel.onchange = renderTable;
-}
-
-function weekStart(dateStr) { if (!dateStr) return null; const d = new Date(dateStr); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }
-function getWeekRange() {
-  let min=Infinity, max=-Infinity;
-  projects.forEach(p => { [p.planStart,p.planEnd,p.actualStart,p.actualEnd].forEach(d => { if(d){const t=new Date(d).getTime();if(t<min)min=t;if(t>max)max=t;} }); });
-  if (min===Infinity){min=Date.now();max=Date.now()+86400000*90;}
-  const start=weekStart(new Date(min-86400000*7).toISOString().slice(0,10)), end=new Date(max+86400000*14), weeks=[];
-  const cur=new Date(start); while(cur<=end){weeks.push(new Date(cur));cur.setDate(cur.getDate()+7);} return weeks;
-}
-function renderGantt() {
-  const weeks=getWeekRange(), total=weeks.length, container=document.getElementById('gantt-chart');
-  let html=`<div class="gantt-header"><div class="gantt-header-label">機台</div><div class="gantt-header-timeline">`;
-  weeks.forEach(w=>{html+=`<div class="gantt-week">${w.getMonth()+1}/${w.getDate()}</div>`;});
-  html+=`</div></div>`;
-  projects.forEach(p=>{
-    html+=`<div class="gantt-row"><div class="gantt-row-label" title="${p.name}">${p.name}</div><div class="gantt-row-timeline">`;
-    weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`;});
-    if(p.planStart&&p.planEnd){const si=Math.max(0,weeks.findIndex(w=>w>=weekStart(p.planStart)));let ei=weeks.findIndex(w=>w>=weekStart(p.planEnd));ei=ei===-1?total-1:Math.min(ei,total-1);html+=`<div class="gantt-bar-planned" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;}
-    if(p.actualStart){const as=weekStart(p.actualStart),ae=p.actualEnd?weekStart(p.actualEnd):weekStart(new Date().toISOString().slice(0,10));const si=Math.max(0,weeks.findIndex(w=>w>=as));let ei=weeks.findIndex(w=>w>=ae);ei=ei===-1?total-1:Math.min(ei,total-1);html+=`<div class="gantt-bar-actual" style="left:${si/total*100}%;width:${(ei-si+1)/total*100}%;background:${STAGE_COLORS[p.stage]||'#6366f1'};"></div>`;}
-    html+=`</div></div>`;
+function renderKPI(){
+  const machines = groupByMachine(rawData);
+  const total = machines.size;
+  let done=0, active=0;
+  machines.forEach(stages=>{
+    const allDone=stages.every(s=>s.actualEnd);
+    const anyStarted=stages.some(s=>s.actualStart);
+    if(allDone)done++; else if(anyStarted)active++;
   });
-  container.innerHTML=html;
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">總機台數</div><div class="kpi-val">${total}</div></div>
+    <div class="kpi"><div class="kpi-label">進行中</div><div class="kpi-val">${active}</div></div>
+    <div class="kpi"><div class="kpi-label">已完成</div><div class="kpi-val">${done}</div></div>
+    <div class="kpi"><div class="kpi-label">未開始</div><div class="kpi-val">${total-done-active}</div></div>`;
 }
 
-// ═══ CRUD Operations ═══
-let editingIdx = -1;
+function renderTable(){
+  const machines = groupByMachine(rawData);
+  let html='';
+  machines.forEach((stages,name)=>{
+    const owner = stages[0]?.owner||'';
+    const doneCount = stages.filter(s=>s.actualEnd).length;
+    const currentStage = stages.find(s=>s.actualStart&&!s.actualEnd);
+    const pct = stages.length?Math.round(doneCount/stages.length*100):0;
+    const id = 'tbl-'+name.replace(/\W/g,'');
+    html+=`<div class="machine-group">
+      <div class="machine-header" onclick="document.getElementById('${id}').classList.toggle('open')">
+        <div><span class="machine-name">${name}</span></div>
+        <div class="machine-meta">
+          <span>${owner}</span>
+          ${currentStage?`<span class="badge stage-${currentStage.stage}">${currentStage.stage}</span>`:'<span class="badge stage-未開始">未開始</span>'}
+          <span>${doneCount}/${stages.length}</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          ${canEdit()?`<div class="machine-actions"><button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${name}','${owner}')">+ 階段</button><button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${name}')">✕</button></div>`:''}
+        </div>
+      </div>
+      <table class="stage-table" id="${id}">
+        <thead><tr><th>階段</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
+        <tbody>${stages.map(s=>`<tr>
+          <td><span class="badge stage-${s.stage}">${s.stage}</span></td>
+          <td>${s.planStart||'—'}</td><td>${s.planEnd||'—'}</td>
+          <td>${s.actualStart||'—'}</td><td>${s.actualEnd||'—'}</td><td>${s.note||''}</td>
+          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s._row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s._row||0})">✕</button></td>`:''}</tr>`).join('')}</tbody>
+      </table></div>`;
+  });
+  document.getElementById('table-area').innerHTML=html;
+}
+function esc(s){return (s||'').replace(/'/g,"\\'")}
 
-function openAddModal() {
-  editingIdx = -1;
-  document.getElementById('modal-title').textContent = '新增機台';
-  ['f-name','f-owner','f-planStart','f-planEnd','f-actualStart','f-actualEnd','f-note'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-stage').value = '未開始';
-  document.getElementById('modal-submit').onclick = submitAdd;
-  document.getElementById('modal-overlay').classList.add('active');
+// === Gantt ===
+function renderGantt(){
+  const machines = groupByMachine(rawData);
+  const weeks = getWeeks();
+  const total = weeks.length;
+  let html=`<div class="gantt-hdr"><div class="gantt-lbl">機台 / 階段</div><div class="gantt-timeline">`;
+  weeks.forEach(w=>{html+=`<div class="gantt-wk">${w.getMonth()+1}/${w.getDate()}</div>`});
+  html+=`</div></div>`;
+
+  machines.forEach((stages,name)=>{
+    html+=`<div class="gantt-group-label">${name}</div>`;
+    stages.forEach(s=>{
+      html+=`<div class="gantt-row"><div class="gantt-row-lbl" title="${s.stage}">${s.stage}</div><div class="gantt-row-tl">`;
+      weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
+      const color = STAGE_COLORS[s.stage]||'#6366f1';
+      // Plan
+      if(s.planStart&&s.planEnd){
+        const si=wkIdx(weeks,s.planStart),ei=wkIdx(weeks,s.planEnd);
+        html+=`<div class="g-plan" style="left:${si/total*100}%;width:${Math.max((ei-si+1)/total*100,0.5)}%;background:${color}"></div>`;
+      } else if(s.planEnd&&!s.planStart){
+        // Milestone
+        const mi=wkIdx(weeks,s.planEnd);
+        html+=`<div class="g-milestone" style="left:calc(${mi/total*100}% - 6px);border-color:${color}"></div>`;
+      }
+      // Actual
+      if(s.actualStart){
+        const asi=wkIdx(weeks,s.actualStart);
+        const aei=s.actualEnd?wkIdx(weeks,s.actualEnd):wkIdx(weeks,new Date().toISOString().slice(0,10));
+        html+=`<div class="g-actual" style="left:${asi/total*100}%;width:${Math.max((aei-asi+1)/total*100,0.5)}%;background:${color}"></div>`;
+      }
+      html+=`</div></div>`;
+    });
+  });
+  document.getElementById('gantt').innerHTML=html;
 }
 
-function openEditModal(idx) {
-  editingIdx = idx;
-  const p = projects[idx];
-  document.getElementById('modal-title').textContent = '編輯機台';
-  document.getElementById('f-name').value = p.name;
-  document.getElementById('f-owner').value = p.owner;
-  document.getElementById('f-stage').value = p.stage;
-  document.getElementById('f-planStart').value = p.planStart;
-  document.getElementById('f-planEnd').value = p.planEnd;
-  document.getElementById('f-actualStart').value = p.actualStart;
-  document.getElementById('f-actualEnd').value = p.actualEnd;
-  document.getElementById('f-note').value = p.note;
-  document.getElementById('modal-submit').onclick = submitEdit;
-  document.getElementById('modal-overlay').classList.add('active');
+function getWeeks(){
+  let min=Infinity,max=-Infinity;
+  rawData.forEach(r=>{[r.planStart,r.planEnd,r.actualStart,r.actualEnd].forEach(d=>{if(d){const t=new Date(d).getTime();if(t<min)min=t;if(t>max)max=t}})});
+  if(min===Infinity){min=Date.now();max=Date.now()+86400000*90}
+  const s=mondayOf(new Date(min-86400000*7)),e=new Date(max+86400000*14),weeks=[];
+  const c=new Date(s);while(c<=e){weeks.push(new Date(c));c.setDate(c.getDate()+7)}return weeks;
+}
+function mondayOf(d){const day=d.getDay();d.setDate(d.getDate()-((day+6)%7));d.setHours(0,0,0,0);return d}
+function wkIdx(weeks,dateStr){const d=mondayOf(new Date(dateStr));const idx=weeks.findIndex(w=>w>=d);return idx===-1?weeks.length-1:Math.max(0,idx)}
+
+// === CRUD ===
+async function apiPost(body){
+  const r=await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body),redirect:'follow'});
+  return r.json();
 }
 
-function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
+function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-bg').classList.add('active')}
+function closeModal(){document.getElementById('modal-bg').classList.remove('active')}
 
-function getFormData() {
-  return { name:document.getElementById('f-name').value, owner:document.getElementById('f-owner').value, stage:document.getElementById('f-stage').value, planStart:document.getElementById('f-planStart').value, planEnd:document.getElementById('f-planEnd').value, actualStart:document.getElementById('f-actualStart').value, actualEnd:document.getElementById('f-actualEnd').value, note:document.getElementById('f-note').value };
+function openAddMachine(){
+  openModal(`<h3>新增機台</h3>
+    <div class="fg"><label>機台名稱</label><input id="m-name"></div>
+    <div class="fg"><label>負責人</label><input id="m-owner"></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddMachine()">確認</button></div>`);
 }
-
-async function submitAdd() {
-  const data = getFormData();
-  if (!data.name) { alert('請輸入機台名稱'); return; }
+async function submitAddMachine(){
+  const name=document.getElementById('m-name').value,owner=document.getElementById('m-owner').value;
+  if(!name){alert('請輸入名稱');return}
   closeModal();
-  try { await apiCall({ action:'add', data }); await loadData(); } catch(e) { alert('新增失敗：'+e.message); }
+  await apiPost({action:'addMachine',name,owner}); await loadData();
 }
 
-async function submitEdit() {
-  const p = projects[editingIdx];
-  const data = getFormData();
-  closeModal();
-  try { await apiCall({ action:'update', sheet:p._sheet, row:p._row, data }); await loadData(); } catch(e) { alert('更新失敗：'+e.message); }
+function openAddStage(machine,owner){
+  const opts=STAGES.map(s=>`<option>${s}</option>`).join('');
+  openModal(`<h3>新增階段 — ${machine}</h3>
+    <div class="fg"><label>階段</label><select id="s-stage">${opts}</select></div>
+    <div class="fg"><label>計畫開始日</label><input type="date" id="s-ps"></div>
+    <div class="fg"><label>計畫結束日</label><input type="date" id="s-pe"></div>
+    <div class="fg"><label>備註</label><textarea id="s-note"></textarea></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddStage('${esc(machine)}','${esc(owner)}')">確認</button></div>`);
+}
+async function submitAddStage(machine,owner){
+  const data={machine,stage:document.getElementById('s-stage').value,planStart:document.getElementById('s-ps').value,planEnd:document.getElementById('s-pe').value,actualStart:'',actualEnd:'',owner,note:document.getElementById('s-note').value};
+  closeModal(); await apiPost({action:'addStage',data}); await loadData();
 }
 
-async function quickStageChange(idx, newStage) {
-  const p = projects[idx];
-  const data = { name:p.name, owner:p.owner, stage:newStage, planStart:p.planStart, planEnd:p.planEnd, actualStart:p.actualStart, actualEnd:p.actualEnd, note:p.note };
-  try { await apiCall({ action:'update', sheet:p._sheet, row:p._row, data }); await loadData(); } catch(e) { alert('更新失敗：'+e.message); }
+function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note){
+  const opts=STAGES.map(s=>`<option${s===stage?' selected':''}>${s}</option>`).join('');
+  openModal(`<h3>編輯階段</h3>
+    <div class="fg"><label>階段</label><select id="e-stage">${opts}</select></div>
+    <div class="fg"><label>計畫開始日</label><input type="date" id="e-ps" value="${ps}"></div>
+    <div class="fg"><label>計畫結束日</label><input type="date" id="e-pe" value="${pe}"></div>
+    <div class="fg"><label>實際開始日</label><input type="date" id="e-as" value="${as}"></div>
+    <div class="fg"><label>實際結束日</label><input type="date" id="e-ae" value="${ae}"></div>
+    <div class="fg"><label>備註</label><textarea id="e-note">${note}</textarea></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitEditStage(${row},'${esc(machine)}','${esc(owner)}')">確認</button></div>`);
+}
+async function submitEditStage(row,machine,owner){
+  const data={machine,stage:document.getElementById('e-stage').value,planStart:document.getElementById('e-ps').value,planEnd:document.getElementById('e-pe').value,actualStart:document.getElementById('e-as').value,actualEnd:document.getElementById('e-ae').value,owner,note:document.getElementById('e-note').value};
+  closeModal(); await apiPost({action:'update',row,data}); await loadData();
 }
 
-async function deleteProject(idx) {
-  const p = projects[idx];
-  if (!confirm(`確定要刪除「${p.name}」嗎？`)) return;
-  try { await apiCall({ action:'delete', sheet:p._sheet, row:p._row }); await loadData(); } catch(e) { alert('刪除失敗：'+e.message); }
-}
+async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
+async function delMachine(name){if(!confirm(`確定刪除「${name}」的所有階段？`))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
 
-// ═══ Init ═══
-(function init() {
-  // Populate stage select in modal
-  const sel = document.getElementById('f-stage');
-  STAGES.forEach(s => { sel.innerHTML += `<option value="${s}">${s}</option>`; });
-  document.getElementById('gen-time').textContent = new Date().toISOString().slice(0,16).replace('T',' ');
-  loadData();
-})();
+// === Init ===
+document.getElementById('gen-time').textContent=new Date().toISOString().slice(0,16).replace('T',' ');
+loadData();
 </script>
 </body>
 </html>
