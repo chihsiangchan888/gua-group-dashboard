@@ -138,6 +138,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="legend-item"><div class="legend-plan"></div>計畫區間</div>
       <div class="legend-item"><div class="legend-actual"></div>實際執行</div>
       <div class="legend-item"><div class="legend-ms"></div>Deadline</div>
+      <div class="legend-item"><div style="width:16px;height:6px;border-radius:3px;background:#6366f1;opacity:.25"></div>機台整體時間範圍</div>
       <div class="legend-item"><div class="legend-today"></div>今天</div>
     </div>
   </div>
@@ -305,7 +306,7 @@ function renderTable(){
     const pctColor=pct>=100?'#22c55e':'#6366f1';
     html+=`<div class="machine-group">
       <div class="machine-header" onclick="document.getElementById('${id}').classList.toggle('open')">
-        <div><span class="machine-name">${esc(name)}</span> <span class="badge priority-${priority}">${priority}</span></div>
+        <div><span class="machine-name">${esc(name)}</span> <span class="badge priority-${priority}" style="cursor:pointer;transition:transform .15s" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</span></div>
         <div class="machine-meta">
           <span>${esc(owner)}</span>
           ${currentStage?`<span class="badge" style="background:${STAGE_COLORS[currentStage.stage]||'#ddd'}22;color:${STAGE_COLORS[currentStage.stage]||'#666'}">${esc(currentStage.stage)}</span>`:(ms==='done'?'<span class="badge badge-green">完成</span>':'<span class="badge priority-低">未開始</span>')}
@@ -318,8 +319,9 @@ function renderTable(){
           </div>`:''}</div>
       </div>
       <table class="stage-table" id="${id}">
-        <thead><tr><th>階段</th><th>狀態</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
-        <tbody>${stages.map(s=>{const st=stageStatus(s);return`<tr>
+        <thead><tr>${canEdit()?'<th></th>':''}<th>階段</th><th>狀態</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
+        <tbody>${stages.map(s=>{const st=stageStatus(s);const done=!!s.actualEnd;return`<tr style="${done?'opacity:.55':''}">
+          ${canEdit()?`<td><input type="checkbox" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>`:''} 
           <td><span class="badge" style="background:${STAGE_COLORS[s.stage]||'#ddd'}22;color:${STAGE_COLORS[s.stage]||'#666'}">${esc(s.stage)}</span></td>
           <td><span class="badge badge-${st}">${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</span></td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
@@ -365,7 +367,7 @@ function renderGanttMilestone(machines,weeks,total){
     // Bar spanning full machine duration
     if(minD&&maxD){
       const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;
-      html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div>`;
+      html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div><span style="position:absolute;top:0;left:${l}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(minD)}</span><span style="position:absolute;top:0;left:${r}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(maxD)}</span>`;
     }
     // Dots for each stage
     stages.forEach(s=>{
@@ -475,6 +477,8 @@ async function submitEditStage(row,machine,owner,priority){const data={machine,s
 async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
 async function delMachine(name){if(!confirm('確定刪除「'+name+'」的所有階段？'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
 async function archiveMach(name){if(!confirm('確定歸檔「'+name+'」？'))return;await apiPost({action:'archiveMachine',machineName:name});await loadData()}
+async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const next=cycle[current]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);await apiPost({action:'setPriority',machineName:name,priority:next});await loadData()}
+async function toggleStageDone(cb,row,machine,stage,ps,pe,as,owner,note,priority){const ae=cb.checked?TODAY:'';cb.parentElement.parentElement.style.opacity=cb.checked?'.55':'1';const data={machine,stage,planStart:ps,planEnd:pe,actualStart:as||(cb.checked?TODAY:''),actualEnd:ae,owner,note,priority};await apiPost({action:'update',row,data});await loadData()}
 
 // === Settings ===
 function openSettings(){
