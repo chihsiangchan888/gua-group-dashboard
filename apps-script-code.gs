@@ -21,12 +21,20 @@ function getSheet() {
 }
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.payload) {
+    var body = JSON.parse(e.parameter.payload);
+    return processAction(body);
+  }
   return jsonResponse(readAll());
 }
 
 function doPost(e) {
-  const body = JSON.parse(e.postData.contents);
-  const action = body.action;
+  var body = JSON.parse(e.postData.contents);
+  return processAction(body);
+}
+
+function processAction(body) {
+  var action = body.action;
   if (action === 'addMachine') return jsonResponse(addMachine(body.name, body.owner));
   if (action === 'addStage') return jsonResponse(addStage(body.data));
   if (action === 'update') return jsonResponse(updateRow(body.row, body.data));

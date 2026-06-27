@@ -320,8 +320,15 @@ function datePos(weeks,dateStr){
 
 // === CRUD ===
 async function apiPost(body){
-  const r=await fetch(CONFIG.APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body),redirect:'follow'});
-  return r.json();
+  try {
+    const params = encodeURIComponent(JSON.stringify(body));
+    const url = CONFIG.APPS_SCRIPT_URL + '?payload=' + params;
+    const r = await fetch(url, {redirect:'follow'});
+    return await r.json();
+  } catch(e) {
+    alert('操作失敗：' + e.message);
+    return {success: false};
+  }
 }
 
 function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-bg').classList.add('active')}
