@@ -2,8 +2,9 @@
  * 機率部門專案時程管理 — Google Apps Script Web App
  * 
  * 工作表「進行中」欄位（第一列為標題）：
- * A:機台名稱 | B:階段名稱 | C:計畫開始日 | D:計畫結束日 | E:實際開始日 | F:實際結束日 | G:負責人 | H:備註 | I:優先級
+ * A:機台名稱 | B:階段名稱 | C:計畫開始日 | D:計畫結束日 | E:實際開始日 | F:實際結束日 | G:負責人 | H:備註 | I:優先級 | J:類型
  *
+ * 類型值：里程碑 / 工作階段
  * 工作表「設定」欄位：A:階段名稱 | B:顏色代碼
  *
  * 部署：擴充功能→Apps Script→貼入→部署→網頁應用程式→執行:自己/存取:任何人
@@ -40,7 +41,7 @@ function readAll() {
   var rows = [];
   if (data.length >= 2) {
     for (var i = 1; i < data.length; i++) {
-      rows.push({ row: i+1, machine: data[i][0]||'', stage: data[i][1]||'', planStart: fmtDate(data[i][2]), planEnd: fmtDate(data[i][3]), actualStart: fmtDate(data[i][4]), actualEnd: fmtDate(data[i][5]), owner: data[i][6]||'', note: data[i][7]||'', priority: data[i][8]||'' });
+      rows.push({ row: i+1, machine: data[i][0]||'', stage: data[i][1]||'', planStart: fmtDate(data[i][2]), planEnd: fmtDate(data[i][3]), actualStart: fmtDate(data[i][4]), actualEnd: fmtDate(data[i][5]), owner: data[i][6]||'', note: data[i][7]||'', priority: data[i][8]||'', type: data[i][9]||'工作階段' });
     }
   }
   var stagesResult = getStages();
@@ -48,17 +49,17 @@ function readAll() {
 }
 
 function addMachine(name, owner, priority) {
-  getSheet().appendRow([name, '未開始', '', '', '', '', owner, '', priority||'中']);
+  getSheet().appendRow([name, '未開始', '', '', '', '', owner, '', priority||'中', '工作階段']);
   return { success: true };
 }
 
 function addStage(data) {
-  getSheet().appendRow([data.machine||'', data.stage||'', data.planStart||'', data.planEnd||'', data.actualStart||'', data.actualEnd||'', data.owner||'', data.note||'', data.priority||'']);
+  getSheet().appendRow([data.machine||'', data.stage||'', data.planStart||'', data.planEnd||'', data.actualStart||'', data.actualEnd||'', data.owner||'', data.note||'', data.priority||'', data.type||'工作階段']);
   return { success: true };
 }
 
 function updateRow(rowNum, data) {
-  getSheet().getRange(rowNum, 1, 1, 9).setValues([[data.machine||'', data.stage||'', data.planStart||'', data.planEnd||'', data.actualStart||'', data.actualEnd||'', data.owner||'', data.note||'', data.priority||'']]);
+  getSheet().getRange(rowNum, 1, 1, 10).setValues([[data.machine||'', data.stage||'', data.planStart||'', data.planEnd||'', data.actualStart||'', data.actualEnd||'', data.owner||'', data.note||'', data.priority||'', data.type||'工作階段']]);
   return { success: true };
 }
 

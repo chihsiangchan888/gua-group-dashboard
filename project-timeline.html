@@ -86,6 +86,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .g-dot-green{background:#22c55e}.g-dot-yellow{background:#eab308}.g-dot-red{background:#ef4444}
 .g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:20}
 .g-dot:hover .g-tooltip{opacity:1}
+.gantt-row-tl{overflow:visible}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#666}
 .legend-item{display:flex;align-items:center;gap:5px}
 .legend-plan{width:16px;height:6px;border-radius:3px;background:#6366f1;opacity:.4}
@@ -161,18 +162,18 @@ let STAGES=[...DEFAULT_STAGES];
 let STAGE_COLORS={...DEFAULT_COLORS};
 
 const DEMO_DATA=[
-  {row:2,machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天',priority:'高'},
-  {row:3,machine:'龍之谷 v2.0',stage:'設計中',planStart:'2026-06-02',planEnd:'2026-06-22',actualStart:'2026-06-04',actualEnd:'2026-06-20',owner:'阿凱',note:'',priority:'高'},
-  {row:4,machine:'龍之谷 v2.0',stage:'開發中',planStart:'2026-06-23',planEnd:'2026-08-03',actualStart:'2026-06-23',actualEnd:'',owner:'阿凱',note:'進行中',priority:'高'},
-  {row:5,machine:'龍之谷 v2.0',stage:'測試中',planStart:'',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline',priority:'高'},
-  {row:6,machine:'龍之谷 v2.0',stage:'送審中',planStart:'',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline',priority:'高'},
-  {row:7,machine:'麻將至尊',stage:'設計中',planStart:'2026-05-05',planEnd:'2026-05-25',actualStart:'2026-05-05',actualEnd:'2026-05-23',owner:'小美',note:'提前完成',priority:'中'},
-  {row:8,machine:'麻將至尊',stage:'開發中',planStart:'2026-05-26',planEnd:'2026-07-06',actualStart:'2026-05-26',actualEnd:'2026-07-10',owner:'小美',note:'延遲',priority:'中'},
-  {row:9,machine:'麻將至尊',stage:'測試中',planStart:'2026-07-07',planEnd:'2026-07-27',actualStart:'2026-07-11',actualEnd:'',owner:'小美',note:'進行中',priority:'中'},
-  {row:10,machine:'麻將至尊',stage:'送審中',planStart:'2026-07-28',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'小美',note:'',priority:'中'},
-  {row:11,machine:'水果盤 Deluxe',stage:'規劃中',planStart:'2026-06-16',planEnd:'2026-06-29',actualStart:'2026-06-23',actualEnd:'',owner:'志明',note:'晚一週',priority:'低'},
-  {row:12,machine:'水果盤 Deluxe',stage:'設計中',planStart:'',planEnd:'2026-07-20',actualStart:'',actualEnd:'',owner:'志明',note:'Deadline',priority:'低'},
-  {row:13,machine:'水果盤 Deluxe',stage:'開發中',planStart:'2026-07-21',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'志明',note:'',priority:'低'},
+  {row:2,machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天',priority:'高',type:'工作階段'},
+  {row:3,machine:'龍之谷 v2.0',stage:'設計中',planStart:'2026-06-02',planEnd:'2026-06-22',actualStart:'2026-06-04',actualEnd:'2026-06-20',owner:'阿凱',note:'',priority:'高',type:'工作階段'},
+  {row:4,machine:'龍之谷 v2.0',stage:'開發中',planStart:'2026-06-23',planEnd:'2026-08-03',actualStart:'2026-06-23',actualEnd:'',owner:'阿凱',note:'進行中',priority:'高',type:'工作階段'},
+  {row:5,machine:'龍之谷 v2.0',stage:'送審',planStart:'',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'阿凱',note:'',priority:'高',type:'里程碑'},
+  {row:6,machine:'龍之谷 v2.0',stage:'上線',planStart:'',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'阿凱',note:'',priority:'高',type:'里程碑'},
+  {row:7,machine:'麻將至尊',stage:'設計中',planStart:'2026-05-05',planEnd:'2026-05-25',actualStart:'2026-05-05',actualEnd:'2026-05-23',owner:'小美',note:'提前完成',priority:'中',type:'工作階段'},
+  {row:8,machine:'麻將至尊',stage:'開發中',planStart:'2026-05-26',planEnd:'2026-07-06',actualStart:'2026-05-26',actualEnd:'2026-07-10',owner:'小美',note:'延遲',priority:'中',type:'工作階段'},
+  {row:9,machine:'麻將至尊',stage:'測試中',planStart:'2026-07-07',planEnd:'2026-07-27',actualStart:'2026-07-11',actualEnd:'',owner:'小美',note:'進行中',priority:'中',type:'工作階段'},
+  {row:10,machine:'麻將至尊',stage:'送審',planStart:'',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'小美',note:'',priority:'中',type:'里程碑'},
+  {row:11,machine:'水果盤 Deluxe',stage:'規劃中',planStart:'2026-06-16',planEnd:'2026-06-29',actualStart:'2026-06-23',actualEnd:'',owner:'志明',note:'晚一週',priority:'低',type:'工作階段'},
+  {row:12,machine:'水果盤 Deluxe',stage:'送審',planStart:'',planEnd:'2026-07-20',actualStart:'',actualEnd:'',owner:'志明',note:'',priority:'低',type:'里程碑'},
+  {row:13,machine:'水果盤 Deluxe',stage:'開發中',planStart:'2026-07-21',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'志明',note:'',priority:'低',type:'工作階段'},
 ];
 
 let rawData=[];
@@ -244,9 +245,9 @@ async function loadData(){
   }catch(e){err.textContent='讀取失敗：'+e.message;err.style.display='block';rawData=DEMO_DATA;src.textContent='Demo';finish()}
 }
 function gvizUrl(f){return`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${f}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
-function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||''})}return res}
+function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||'',type:c[9]||'工作階段'})}return res}
 function csvLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch==='"'&&l[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}else{if(ch==='"')q=true;else if(ch===','){r.push(c.trim());c=''}else c+=ch}}r.push(c.trim());return r}
-function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);const j=JSON.parse(m?m[1]:text);return j.table.rows.map((row,i)=>{const c=row.c||[];const v=idx=>{if(!c[idx]||c[idx].v==null)return '';const val=c[idx].v;if(typeof val==='string'&&val.startsWith('Date(')){const p=val.match(/Date\((\d+),(\d+),(\d+)\)/);if(p)return p[1]+'-'+String(Number(p[2])+1).padStart(2,'0')+'-'+p[3].padStart(2,'0')}return String(val)};return{row:i+2,machine:v(0),stage:v(1),planStart:normDate(v(2)),planEnd:normDate(v(3)),actualStart:normDate(v(4)),actualEnd:normDate(v(5)),owner:v(6),note:v(7),priority:v(8)}})}
+function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);const j=JSON.parse(m?m[1]:text);return j.table.rows.map((row,i)=>{const c=row.c||[];const v=idx=>{if(!c[idx]||c[idx].v==null)return '';const val=c[idx].v;if(typeof val==='string'&&val.startsWith('Date(')){const p=val.match(/Date\((\d+),(\d+),(\d+)\)/);if(p)return p[1]+'-'+String(Number(p[2])+1).padStart(2,'0')+'-'+p[3].padStart(2,'0')}return String(val)};return{row:i+2,machine:v(0),stage:v(1),planStart:normDate(v(2)),planEnd:normDate(v(3)),actualStart:normDate(v(4)),actualEnd:normDate(v(5)),owner:v(6),note:v(7),priority:v(8),type:v(9)||'工作階段'}})}
 
 function finish(){
   document.getElementById('loading').style.display='none';
@@ -300,7 +301,7 @@ function renderTable(){
     const owner=stages[0]?.owner||'';
     const priority=stages[0]?.priority||'中';
     const pct=getWeightedProgress(stages);
-    const currentStage=stages.find(s=>s.actualStart&&!s.actualEnd);
+    const currentStage=stages.find(s=>s.type==='工作階段'&&s.actualStart&&!s.actualEnd);
     const id='tbl-'+name.replace(/\W/g,'');
     const ms=getMachineStatus(stages);
     const pctColor=pct>=100?'#22c55e':'#6366f1';
@@ -321,12 +322,12 @@ function renderTable(){
       <table class="stage-table" id="${id}">
         <thead><tr>${canEdit()?'<th></th>':''}<th>階段</th><th>狀態</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
         <tbody>${stages.map(s=>{const st=stageStatus(s);const done=!!s.actualEnd;return`<tr style="${done?'opacity:.55':''}">
-          ${canEdit()?`<td><input type="checkbox" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>`:''} 
-          <td><span class="badge" style="background:${STAGE_COLORS[s.stage]||'#ddd'}22;color:${STAGE_COLORS[s.stage]||'#666'}">${esc(s.stage)}</span></td>
+          ${canEdit()?`<td><input type="checkbox" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>`:''} 
+          <td>${s.type==='里程碑'?'📌 ':''}<span class="badge" style="background:${STAGE_COLORS[s.stage]||'#ddd'}22;color:${STAGE_COLORS[s.stage]||'#666'}">${esc(s.stage)}</span></td>
           <td><span class="badge badge-${st}">${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</span></td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
           <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${esc(s.note)}</td>
-          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`}).join('')}</tbody>
+          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`}).join('')}</tbody>
       </table></div>`;
   });
   document.getElementById('table-area').innerHTML=html||'<p style="color:#888;text-align:center;padding:20px">無符合條件的機台</p>';
@@ -355,28 +356,20 @@ function renderGantt(){
 function renderGanttMilestone(machines,weeks,total){
   let html='';
   machines.forEach((stages,name)=>{
-    // Find overall span
+    const milestones=stages.filter(s=>s.type==='里程碑');
+    // Find overall span from all stages
     let minD=null,maxD=null;
-    stages.forEach(s=>{
-      [s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{
-        if(d){if(!minD||d<minD)minD=d;if(!maxD||d>maxD)maxD=d}
-      });
-    });
+    stages.forEach(s=>{[s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{if(d){if(!minD||d<minD)minD=d;if(!maxD||d>maxD)maxD=d}})});
     html+=`<div class="gantt-row"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl">`;
     weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
-    // Bar spanning full machine duration
-    if(minD&&maxD){
-      const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;
-      html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div><span style="position:absolute;top:0;left:${l}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(minD)}</span><span style="position:absolute;top:0;left:${r}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(maxD)}</span>`;
-    }
-    // Dots for each stage
-    stages.forEach(s=>{
-      const dt=s.actualEnd||s.actualStart||s.planEnd||s.planStart;
+    if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div><span style="position:absolute;top:0;left:${l}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(minD)}</span><span style="position:absolute;top:0;left:${r}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(maxD)}</span>`}
+    // Only show milestone-type items
+    milestones.forEach(s=>{
+      const dt=s.planEnd||s.actualEnd||s.planStart;
       if(!dt)return;
       const pos=datePos(weeks,dt)*100;
       const st=stageStatus(s);
-      const label=`${esc(s.stage)} ${fmtDate(s.planEnd||s.planStart)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}`;
-      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${label}</div></div>`;
+      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div><span style="position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:8px;color:#555;white-space:nowrap">${esc(s.stage)} ${fmtDate(dt)}</span></div>`;
     });
     html+=`</div></div>`;
   });
@@ -453,18 +446,20 @@ async function submitAddMachine(){const name=document.getElementById('m-name').v
 function openAddStage(machine,owner){
   const opts=STAGES.map(s=>`<option>${esc(s)}</option>`).join('');
   openModal(`<h3>新增階段 — ${machine}</h3>
-    <div class="fg"><label>階段</label><select id="s-stage">${opts}</select></div>
+    <div class="fg"><label>類型</label><select id="s-type"><option value="工作階段">工作階段</option><option value="里程碑">里程碑</option></select></div>
+    <div class="fg"><label>階段名稱</label><select id="s-stage">${opts}</select></div>
     <div class="fg"><label>計畫開始日</label><input type="date" id="s-ps"></div>
-    <div class="fg"><label>計畫結束日</label><input type="date" id="s-pe"></div>
+    <div class="fg"><label>計畫結束日（里程碑=Deadline）</label><input type="date" id="s-pe"></div>
     <div class="fg"><label>備註</label><textarea id="s-note"></textarea></div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddStage('${esc(machine)}','${esc(owner)}')">確認</button></div>`);
 }
-async function submitAddStage(machine,owner){const data={machine,stage:document.getElementById('s-stage').value,planStart:document.getElementById('s-ps').value,planEnd:document.getElementById('s-pe').value,actualStart:'',actualEnd:'',owner,note:document.getElementById('s-note').value,priority:''};closeModal();await apiPost({action:'addStage',data});await loadData()}
+async function submitAddStage(machine,owner){const data={machine,stage:document.getElementById('s-stage').value,planStart:document.getElementById('s-ps').value,planEnd:document.getElementById('s-pe').value,actualStart:'',actualEnd:'',owner,note:document.getElementById('s-note').value,priority:'',type:document.getElementById('s-type').value};closeModal();await apiPost({action:'addStage',data});await loadData()}
 
-function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority){
+function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority,type){
   const opts=STAGES.map(s=>`<option${s===stage?' selected':''}>${esc(s)}</option>`).join('');
   openModal(`<h3>編輯階段</h3>
-    <div class="fg"><label>階段</label><select id="e-stage">${opts}</select></div>
+    <div class="fg"><label>類型</label><select id="e-type"><option value="工作階段"${type!=='里程碑'?' selected':''}>工作階段</option><option value="里程碑"${type==='里程碑'?' selected':''}>里程碑</option></select></div>
+    <div class="fg"><label>階段名稱</label><select id="e-stage">${opts}</select></div>
     <div class="fg"><label>計畫開始日</label><input type="date" id="e-ps" value="${ps}"></div>
     <div class="fg"><label>計畫結束日</label><input type="date" id="e-pe" value="${pe}"></div>
     <div class="fg"><label>實際開始日</label><input type="date" id="e-as" value="${as}"></div>
@@ -472,13 +467,13 @@ function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority){
     <div class="fg"><label>備註</label><textarea id="e-note">${esc(note)}</textarea></div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitEditStage(${row},'${esc(machine)}','${esc(owner)}','${esc(priority)}')">確認</button></div>`);
 }
-async function submitEditStage(row,machine,owner,priority){const data={machine,stage:document.getElementById('e-stage').value,planStart:document.getElementById('e-ps').value,planEnd:document.getElementById('e-pe').value,actualStart:document.getElementById('e-as').value,actualEnd:document.getElementById('e-ae').value,owner,note:document.getElementById('e-note').value,priority};closeModal();await apiPost({action:'update',row,data});await loadData()}
+async function submitEditStage(row,machine,owner,priority){const data={machine,stage:document.getElementById('e-stage').value,planStart:document.getElementById('e-ps').value,planEnd:document.getElementById('e-pe').value,actualStart:document.getElementById('e-as').value,actualEnd:document.getElementById('e-ae').value,owner,note:document.getElementById('e-note').value,priority,type:document.getElementById('e-type').value};closeModal();await apiPost({action:'update',row,data});await loadData()}
 
 async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
 async function delMachine(name){if(!confirm('確定刪除「'+name+'」的所有階段？'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
 async function archiveMach(name){if(!confirm('確定歸檔「'+name+'」？'))return;await apiPost({action:'archiveMachine',machineName:name});await loadData()}
 async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const next=cycle[current]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);await apiPost({action:'setPriority',machineName:name,priority:next});await loadData()}
-async function toggleStageDone(cb,row,machine,stage,ps,pe,as,owner,note,priority){const ae=cb.checked?TODAY:'';cb.parentElement.parentElement.style.opacity=cb.checked?'.55':'1';const data={machine,stage,planStart:ps,planEnd:pe,actualStart:as||(cb.checked?TODAY:''),actualEnd:ae,owner,note,priority};await apiPost({action:'update',row,data});await loadData()}
+async function toggleStageDone(cb,row,machine,stage,ps,pe,as,owner,note,priority,type){const ae=cb.checked?TODAY:'';cb.parentElement.parentElement.style.opacity=cb.checked?'.55':'1';const data={machine,stage,planStart:ps,planEnd:pe,actualStart:as||(cb.checked?TODAY:''),actualEnd:ae,owner,note,priority,type};await apiPost({action:'update',row,data});await loadData()}
 
 // === Settings ===
 function openSettings(){
