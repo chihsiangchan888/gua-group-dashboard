@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>機率部門專案時程管理儀表板</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #1a1a2e; color: #e0e0e0; padding: 24px; }
+.dashboard-header { text-align: center; margin-bottom: 32px; }
+.dashboard-title { font-size: 28px; color: #ffffff; }
+.dashboard-subtitle { font-size: 14px; color: #888; margin-top: 8px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.metric-card { background: #16213e; border-radius: 8px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.metric-label { font-size: 13px; color: #888; text-transform: uppercase; }
+.metric-value { font-size: 32px; font-weight: 700; color: #fff; margin: 8px 0; }
+.section { background: #16213e; border-radius: 8px; padding: 24px; margin-top: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.section-title { font-size: 18px; color: #fff; margin-bottom: 16px; }
+.filters { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.filters select { background: #0f3460; color: #e0e0e0; border: 1px solid #0f3460; border-radius: 4px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
+.filters select:focus { outline: none; border-color: #e94560; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 12px; border-bottom: 2px solid #0f3460; color: #888; font-size: 12px; text-transform: uppercase; }
+.data-table td { padding: 12px; border-bottom: 1px solid #0f3460; font-size: 14px; }
+.data-table tr:hover { background: rgba(15,52,96,0.3); }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.stage-未開始 { background: rgba(136,136,136,0.2); color: #888; }
+.stage-規劃中 { background: rgba(255,193,7,0.2); color: #ffc107; }
+.stage-設計中 { background: rgba(100,181,246,0.2); color: #64b5f6; }
+.stage-開發中 { background: rgba(78,204,163,0.2); color: #4ecca3; }
+.stage-測試中 { background: rgba(171,130,255,0.2); color: #ab82ff; }
+.stage-送審中 { background: rgba(255,152,0,0.2); color: #ff9800; }
+.stage-修正中 { background: rgba(233,69,96,0.2); color: #e94560; }
+.stage-待上線 { background: rgba(0,188,212,0.2); color: #00bcd4; }
+.stage-已完成 { background: rgba(78,204,163,0.4); color: #4ecca3; }
+.gantt-container { overflow-x: auto; }
+.gantt { display: grid; gap: 0; min-width: 800px; }
+.gantt-header { display: flex; border-bottom: 2px solid #0f3460; }
+.gantt-header-label { width: 160px; min-width: 160px; padding: 8px 12px; font-size: 12px; color: #888; text-transform: uppercase; }
+.gantt-header-timeline { display: flex; flex: 1; }
+.gantt-week { flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; color: #888; border-left: 1px solid #0f3460; }
+.gantt-row { display: flex; border-bottom: 1px solid #0f3460; align-items: center; min-height: 40px; }
+.gantt-row:hover { background: rgba(15,52,96,0.3); }
+.gantt-row-label { width: 160px; min-width: 160px; padding: 8px 12px; font-size: 13px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gantt-row-timeline { display: flex; flex: 1; position: relative; height: 40px; }
+.gantt-cell { flex: 1; border-left: 1px solid rgba(15,52,96,0.5); position: relative; }
+.gantt-bar-planned { position: absolute; top: 6px; height: 12px; border-radius: 3px; opacity: 0.9; }
+.gantt-bar-actual { position: absolute; top: 22px; height: 12px; border-radius: 3px; opacity: 0.5; border: 1px dashed rgba(255,255,255,0.4); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #ccc; }
+.legend-color { width: 16px; height: 10px; border-radius: 2px; }
+.legend-planned { width: 16px; height: 10px; border-radius: 2px; background: #4ecca3; }
+.legend-actual { width: 16px; height: 10px; border-radius: 2px; background: rgba(78,204,163,0.5); border: 1px dashed rgba(255,255,255,0.4); }
+.footer { text-align: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid #0f3460; font-size: 12px; color: #555; }
+</style>
+</head>
+<body>
+
+<div class="dashboard-header">
+  <h1 class="dashboard-title">機率部門專案時程管理儀表板</h1>
+  <p class="dashboard-subtitle">產生時間：2026-06-27 | 呱集團 機率部門</p>
+</div>
+
+<div class="grid" id="kpi-cards"></div>
+
+<div class="section">
+  <h2 class="section-title">專案總覽</h2>
+  <div class="filters">
+    <select id="filter-owner"><option value="">全部負責人</option></select>
+    <select id="filter-stage"><option value="">全部階段</option></select>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>機台名稱</th>
+        <th>負責人</th>
+        <th>目前階段</th>
+        <th>預計開始</th>
+        <th>預計結束</th>
+        <th>實際開始</th>
+        <th>實際結束</th>
+        <th>備註</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+</div>
+
+<div class="section">
+  <h2 class="section-title">甘特圖 — 時間軸（週粒度）</h2>
+  <div class="gantt-container">
+    <div class="gantt" id="gantt-chart"></div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-planned"></div>預計時程（實線）</div>
+    <div class="legend-item"><div class="legend-actual"></div>實際時程（虛線）</div>
+  </div>
+</div>
+
+<div class="footer">由 呱集團 AI Fleet 自動產生</div>
+
+<script>
+// === DATA ===
+const STAGES = ['未開始','規劃中','設計中','開發中','測試中','送審中','修正中','待上線','已完成'];
+const STAGE_COLORS = {
+  '未開始':'#888888','規劃中':'#ffc107','設計中':'#64b5f6','開發中':'#4ecca3',
+  '測試中':'#ab82ff','送審中':'#ff9800','修正中':'#e94560','待上線':'#00bcd4','已完成':'#4ecca3'
+};
+
+const projects = [
+  { name:'龍之谷 v2.0', owner:'阿凱', stage:'開發中', planStart:'2026-06-02', planEnd:'2026-08-10', actualStart:'2026-06-02', actualEnd:'', note:'核心玩法重構' },
+  { name:'麻將至尊', owner:'小美', stage:'測試中', planStart:'2026-05-12', planEnd:'2026-07-20', actualStart:'2026-05-12', actualEnd:'', note:'第二輪 QA 進行中' },
+  { name:'水果盤 Deluxe', owner:'志明', stage:'設計中', planStart:'2026-06-16', planEnd:'2026-09-07', actualStart:'2026-06-23', actualEnd:'', note:'美術需求待確認' },
+  { name:'百家樂 Pro', owner:'阿杰', stage:'送審中', planStart:'2026-04-14', planEnd:'2026-06-29', actualStart:'2026-04-14', actualEnd:'', note:'GLI 文件已送出' },
+  { name:'幸運輪盤', owner:'雅婷', stage:'規劃中', planStart:'2026-07-07', planEnd:'2026-09-28', actualStart:'', actualEnd:'', note:'等待企劃定案' }
+];
+
+// === UTILS ===
+function weekStart(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const day = d.getDay();
+  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  return d;
+}
+
+function getWeekRange() {
+  let min = new Date('2026-04-07'), max = new Date('2026-10-05');
+  const weeks = [];
+  const cur = new Date(min);
+  while (cur <= max) {
+    weeks.push(new Date(cur));
+    cur.setDate(cur.getDate() + 7);
+  }
+  return weeks;
+}
+
+// === RENDER KPI ===
+function renderKPI() {
+  const counts = {};
+  STAGES.forEach(s => counts[s] = 0);
+  projects.forEach(p => counts[p.stage]++);
+  const container = document.getElementById('kpi-cards');
+  const active = projects.length - counts['已完成'] - counts['未開始'];
+  container.innerHTML = `
+    <div class="metric-card"><div class="metric-label">總機台數</div><div class="metric-value">${projects.length}</div></div>
+    <div class="metric-card"><div class="metric-label">進行中</div><div class="metric-value">${active}</div></div>
+    <div class="metric-card"><div class="metric-label">已完成</div><div class="metric-value">${counts['已完成']}</div></div>
+    <div class="metric-card"><div class="metric-label">未開始</div><div class="metric-value">${counts['未開始']}</div></div>
+  `;
+}
+
+// === RENDER TABLE ===
+function renderTable() {
+  const ownerFilter = document.getElementById('filter-owner').value;
+  const stageFilter = document.getElementById('filter-stage').value;
+  const filtered = projects.filter(p =>
+    (!ownerFilter || p.owner === ownerFilter) &&
+    (!stageFilter || p.stage === stageFilter)
+  );
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = filtered.map(p => `<tr>
+    <td>${p.name}</td>
+    <td>${p.owner}</td>
+    <td><span class="badge stage-${p.stage}">${p.stage}</span></td>
+    <td>${p.planStart}</td>
+    <td>${p.planEnd}</td>
+    <td>${p.actualStart || '—'}</td>
+    <td>${p.actualEnd || '—'}</td>
+    <td>${p.note}</td>
+  </tr>`).join('');
+}
+
+// === RENDER FILTERS ===
+function renderFilters() {
+  const owners = [...new Set(projects.map(p => p.owner))];
+  const ownerSelect = document.getElementById('filter-owner');
+  owners.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; ownerSelect.appendChild(opt); });
+  const stageSelect = document.getElementById('filter-stage');
+  STAGES.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.textContent = s; stageSelect.appendChild(opt); });
+  ownerSelect.addEventListener('change', renderTable);
+  stageSelect.addEventListener('change', renderTable);
+}
+
+// === RENDER GANTT ===
+function renderGantt() {
+  const weeks = getWeekRange();
+  const totalWeeks = weeks.length;
+  const container = document.getElementById('gantt-chart');
+
+  // Header
+  let headerHTML = `<div class="gantt-header"><div class="gantt-header-label">機台</div><div class="gantt-header-timeline">`;
+  weeks.forEach(w => {
+    const m = w.getMonth() + 1;
+    const d = w.getDate();
+    headerHTML += `<div class="gantt-week">${m}/${d}</div>`;
+  });
+  headerHTML += `</div></div>`;
+
+  // Rows
+  let rowsHTML = '';
+  projects.forEach(p => {
+    rowsHTML += `<div class="gantt-row"><div class="gantt-row-label" title="${p.name}">${p.name}</div><div class="gantt-row-timeline">`;
+    weeks.forEach(() => { rowsHTML += `<div class="gantt-cell"></div>`; });
+
+    // Planned bar
+    if (p.planStart && p.planEnd) {
+      const ps = weekStart(p.planStart);
+      const pe = weekStart(p.planEnd);
+      const startIdx = weeks.findIndex(w => w >= ps);
+      const endIdx = weeks.findIndex(w => w >= pe);
+      const si = Math.max(0, startIdx);
+      const ei = endIdx === -1 ? totalWeeks - 1 : Math.min(endIdx, totalWeeks - 1);
+      const left = (si / totalWeeks * 100) + '%';
+      const width = ((ei - si + 1) / totalWeeks * 100) + '%';
+      rowsHTML += `<div class="gantt-bar-planned" style="left:${left};width:${width};background:${STAGE_COLORS[p.stage]};"></div>`;
+    }
+
+    // Actual bar
+    if (p.actualStart) {
+      const as = weekStart(p.actualStart);
+      const ae = p.actualEnd ? weekStart(p.actualEnd) : weekStart(new Date().toISOString().slice(0,10));
+      const startIdx = weeks.findIndex(w => w >= as);
+      const endIdx = weeks.findIndex(w => w >= ae);
+      const si = Math.max(0, startIdx);
+      const ei = endIdx === -1 ? totalWeeks - 1 : Math.min(endIdx, totalWeeks - 1);
+      const left = (si / totalWeeks * 100) + '%';
+      const width = ((ei - si + 1) / totalWeeks * 100) + '%';
+      rowsHTML += `<div class="gantt-bar-actual" style="left:${left};width:${width};background:${STAGE_COLORS[p.stage]};"></div>`;
+    }
+
+    rowsHTML += `</div></div>`;
+  });
+
+  container.innerHTML = headerHTML + rowsHTML;
+}
+
+// === INIT ===
+renderKPI();
+renderFilters();
+renderTable();
+renderGantt();
+</script>
+</body>
+</html>
