@@ -78,6 +78,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .g-milestone{position:absolute;top:6px;width:12px;height:12px;transform:rotate(45deg);border:2px solid}
 .today-line{position:absolute;top:0;bottom:0;width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none}
 .today-label{position:absolute;top:-16px;font-size:9px;color:#ef4444;transform:translateX(-50%);white-space:nowrap}
+.gantt-toggle{display:flex;gap:4px}
+.gantt-toggle .btn-sm{background:#f1f1f1;color:#666}
+.gantt-toggle .btn-sm.active{background:#6366f1;color:#fff}
+.g-bar{position:absolute;top:8px;height:12px;border-radius:6px;opacity:.25}
+.g-dot{position:absolute;top:6px;width:14px;height:14px;border-radius:50%;border:2px solid #fff;cursor:pointer;transform:translateX(-7px);z-index:5}
+.g-dot-green{background:#22c55e}.g-dot-yellow{background:#eab308}.g-dot-red{background:#ef4444}
+.g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:20}
+.g-dot:hover .g-tooltip{opacity:1}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#666}
 .legend-item{display:flex;align-items:center;gap:5px}
 .legend-plan{width:16px;height:6px;border-radius:3px;background:#6366f1;opacity:.4}
@@ -124,7 +132,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div id="table-area"></div>
   </div>
   <div class="section">
-    <div class="section-hdr"><h2>甘特圖（週粒度）</h2></div>
+    <div class="section-hdr"><h2>甘特圖（週粒度）</h2><div class="gantt-toggle"><button class="btn btn-sm" id="btn-milestone" onclick="setGanttView('milestone')">里程碑</button><button class="btn btn-sm" id="btn-detail" onclick="setGanttView('detail')">詳細</button></div></div>
     <div class="gantt-wrap"><div class="gantt" id="gantt"></div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-plan"></div>計畫區間</div>
@@ -323,13 +331,58 @@ function renderTable(){
 }
 
 // === Gantt ===
+let ganttView=localStorage.getItem('ganttView')||'milestone';
+function setGanttView(v){ganttView=v;localStorage.setItem('ganttView',v);renderGantt()}
+
 function renderGantt(){
+  document.getElementById('btn-milestone').className='btn btn-sm'+(ganttView==='milestone'?' active':'');
+  document.getElementById('btn-detail').className='btn btn-sm'+(ganttView==='detail'?' active':'');
   const machines=getFilteredMachines();
   const weeks=getWeeks(),total=weeks.length;
-  let html=`<div class="gantt-hdr"><div class="gantt-lbl">機台 / 階段</div><div class="gantt-timeline">`;
+  let html=`<div class="gantt-hdr"><div class="gantt-lbl">機台${ganttView==='detail'?' / 階段':''}</div><div class="gantt-timeline">`;
   weeks.forEach(w=>{html+=`<div class="gantt-wk">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div></div>`;
 
+  if(ganttView==='milestone') html+=renderGanttMilestone(machines,weeks,total);
+  else html+=renderGanttDetail(machines,weeks,total);
+
+  document.getElementById('gantt').innerHTML=html;
+  addTodayLine(weeks);
+}
+
+function renderGanttMilestone(machines,weeks,total){
+  let html='';
+  machines.forEach((stages,name)=>{
+    // Find overall span
+    let minD=null,maxD=null;
+    stages.forEach(s=>{
+      [s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{
+        if(d){if(!minD||d<minD)minD=d;if(!maxD||d>maxD)maxD=d}
+      });
+    });
+    html+=`<div class="gantt-row"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl">`;
+    weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
+    // Bar spanning full machine duration
+    if(minD&&maxD){
+      const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;
+      html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div>`;
+    }
+    // Dots for each stage
+    stages.forEach(s=>{
+      const dt=s.actualEnd||s.actualStart||s.planEnd||s.planStart;
+      if(!dt)return;
+      const pos=datePos(weeks,dt)*100;
+      const st=stageStatus(s);
+      const label=`${esc(s.stage)} ${fmtDate(s.planEnd||s.planStart)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}`;
+      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${label}</div></div>`;
+    });
+    html+=`</div></div>`;
+  });
+  return html;
+}
+
+function renderGanttDetail(machines,weeks,total){
+  let html='';
   machines.forEach((stages,name)=>{
     html+=`<div class="gantt-group-label">${esc(name)}</div>`;
     stages.forEach(s=>{
@@ -342,31 +395,22 @@ function renderGantt(){
       html+=`</div></div>`;
     });
   });
+  return html;
+}
 
-  // Today line
+function addTodayLine(weeks){
   const todayPos=datePos(weeks,TODAY)*100;
-  if(todayPos>0&&todayPos<100){
-    html+=`<div class="today-line" style="left:calc(180px + ${todayPos}% * (100% - 180px) / 100)"><div class="today-label">Today</div></div>`;
-  }
-
-  document.getElementById('gantt').innerHTML=html;
-
-  // Today line positioning via JS for accuracy
+  if(todayPos<=0||todayPos>=100)return;
   const ganttEl=document.getElementById('gantt');
   const hdr=ganttEl.querySelector('.gantt-hdr');
-  if(hdr&&todayPos>0&&todayPos<100){
-    const tlEl=hdr.querySelector('.gantt-timeline');
-    if(tlEl){
-      const line=document.createElement('div');
-      line.className='today-line';
-      line.style.left=(180+tlEl.offsetWidth*todayPos/100)+'px';
-      line.innerHTML='<div class="today-label">Today</div>';
-      ganttEl.appendChild(line);
-    }
-  }
-  // Remove the inline one
-  const inlineLine=ganttEl.querySelector('.today-line:not([style*="px"])');
-  if(inlineLine)inlineLine.remove();
+  if(!hdr)return;
+  const tlEl=hdr.querySelector('.gantt-timeline');
+  if(!tlEl)return;
+  const line=document.createElement('div');
+  line.className='today-line';
+  line.style.left=(180+tlEl.offsetWidth*todayPos/100)+'px';
+  line.innerHTML='<div class="today-label">Today</div>';
+  ganttEl.appendChild(line);
 }
 
 function getWeeks(){
