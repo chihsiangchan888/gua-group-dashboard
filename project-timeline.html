@@ -21,19 +21,22 @@
 ║     未開始、規劃中、設計中、開發中、測試中、送審中、修正中、      ║
 ║     待上線、已完成                                                ║
 ║                                                                  ║
-║ 步驟 2：發佈到網路                                               ║
-║   在 Google Sheet 中：                                           ║
-║   「檔案」→「共用」→「發佈到網路」→ 選「整份文件」→ 點「發佈」   ║
+║ 步驟 2：權限設定                                                 ║
+║   「共用」設定：                                                  ║
+║   • 編輯者：呱老大 + 各負責工程師                                ║
+║   • 檢視者：「知道連結的任何人」（必須，否則儀表板無法讀取）      ║
+║   （不需要「發佈到網路」，export 端點只需檢視權限即可）           ║
 ║                                                                  ║
 ║ 步驟 3：設定 Sheet ID                                           ║
 ║   從 Google Sheet 網址中複製 Sheet ID：                          ║
 ║   https://docs.google.com/spreadsheets/d/{這段就是SHEET_ID}/edit ║
 ║   將 ID 貼到下方 CONFIG.SHEET_ID 變數中                          ║
+║   （目前已設定為：10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8）║
 ║                                                                  ║
-║ 步驟 4：權限設定                                                 ║
-║   「共用」設定：                                                  ║
-║   • 編輯者：呱老大 + 各負責工程師                                ║
-║   • 檢視者：「知道連結的任何人」（必須，否則儀表板無法讀取）      ║
+║ 注意：工作表順序                                                  ║
+║   • 第 1 個工作表（gid=0）= 進行中                               ║
+║   • 第 2 個工作表（gid=1）= 已完成                               ║
+║   如果順序不同，需修改 sheetURL 中的 gidMap                       ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 -->
@@ -167,7 +170,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 const CONFIG = {
   // 將你的 Google Sheet ID 貼在這裡
   // 從網址 https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit 中取得
-  SHEET_ID: '',
+  SHEET_ID: '10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8',
 
   // 工作表名稱（需與 Google Sheet 中的工作表名稱一致）
   SHEET_ACTIVE: '進行中',
@@ -229,7 +232,11 @@ function parseCSVLine(line) {
 }
 
 function sheetURL(sheetName) {
-  return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+  // 使用 export 端點 — 只需「知道連結的任何人可檢視」即可運作，不需「發佈到網路」
+  // gid: 0 = 第一個工作表（進行中），gid 需對應實際工作表
+  const gidMap = { [CONFIG.SHEET_ACTIVE]: 0, [CONFIG.SHEET_DONE]: 1 };
+  const gid = gidMap[sheetName] ?? 0;
+  return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=csv&gid=${gid}`;
 }
 
 async function fetchSheet(sheetName) {
