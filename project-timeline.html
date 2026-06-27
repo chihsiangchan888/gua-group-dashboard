@@ -138,6 +138,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </div>
 
 <script>
+window.onerror=function(msg,url,line){document.getElementById('error-banner').textContent='JS Error: '+msg+' (line '+line+')';document.getElementById('error-banner').style.display='block';};
 const CONFIG = {
   SHEET_ID: '10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8',
   SHEET_NAME: '進行中',
@@ -201,8 +202,22 @@ async function loadData() {
 function gvizUrl(fmt){return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${fmt}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
 function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||''});}return res;}
 function csvLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch==='"'&&l[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}else{if(ch==='"')q=true;else if(ch===','){r.push(c.trim());c=''}else c+=ch}}r.push(c.trim());return r}
-function normDate(s){if(!s)return '';if(typeof s==='string'){const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;const m2=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m2)return `${m2[3]}-${m2[1].padStart(2,'0')}-${m2[2].padStart(2,'0')}`;}return ''}
-function fmtDate(s){if(!s)return '—';const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[2]}/${m[3]}`:'—'}
+function normDate(s){
+  if(!s)return '';
+  s=String(s).trim();
+  // YYYY-MM-DD
+  var m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  // MM/DD/YYYY
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m)return m[3]+'-'+m[1].padStart(2,'0')+'-'+m[2].padStart(2,'0');
+  // JS Date.toString(): "Thu Jun 25 2026 ..." or "Wed Jul 06 2026 ..."
+  var months={Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+  m=s.match(/\w+\s+(\w+)\s+(\d{1,2})\s+(\d{4})/);
+  if(m&&months[m[1]])return m[3]+'-'+months[m[1]]+'-'+m[2].padStart(2,'0');
+  return '';
+}
+function fmtDate(s){if(!s)return '—';var m=s.match(/(\d{4})-(\d{2})-(\d{2})/);return m?m[2]+'/'+m[3]:'—'}
 function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);const j=JSON.parse(m?m[1]:text);return j.table.rows.map((row,i)=>{const c=row.c||[];const v=idx=>{if(!c[idx]||c[idx].v==null)return '';const val=c[idx].v;if(typeof val==='string'&&val.startsWith('Date(')){const parts=val.match(/Date\((\d+),(\d+),(\d+)\)/);if(parts)return `${parts[1]}-${String(Number(parts[2])+1).padStart(2,'0')}-${parts[3].padStart(2,'0')}`;} return String(val);};return{row:i+2,machine:v(0),stage:v(1),planStart:normDate(v(2)),planEnd:normDate(v(3)),actualStart:normDate(v(4)),actualEnd:normDate(v(5)),owner:v(6),note:v(7)}})}
 
 function finish(){
@@ -248,7 +263,7 @@ function renderTable(){
           ${currentStage?`<span class="badge stage-${currentStage.stage}">${currentStage.stage}</span>`:'<span class="badge stage-未開始">未開始</span>'}
           <span>${doneCount}/${stages.length}</span>
           <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-          ${canEdit()?`<div class="machine-actions"><button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${name}','${owner}')">+ 階段</button><button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${name}')">✕</button></div>`:''}
+          ${canEdit()?`<div class="machine-actions"><button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+ 階段</button><button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${esc(name)}')">✕</button></div>`:''}
         </div>
       </div>
       <table class="stage-table" id="${id}">
@@ -256,14 +271,13 @@ function renderTable(){
         <tbody>${stages.map(s=>`<tr>
           <td><span class="badge stage-${s.stage}">${s.stage}</span></td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
-          <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${s.note||''}</td>
+          <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${esc(s.note)}</td>
           ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`).join('')}</tbody>
       </table></div>`;
   });
   document.getElementById('table-area').innerHTML=html;
 }
-function esc(s){return (s||'').replace(/'/g,"\\'")}
-
+function esc(s){return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 // === Gantt ===
 function renderGantt(){
   const machines = groupByMachine(rawData);
