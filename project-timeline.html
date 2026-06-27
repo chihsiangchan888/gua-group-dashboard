@@ -148,18 +148,18 @@ const STAGES = ['未開始','規劃中','設計中','開發中','測試中','送
 const STAGE_COLORS = {'未開始':'#9ca3af','規劃中':'#eab308','設計中':'#3b82f6','開發中':'#10b981','測試中':'#8b5cf6','送審中':'#f97316','修正中':'#ef4444','待上線':'#06b6d4','已完成':'#22c55e'};
 
 const DEMO_DATA = [
-  {machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天'},
-  {machine:'龍之谷 v2.0',stage:'設計中',planStart:'2026-06-02',planEnd:'2026-06-22',actualStart:'2026-06-04',actualEnd:'2026-06-20',owner:'阿凱',note:''},
-  {machine:'龍之谷 v2.0',stage:'開發中',planStart:'2026-06-23',planEnd:'2026-08-03',actualStart:'2026-06-23',actualEnd:'',owner:'阿凱',note:'進行中'},
-  {machine:'龍之谷 v2.0',stage:'測試中',planStart:'',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline only'},
-  {machine:'龍之谷 v2.0',stage:'送審中',planStart:'',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline only'},
-  {machine:'麻將至尊',stage:'設計中',planStart:'2026-05-05',planEnd:'2026-05-25',actualStart:'2026-05-05',actualEnd:'2026-05-23',owner:'小美',note:'提前完成'},
-  {machine:'麻將至尊',stage:'開發中',planStart:'2026-05-26',planEnd:'2026-07-06',actualStart:'2026-05-26',actualEnd:'2026-07-10',owner:'小美',note:'延遲 4 天'},
-  {machine:'麻將至尊',stage:'測試中',planStart:'2026-07-07',planEnd:'2026-07-27',actualStart:'2026-07-11',actualEnd:'',owner:'小美',note:'進行中'},
-  {machine:'麻將至尊',stage:'送審中',planStart:'2026-07-28',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'小美',note:''},
-  {machine:'水果盤 Deluxe',stage:'規劃中',planStart:'2026-06-16',planEnd:'2026-06-29',actualStart:'2026-06-23',actualEnd:'',owner:'志明',note:'晚一週開始'},
-  {machine:'水果盤 Deluxe',stage:'設計中',planStart:'',planEnd:'2026-07-20',actualStart:'',actualEnd:'',owner:'志明',note:'Deadline'},
-  {machine:'水果盤 Deluxe',stage:'開發中',planStart:'2026-07-21',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'志明',note:''},
+  {row:2,machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天'},
+  {row:3,machine:'龍之谷 v2.0',stage:'設計中',planStart:'2026-06-02',planEnd:'2026-06-22',actualStart:'2026-06-04',actualEnd:'2026-06-20',owner:'阿凱',note:''},
+  {row:4,machine:'龍之谷 v2.0',stage:'開發中',planStart:'2026-06-23',planEnd:'2026-08-03',actualStart:'2026-06-23',actualEnd:'',owner:'阿凱',note:'進行中'},
+  {row:5,machine:'龍之谷 v2.0',stage:'測試中',planStart:'',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline only'},
+  {row:6,machine:'龍之谷 v2.0',stage:'送審中',planStart:'',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'阿凱',note:'Deadline only'},
+  {row:7,machine:'麻將至尊',stage:'設計中',planStart:'2026-05-05',planEnd:'2026-05-25',actualStart:'2026-05-05',actualEnd:'2026-05-23',owner:'小美',note:'提前完成'},
+  {row:8,machine:'麻將至尊',stage:'開發中',planStart:'2026-05-26',planEnd:'2026-07-06',actualStart:'2026-05-26',actualEnd:'2026-07-10',owner:'小美',note:'延遲 4 天'},
+  {row:9,machine:'麻將至尊',stage:'測試中',planStart:'2026-07-07',planEnd:'2026-07-27',actualStart:'2026-07-11',actualEnd:'',owner:'小美',note:'進行中'},
+  {row:10,machine:'麻將至尊',stage:'送審中',planStart:'2026-07-28',planEnd:'2026-08-17',actualStart:'',actualEnd:'',owner:'小美',note:''},
+  {row:11,machine:'水果盤 Deluxe',stage:'規劃中',planStart:'2026-06-16',planEnd:'2026-06-29',actualStart:'2026-06-23',actualEnd:'',owner:'志明',note:'晚一週開始'},
+  {row:12,machine:'水果盤 Deluxe',stage:'設計中',planStart:'',planEnd:'2026-07-20',actualStart:'',actualEnd:'',owner:'志明',note:'Deadline'},
+  {row:13,machine:'水果盤 Deluxe',stage:'開發中',planStart:'2026-07-21',planEnd:'2026-09-07',actualStart:'',actualEnd:'',owner:'志明',note:''},
 ];
 
 let rawData = [];
@@ -184,7 +184,7 @@ async function loadData() {
   try {
     if (canEdit()) {
       const r = await (await fetch(CONFIG.APPS_SCRIPT_URL+'?action=read',{redirect:'follow'})).json();
-      if (r.success) { rawData = r.data; src.textContent='Google Sheet（即時）'; finish(); return; }
+      if (r.success) { rawData = r.data.map(d=>({...d,planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd)})); src.textContent='Google Sheet（即時）'; finish(); return; }
     }
     // gviz
     let text;
@@ -199,9 +199,11 @@ async function loadData() {
   }
 }
 function gvizUrl(fmt){return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${fmt}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
-function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({machine:c[0],stage:c[1],planStart:c[2]||'',planEnd:c[3]||'',actualStart:c[4]||'',actualEnd:c[5]||'',owner:c[6]||'',note:c[7]||''});}return res;}
+function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||''});}return res;}
 function csvLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch==='"'&&l[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}else{if(ch==='"')q=true;else if(ch===','){r.push(c.trim());c=''}else c+=ch}}r.push(c.trim());return r}
-function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);const j=JSON.parse(m?m[1]:text);return j.table.rows.map(row=>{const c=row.c||[];const v=i=>(c[i]&&c[i].v!=null)?String(c[i].v):'';return{machine:v(0),stage:v(1),planStart:v(2),planEnd:v(3),actualStart:v(4),actualEnd:v(5),owner:v(6),note:v(7)}})}
+function normDate(s){if(!s)return '';const d=new Date(s);if(!isNaN(d))return d.toISOString().slice(0,10);return ''}
+function fmtDate(s){if(!s)return '—';const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[2]}/${m[3]}`:'—'}
+function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);const j=JSON.parse(m?m[1]:text);return j.table.rows.map((row,i)=>{const c=row.c||[];const v=idx=>{if(!c[idx]||c[idx].v==null)return '';const val=c[idx].v;if(typeof val==='string'&&val.startsWith('Date(')){const parts=val.match(/Date\((\d+),(\d+),(\d+)\)/);if(parts)return `${parts[1]}-${String(Number(parts[2])+1).padStart(2,'0')}-${parts[3].padStart(2,'0')}`;} return String(val);};return{row:i+2,machine:v(0),stage:v(1),planStart:normDate(v(2)),planEnd:normDate(v(3)),actualStart:normDate(v(4)),actualEnd:normDate(v(5)),owner:v(6),note:v(7)}})}
 
 function finish(){
   document.getElementById('loading').style.display='none';
@@ -253,9 +255,9 @@ function renderTable(){
         <thead><tr><th>階段</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
         <tbody>${stages.map(s=>`<tr>
           <td><span class="badge stage-${s.stage}">${s.stage}</span></td>
-          <td>${s.planStart||'—'}</td><td>${s.planEnd||'—'}</td>
-          <td>${s.actualStart||'—'}</td><td>${s.actualEnd||'—'}</td><td>${s.note||''}</td>
-          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s._row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s._row||0})">✕</button></td>`:''}</tr>`).join('')}</tbody>
+          <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
+          <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${s.note||''}</td>
+          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`).join('')}</tbody>
       </table></div>`;
   });
   document.getElementById('table-area').innerHTML=html;
@@ -268,7 +270,7 @@ function renderGantt(){
   const weeks = getWeeks();
   const total = weeks.length;
   let html=`<div class="gantt-hdr"><div class="gantt-lbl">機台 / 階段</div><div class="gantt-timeline">`;
-  weeks.forEach(w=>{html+=`<div class="gantt-wk">${w.getMonth()+1}/${w.getDate()}</div>`});
+  weeks.forEach(w=>{html+=`<div class="gantt-wk">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div></div>`;
 
   machines.forEach((stages,name)=>{
