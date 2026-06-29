@@ -17,6 +17,7 @@ function getSheet() { return SpreadsheetApp.openById(SHEET_ID).getSheetByName(SH
 
 function doGet(e) {
   if (e && e.parameter && e.parameter.payload) return processAction(JSON.parse(e.parameter.payload));
+  if (e && e.parameter && e.parameter.action) return processAction({action: e.parameter.action});
   return jsonResponse(readAll());
 }
 function doPost(e) { return processAction(JSON.parse(e.postData.contents)); }

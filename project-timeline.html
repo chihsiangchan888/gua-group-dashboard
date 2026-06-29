@@ -627,7 +627,18 @@ async function loadABData(){
   if(canEdit()){
     try{
       const r=await(await fetch(CONFIG.APPS_SCRIPT_URL+'?action=readAB',{redirect:'follow'})).json();
-      if(r.success&&r.data){abData=r.data;return}
+      if(r.success&&r.data&&r.data.length>0){
+        // Group flat rows by game name
+        const map=new Map();
+        r.data.forEach(row=>{
+          if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',versions:[]})}
+          const g=map.get(row.game);
+          if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,row:row.row})}
+          if(row.launchDate&&!g.launchDate)g.launchDate=normDate(row.launchDate);
+        });
+        map.forEach(g=>{if(g.versions.some(v=>v.winner))g.status='已定版'});
+        abData=[...map.values()];return;
+      }
     }catch(e){}
   }
   abData=AB_DEMO_DATA;
