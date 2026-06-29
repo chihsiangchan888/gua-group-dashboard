@@ -149,6 +149,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
 <script>
 window.onerror=function(msg,url,line){document.getElementById('error-banner').textContent='JS Error: '+msg+' (line '+line+')';document.getElementById('error-banner').style.display='block';};
+window.onunhandledrejection=function(e){document.getElementById('error-banner').textContent='Promise Error: '+(e.reason&&e.reason.message||e.reason||'unknown');document.getElementById('error-banner').style.display='block';};
 const CONFIG = {
   SHEET_ID: '10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8',
   SHEET_NAME: '進行中',
@@ -238,15 +239,15 @@ async function loadData(){
     if(canEdit()){
       const r=await(await fetch(CONFIG.APPS_SCRIPT_URL+'?action=read',{redirect:'follow'})).json();
       if(r.success){
-        if(r.stages&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color;STAGE_TYPES[s.name]=s.type||'工作階段'})}
-        rawData=r.data.map(d=>({...d,planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd)}));
+        if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
+        rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
         src.textContent='Google Sheet（即時）';finish();return;
       }
     }
     let text;try{const r=await fetch(gvizUrl('csv'));if(r.ok)text=await r.text()}catch(e){}
     if(text)rawData=parseCsv(text);else{const r=await fetch(gvizUrl('json'));rawData=parseGvizJson(await r.text())}
     src.textContent='Google Sheet（即時）';finish();
-  }catch(e){err.textContent='讀取失敗：'+e.message;err.style.display='block';rawData=DEMO_DATA;src.textContent='Demo';finish()}
+  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;src.textContent='Demo';finish()}
 }
 function gvizUrl(f){return`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${f}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
 function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||'',type:c[9]||'工作階段'})}return res}
@@ -257,7 +258,12 @@ function finish(){
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='';
   if(canEdit())document.querySelectorAll('.edit-only').forEach(el=>el.style.display='');
-  populateFilters();render();
+  try{
+    populateFilters();render();
+  }catch(e){
+    document.getElementById('error-banner').textContent='Render Error: '+(e.message||e);
+    document.getElementById('error-banner').style.display='block';
+  }
   document.getElementById('filter-status').onchange=render;
   document.getElementById('filter-owner').onchange=render;
   document.getElementById('filter-search').oninput=render;
