@@ -157,9 +157,13 @@ const CONFIG = {
 };
 
 const DEFAULT_STAGES=['未開始','規劃中','設計中','開發中','測試中','送審中','修正中','待上線','已完成'];
+const DEFAULT_STAGES=['未開始','規劃中','設計中','開發中','測試中','送審中','修正中','待上線','已完成'];
 const DEFAULT_COLORS={'未開始':'#9ca3af','規劃中':'#eab308','設計中':'#3b82f6','開發中':'#10b981','測試中':'#8b5cf6','送審中':'#f97316','修正中':'#ef4444','待上線':'#06b6d4','已完成':'#22c55e'};
+const DEFAULT_TYPES={'未開始':'工作階段','規劃中':'工作階段','設計中':'工作階段','開發中':'工作階段','測試中':'工作階段','送審中':'里程碑','修正中':'工作階段','待上線':'里程碑','已完成':'里程碑'};
 let STAGES=[...DEFAULT_STAGES];
 let STAGE_COLORS={...DEFAULT_COLORS};
+let STAGE_TYPES={...DEFAULT_TYPES};
+function stagesOfType(t){return STAGES.filter(s=>STAGE_TYPES[s]===t)}
 
 const DEMO_DATA=[
   {row:2,machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天',priority:'高',type:'工作階段'},
@@ -234,7 +238,7 @@ async function loadData(){
     if(canEdit()){
       const r=await(await fetch(CONFIG.APPS_SCRIPT_URL+'?action=read',{redirect:'follow'})).json();
       if(r.success){
-        if(r.stages&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color})}
+        if(r.stages&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color;STAGE_TYPES[s.name]=s.type||'工作階段'})}
         rawData=r.data.map(d=>({...d,planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd)}));
         src.textContent='Google Sheet（即時）';finish();return;
       }
@@ -444,15 +448,16 @@ function openAddMachine(){
 async function submitAddMachine(){const name=document.getElementById('m-name').value,owner=document.getElementById('m-owner').value,priority=document.getElementById('m-priority').value;if(!name){alert('請輸入名稱');return}closeModal();await apiPost({action:'addMachine',name,owner,priority});await loadData()}
 
 function openAddStage(machine,owner){
-  const opts=STAGES.map(s=>`<option>${esc(s)}</option>`).join('');
   openModal(`<h3>新增階段 — ${machine}</h3>
-    <div class="fg"><label>類型</label><select id="s-type"><option value="工作階段">工作階段</option><option value="里程碑">里程碑</option></select></div>
-    <div class="fg"><label>階段名稱</label><select id="s-stage">${opts}</select></div>
+    <div class="fg"><label>類型</label><select id="s-type" onchange="updateStageOpts()"><option value="工作階段">工作階段</option><option value="里程碑">里程碑</option></select></div>
+    <div class="fg"><label>階段名稱</label><select id="s-stage"></select></div>
     <div class="fg"><label>計畫開始日</label><input type="date" id="s-ps"></div>
     <div class="fg"><label>計畫結束日（里程碑=Deadline）</label><input type="date" id="s-pe"></div>
     <div class="fg"><label>備註</label><textarea id="s-note"></textarea></div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddStage('${esc(machine)}','${esc(owner)}')">確認</button></div>`);
+  updateStageOpts();
 }
+function updateStageOpts(){const t=document.getElementById('s-type').value;const sel=document.getElementById('s-stage');sel.innerHTML=stagesOfType(t).map(s=>`<option>${esc(s)}</option>`).join('')}
 async function submitAddStage(machine,owner){const data={machine,stage:document.getElementById('s-stage').value,planStart:document.getElementById('s-ps').value,planEnd:document.getElementById('s-pe').value,actualStart:'',actualEnd:'',owner,note:document.getElementById('s-note').value,priority:'',type:document.getElementById('s-type').value};closeModal();await apiPost({action:'addStage',data});await loadData()}
 
 function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority,type){
@@ -477,29 +482,56 @@ async function toggleStageDone(cb,row,machine,stage,ps,pe,as,owner,note,priority
 
 // === Settings ===
 function openSettings(){
-  let items=STAGES.map((s,i)=>`<li class="settings-item" data-idx="${i}">
-    <input type="color" value="${STAGE_COLORS[s]||'#9ca3af'}" data-field="color">
-    <input type="text" value="${esc(s)}" data-field="name">
-    <button class="btn btn-sm btn-edit" onclick="moveStage(${i},-1)">↑</button>
-    <button class="btn btn-sm btn-edit" onclick="moveStage(${i},1)">↓</button>
-    <button class="btn btn-sm btn-delete" onclick="removeStageItem(${i})">✕</button>
-  </li>`).join('');
+  const msItems=stagesOfType('里程碑');
+  const wsItems=stagesOfType('工作階段');
+  function renderList(items,type){
+    return items.map((s,i)=>{const gi=STAGES.indexOf(s);return`<li class="settings-item" data-gi="${gi}" data-type="${type}">
+      <input type="color" value="${STAGE_COLORS[s]||'#9ca3af'}" data-field="color">
+      <input type="text" value="${esc(s)}" data-field="name">
+      <button class="btn btn-sm btn-edit" onclick="moveStageInType('${type}',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-edit" onclick="moveStageInType('${type}',${i},1)">↓</button>
+      <button class="btn btn-sm btn-delete" onclick="removeStageByName('${esc(s)}')">✕</button>
+    </li>`}).join('');
+  }
   openModal(`<h3>階段設定</h3>
-    <ul class="settings-list" id="settings-list">${items}</ul>
-    <div style="margin-top:12px;display:flex;gap:8px">
-      <input type="color" id="new-stage-color" value="#6366f1" style="width:40px;height:32px;border:none;border-radius:4px">
-      <input type="text" id="new-stage-name" placeholder="新階段名稱" style="flex:1;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
-      <button class="btn btn-add-stage" onclick="addStageItem()">新增</button>
+    <h4 style="font-size:13px;color:#666;margin-bottom:8px">📌 里程碑項目</h4>
+    <ul class="settings-list" id="settings-ms">${renderList(msItems,'里程碑')}</ul>
+    <div style="margin:8px 0;display:flex;gap:8px">
+      <input type="color" id="new-ms-color" value="#f97316" style="width:32px;height:28px;border:none;border-radius:4px">
+      <input type="text" id="new-ms-name" placeholder="新里程碑名稱" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('里程碑')">新增</button>
+    </div>
+    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">⚙ 工作階段項目</h4>
+    <ul class="settings-list" id="settings-ws">${renderList(wsItems,'工作階段')}</ul>
+    <div style="margin:8px 0;display:flex;gap:8px">
+      <input type="color" id="new-ws-color" value="#6366f1" style="width:32px;height:28px;border:none;border-radius:4px">
+      <input type="text" id="new-ws-name" placeholder="新工作階段名稱" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('工作階段')">新增</button>
     </div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveSettings()">儲存</button></div>`);
 }
-function addStageItem(){const n=document.getElementById('new-stage-name').value.trim(),c=document.getElementById('new-stage-color').value;if(!n){alert('請輸入名稱');return}STAGES.push(n);STAGE_COLORS[n]=c;openSettings()}
-function removeStageItem(i){STAGES.splice(i,1);openSettings()}
-function moveStage(i,dir){const j=i+dir;if(j<0||j>=STAGES.length)return;[STAGES[i],STAGES[j]]=[STAGES[j],STAGES[i]];openSettings()}
+function addStageTyped(type){
+  const prefix=type==='里程碑'?'ms':'ws';
+  const n=document.getElementById('new-'+prefix+'-name').value.trim(),c=document.getElementById('new-'+prefix+'-color').value;
+  if(!n){alert('請輸入名稱');return}
+  STAGES.push(n);STAGE_COLORS[n]=c;STAGE_TYPES[n]=type;openSettings();
+}
+function removeStageByName(name){const i=STAGES.indexOf(name);if(i>=0)STAGES.splice(i,1);openSettings()}
+function moveStageInType(type,localIdx,dir){
+  const items=stagesOfType(type);
+  const j=localIdx+dir;if(j<0||j>=items.length)return;
+  const gi1=STAGES.indexOf(items[localIdx]),gi2=STAGES.indexOf(items[j]);
+  [STAGES[gi1],STAGES[gi2]]=[STAGES[gi2],STAGES[gi1]];
+  openSettings();
+}
 async function saveSettings(){
-  const items=document.querySelectorAll('#settings-list .settings-item');
-  const stages=[];items.forEach(li=>{const n=li.querySelector('[data-field=name]').value.trim(),c=li.querySelector('[data-field=color]').value;if(n)stages.push({name:n,color:c})});
-  STAGES=stages.map(s=>s.name);STAGE_COLORS={};stages.forEach(s=>{STAGE_COLORS[s.name]=s.color});
+  const stages=[];
+  document.querySelectorAll('#settings-ms .settings-item, #settings-ws .settings-item').forEach(li=>{
+    const n=li.querySelector('[data-field=name]').value.trim(),c=li.querySelector('[data-field=color]').value,t=li.dataset.type;
+    if(n)stages.push({name:n,color:c,type:t});
+  });
+  STAGES=stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};
+  stages.forEach(s=>{STAGE_COLORS[s.name]=s.color;STAGE_TYPES[s.name]=s.type});
   closeModal();await apiPost({action:'setStages',stages});render();
 }
 

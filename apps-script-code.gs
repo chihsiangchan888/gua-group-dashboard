@@ -90,16 +90,16 @@ function getStages() {
   var data = sheet.getDataRange().getValues();
   if (data.length < 2) return { success: true, stages: [] };
   var stages = [];
-  for (var i = 1; i < data.length; i++) { if (data[i][0]) stages.push({ name: String(data[i][0]), color: String(data[i][1]||'#9ca3af') }); }
+  for (var i = 1; i < data.length; i++) { if (data[i][0]) stages.push({ name: String(data[i][0]), color: String(data[i][1]||'#9ca3af'), type: String(data[i][2]||'工作階段') }); }
   return { success: true, stages: stages };
 }
 
 function setStages(stages) {
   var ss = SpreadsheetApp.openById(SHEET_ID);
   var sheet = ss.getSheetByName('設定');
-  if (!sheet) { sheet = ss.insertSheet('設定'); sheet.getRange(1,1,1,2).setValues([['階段名稱','顏色代碼']]); }
-  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 2).clearContent();
-  if (stages.length > 0) { sheet.getRange(2, 1, stages.length, 2).setValues(stages.map(function(s){return [s.name, s.color]})); }
+  if (!sheet) { sheet = ss.insertSheet('設定'); sheet.getRange(1,1,1,3).setValues([['階段名稱','顏色代碼','類型']]); }
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 3).clearContent();
+  if (stages.length > 0) { sheet.getRange(2, 1, stages.length, 3).setValues(stages.map(function(s){return [s.name, s.color, s.type||'工作階段']})); }
   return { success: true };
 }
 
