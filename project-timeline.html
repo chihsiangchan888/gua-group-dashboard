@@ -282,16 +282,27 @@ function getFilteredMachines(){
   const owner=document.getElementById('filter-owner').value;
   const search=document.getElementById('filter-search').value.toLowerCase();
   const machines=groupByMachine(rawData);
-  const result=new Map();
+  const filtered=[];
   machines.forEach((stages,name)=>{
     const ms=getMachineStatus(stages);
     if(status==='active'&&ms==='done')return;
     if(status==='done'&&ms!=='done')return;
     if(owner&&!stages.some(s=>s.owner===owner))return;
     if(search&&!name.toLowerCase().includes(search))return;
-    result.set(name,stages);
+    filtered.push([name,stages]);
   });
+  filtered.sort((a,b)=>{return(getLaunchDate(a[1])||'9999')>(getLaunchDate(b[1])||'9999')?1:-1});
+  const result=new Map();
+  filtered.forEach(([n,s])=>result.set(n,s));
   return result;
+}
+function getLaunchDate(stages){
+  const launch=stages.find(s=>s.type==='里程碑'&&(/上線/.test(s.stage)));
+  if(launch&&launch.planEnd)return launch.planEnd;
+  let latest='';
+  stages.forEach(s=>{if(s.planEnd&&s.planEnd>latest)latest=s.planEnd});
+  return latest||null;
+}
 }
 
 function renderKPI(){
