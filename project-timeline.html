@@ -303,7 +303,6 @@ function getLaunchDate(stages){
   stages.forEach(s=>{if(s.planEnd&&s.planEnd>latest)latest=s.planEnd});
   return latest||null;
 }
-}
 
 function renderKPI(){
   const machines=groupByMachine(rawData);let total=machines.size,done=0,active=0;
