@@ -93,6 +93,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .legend-actual{width:16px;height:8px;border-radius:3px;background:#6366f1}
 .legend-ms{width:8px;height:8px;transform:rotate(45deg);border:2px solid #6366f1;background:#fff}
 .legend-today{width:16px;height:2px;background:#ef4444}
+.tab-nav{display:flex;gap:4px;justify-content:center;margin-bottom:20px}
+.tab-btn{padding:10px 24px;border:1px solid #ddd;border-radius:8px 8px 0 0;background:#f8f9fa;font-size:14px;font-weight:600;cursor:pointer;color:#666;border-bottom:none;transition:all .2s}
+.tab-btn.active{background:#fff;color:#6366f1;border-color:#6366f1;border-bottom:2px solid #fff;margin-bottom:-1px}
+.tab-content{display:none}.tab-content.active{display:block}
+.ab-table{width:100%;border-collapse:collapse;font-size:13px}
+.ab-table th{text-align:left;padding:8px 10px;border-bottom:2px solid #eee;color:#888;font-size:11px;text-transform:uppercase}
+.ab-table td{padding:8px 10px;border-bottom:1px solid #f5f5f5}
+.ab-table tr:hover{background:#fafafa}
+.ab-winner{background:#d1fae5;color:#047857;font-weight:700;border-radius:4px;padding:2px 6px}
+.ab-version{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;cursor:pointer;border:2px solid transparent}
+.ab-version:hover{opacity:.8}
+.ab-version.winner{border-color:#fbbf24;box-shadow:0 0 0 2px rgba(251,191,36,.3)}
+.ab-timeline-row{display:flex;align-items:center;min-height:36px;border-bottom:1px solid #f5f5f5;padding:4px 0}
+.ab-timeline-row:hover{background:#fafafa}
+.ab-timeline-lbl{width:160px;min-width:160px;font-size:12px;font-weight:600;color:#1a1a2e;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-timeline-bar{flex:1;position:relative;height:28px}
+.ab-dot{position:absolute;top:6px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2);z-index:5}
+.ab-dot.winner{width:20px;height:20px;top:4px;transform:translateX(-10px);box-shadow:0 0 0 3px rgba(251,191,36,.4),0 2px 4px rgba(0,0,0,.2)}
+.ab-dot-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:3px 6px;border-radius:4px;font-size:9px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.ab-dot:hover .ab-dot-tip{opacity:1}
+.ab-connect{position:absolute;top:14px;height:2px;background:#ddd;z-index:1}
+.ab-status-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.ab-status-打磨中{background:#fff3cd;color:#b8860b}
+.ab-status-已定版{background:#d1fae5;color:#047857}
 .footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#bbb}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;justify-content:center;align-items:center}
 .modal-bg.active{display:flex}
@@ -122,6 +146,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div class="error-banner" id="error-banner"></div>
 <div class="loading" id="loading">正在載入資料</div>
 <div id="app" style="display:none">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('timeline')">專案時程</button>
+    <button class="tab-btn" onclick="switchTab('abtest')">AB 測試追蹤</button>
+  </div>
+  <div class="tab-content active" id="tab-timeline">
   <div class="grid" id="kpis"></div>
   <div class="section">
     <div class="section-hdr"><h2>專案總覽</h2><button class="btn btn-primary edit-only" onclick="openAddMachine()" style="display:none">+ 新增機台</button></div>
@@ -143,6 +172,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="legend-item"><div class="legend-today"></div>今天</div>
     </div>
   </div>
+</div><!-- end tab-timeline -->
+<div class="tab-content" id="tab-abtest">
+  <div class="grid" id="ab-kpis"></div>
+  <div class="section">
+    <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" onclick="openAddABGame()" style="display:none">+ 新增遊戲</button></div>
+    <div class="toolbar">
+      <select id="ab-filter-status"><option value="all">全部</option><option value="打磨中">打磨中</option><option value="已定版">已定版</option></select>
+      <input type="text" id="ab-filter-search" placeholder="搜尋遊戲名稱...">
+    </div>
+    <div id="ab-table-area"></div>
+  </div>
+  <div class="section">
+    <div class="section-hdr"><h2>版本時間軸</h2></div>
+    <div class="gantt-wrap"><div id="ab-timeline"></div></div>
+    <div class="legend">
+      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:#6366f1"></div>版本上線點</div>
+      <div class="legend-item"><div style="width:18px;height:18px;border-radius:50%;background:#6366f1;border:3px solid #fbbf24"></div>勝出版本</div>
+      <div class="legend-item"><div class="legend-today"></div>今天</div>
+    </div>
+  </div>
+</div><!-- end tab-abtest -->
 </div>
 <div class="footer">由 呱集團 AI Fleet 自動產生</div>
 <div class="modal-bg" id="modal-bg"><div class="modal" id="modal-content"></div></div>
@@ -259,6 +309,10 @@ function finish(){
   if(canEdit())document.querySelectorAll('.edit-only').forEach(el=>el.style.display='');
   try{
     populateFilters();render();
+    loadABData().then(()=>{
+      if(localStorage.getItem('activeTab')==='abtest')switchTab('abtest');
+      else renderAB();
+    });
   }catch(e){
     document.getElementById('error-banner').textContent='Render Error: '+(e.message||e);
     document.getElementById('error-banner').style.display='block';
@@ -266,6 +320,8 @@ function finish(){
   document.getElementById('filter-status').onchange=render;
   document.getElementById('filter-owner').onchange=render;
   document.getElementById('filter-search').oninput=render;
+  document.getElementById('ab-filter-status').onchange=renderAB;
+  document.getElementById('ab-filter-search').oninput=renderAB;
 }
 
 function populateFilters(){
@@ -548,6 +604,198 @@ async function saveSettings(){
   STAGES=stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};
   stages.forEach(s=>{STAGE_COLORS[s.name]=s.color;STAGE_TYPES[s.name]=s.type});
   closeModal();await apiPost({action:'setStages',stages});render();
+}
+
+// === Tabs ===
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(tab==='timeline'?0:1)));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  localStorage.setItem('activeTab',tab);
+  if(tab==='abtest')renderAB();
+}
+
+// === AB Test Data ===
+const AB_DEMO_DATA=[
+  {gameName:'烘焙寶藏',gameTag:'pay any',targetMarket:'TADA',launchDate:'2026-05-30',status:'打磨中',versions:[{label:'A',date:'2026-05-30',winner:false},{label:'B',date:'2026-05-30',winner:false},{label:'C',date:'2026-06-07',winner:false},{label:'D',date:'2026-06-14',winner:false}]},
+  {gameName:'龍珠獵人',gameTag:'penny',targetMarket:'TADA',launchDate:'2026-04-15',status:'已定版',versions:[{label:'A',date:'2026-04-15',winner:false},{label:'B',date:'2026-04-22',winner:false},{label:'C',date:'2026-05-01',winner:true}]},
+  {gameName:'金礦探險',gameTag:'high vol',targetMarket:'JILI',launchDate:'2026-06-01',status:'打磨中',versions:[{label:'A',date:'2026-06-01',winner:false},{label:'B',date:'2026-06-10',winner:false}]}
+];
+let abData=[];
+
+async function loadABData(){
+  if(canEdit()){
+    try{
+      const r=await(await fetch(CONFIG.APPS_SCRIPT_URL+'?action=readAB',{redirect:'follow'})).json();
+      if(r.success&&r.data){abData=r.data;return}
+    }catch(e){}
+  }
+  abData=AB_DEMO_DATA;
+}
+
+function getFilteredAB(){
+  const status=document.getElementById('ab-filter-status').value;
+  const search=document.getElementById('ab-filter-search').value.toLowerCase();
+  return abData.filter(g=>{
+    if(status!=='all'&&g.status!==status)return false;
+    if(search&&!g.gameName.toLowerCase().includes(search))return false;
+    return true;
+  });
+}
+
+function renderAB(){renderABKPI();renderABTable();renderABTimeline()}
+
+function renderABKPI(){
+  const total=abData.length;
+  const tuning=abData.filter(g=>g.status==='打磨中').length;
+  const finalized=abData.filter(g=>g.status==='已定版').length;
+  const avgVersions=total?Math.round(abData.reduce((s,g)=>s+g.versions.length,0)/total*10)/10:0;
+  document.getElementById('ab-kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">總遊戲數</div><div class="kpi-val">${total}</div></div>
+    <div class="kpi"><div class="kpi-label">打磨中</div><div class="kpi-val">${tuning}</div></div>
+    <div class="kpi"><div class="kpi-label">已定版</div><div class="kpi-val">${finalized}</div></div>
+    <div class="kpi"><div class="kpi-label">平均版本數</div><div class="kpi-val">${avgVersions}</div></div>`;
+}
+
+function renderABTable(){
+  const games=getFilteredAB();
+  if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:#888;text-align:center;padding:20px">無符合條件的遊戲</p>';return}
+  const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
+  let html=`<table class="ab-table"><thead><tr><th>遊戲名稱</th><th>Tag</th><th>市場</th><th>上線日</th><th>狀態</th><th>版本</th>${canEdit()?'<th>操作</th>':''}</tr></thead><tbody>`;
+  games.forEach((g,gi)=>{
+    html+=`<tr><td style="font-weight:600">${esc(g.gameName)}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
+      <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>`;
+    g.versions.forEach((v,vi)=>{
+      const c=colors[vi%colors.length];
+      html+=`<span class="ab-version${v.winner?' winner':''}" style="background:${c}22;color:${c}" title="${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}">${v.label} ${fmtDate(v.date)}${v.winner?' 🏆':''}</span>`;
+    });
+    html+=`</td>`;
+    if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" onclick="openAddABVersion(${gi})">+版本</button> <button class="btn btn-sm btn-edit" onclick="openEditABGame(${gi})">✎</button> <button class="btn btn-sm btn-delete" onclick="delABGame(${gi})">✕</button></td>`;
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table>`;
+  document.getElementById('ab-table-area').innerHTML=html;
+}
+
+function renderABTimeline(){
+  const games=getFilteredAB();
+  if(!games.length){document.getElementById('ab-timeline').innerHTML='';return}
+  const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
+  // Compute time range
+  let minD=null,maxD=null;
+  games.forEach(g=>g.versions.forEach(v=>{if(v.date){if(!minD||v.date<minD)minD=v.date;if(!maxD||v.date>maxD)maxD=v.date}}));
+  if(!minD){document.getElementById('ab-timeline').innerHTML='';return}
+  // Extend range by 7 days each side
+  const startMs=new Date(minD+'T00:00:00').getTime()-7*86400000;
+  const endMs=new Date(maxD+'T00:00:00').getTime()+14*86400000;
+  const range=endMs-startMs;
+  function pos(d){return((new Date(d+'T00:00:00').getTime()-startMs)/range)*100}
+  // Week headers
+  const weeks=[];let wk=new Date(startMs);wk.setDate(wk.getDate()-((wk.getDay()+6)%7));
+  while(wk.getTime()<=endMs){weeks.push(new Date(wk));wk=new Date(wk.getTime()+7*86400000)}
+
+  let html=`<div style="display:flex;border-bottom:2px solid #eee"><div style="width:160px;min-width:160px;padding:6px 10px;font-size:11px;color:#888">遊戲</div><div style="display:flex;flex:1">`;
+  weeks.forEach(w=>{html+=`<div style="flex:1;text-align:center;padding:4px 2px;font-size:9px;color:#bbb;border-left:1px solid #f0f0f0">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
+  html+=`</div></div>`;
+
+  games.forEach(g=>{
+    html+=`<div class="ab-timeline-row"><div class="ab-timeline-lbl" title="${esc(g.gameName)}">${esc(g.gameName)}</div><div class="ab-timeline-bar">`;
+    // Connection line
+    const dates=g.versions.filter(v=>v.date).map(v=>v.date).sort();
+    if(dates.length>1){const l=pos(dates[0]),r=pos(dates[dates.length-1]);html+=`<div class="ab-connect" style="left:${l}%;width:${r-l}%"></div>`}
+    // Dots
+    g.versions.forEach((v,vi)=>{
+      if(!v.date)return;
+      const p=pos(v.date);
+      const c=colors[vi%colors.length];
+      html+=`<div class="ab-dot${v.winner?' winner':''}" style="left:${p}%;background:${c}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}</div>${v.label}</div>`;
+    });
+    html+=`</div></div>`;
+  });
+
+  // Today line
+  const todayPos=pos(TODAY);
+  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(160px + (100% - 160px)*${todayPos}/100);width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none"><div style="position:absolute;top:-16px;font-size:9px;color:#ef4444;transform:translateX(-50%);white-space:nowrap">Today</div></div>`}
+  document.getElementById('ab-timeline').innerHTML=`<div style="position:relative">${html}</div>`;
+}
+
+// === AB CRUD ===
+function openAddABGame(){
+  openModal(`<h3>新增 AB 測試遊戲</h3>
+    <div class="fg"><label>遊戲名稱</label><input id="ab-name"></div>
+    <div class="fg"><label>遊戲 Tag</label><input id="ab-tag" placeholder="pay any / penny / high vol"></div>
+    <div class="fg"><label>目標市場</label><input id="ab-market" placeholder="TADA / JILI"></div>
+    <div class="fg"><label>上線日期</label><input type="date" id="ab-launch"></div>
+    <div class="fg"><label>A 版日期</label><input type="date" id="ab-v1-date"></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddABGame()">確認</button></div>`);
+}
+async function submitAddABGame(){
+  const g={gameName:document.getElementById('ab-name').value,gameTag:document.getElementById('ab-tag').value,targetMarket:document.getElementById('ab-market').value,launchDate:document.getElementById('ab-launch').value,status:'打磨中',versions:[]};
+  const d=document.getElementById('ab-v1-date').value;
+  if(d)g.versions.push({label:'A',date:d,winner:false});
+  if(!g.gameName){alert('請輸入遊戲名稱');return}
+  abData.push(g);closeModal();await saveABData();renderAB();
+}
+function openAddABVersion(gi){
+  const g=getFilteredAB()[gi];const nextLabel=String.fromCharCode(65+g.versions.length);
+  openModal(`<h3>新增版本 — ${esc(g.gameName)}</h3>
+    <div class="fg"><label>版本代號</label><input id="abv-label" value="${nextLabel}"></div>
+    <div class="fg"><label>上線日期</label><input type="date" id="abv-date" value="${TODAY}"></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddABVersion(${gi})">確認</button></div>`);
+}
+async function submitAddABVersion(gi){
+  const g=getFilteredAB()[gi];
+  g.versions.push({label:document.getElementById('abv-label').value||'?',date:document.getElementById('abv-date').value,winner:false});
+  closeModal();await saveABData();renderAB();
+}
+function openEditABGame(gi){
+  const g=getFilteredAB()[gi];
+  let versionsHtml=g.versions.map((v,vi)=>`<div class="fg" style="display:flex;gap:8px;align-items:center">
+    <input style="width:40px" value="${esc(v.label)}" id="abv-l-${vi}">
+    <input type="date" value="${v.date}" id="abv-d-${vi}">
+    <label style="font-size:11px;white-space:nowrap"><input type="radio" name="ab-winner" value="${vi}" ${v.winner?'checked':''}> 🏆</label>
+    <button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>
+  </div>`).join('');
+  openModal(`<h3>編輯 — ${esc(g.gameName)}</h3>
+    <div class="fg"><label>遊戲名稱</label><input id="abe-name" value="${esc(g.gameName)}"></div>
+    <div class="fg"><label>遊戲 Tag</label><input id="abe-tag" value="${esc(g.gameTag)}"></div>
+    <div class="fg"><label>目標市場</label><input id="abe-market" value="${esc(g.targetMarket)}"></div>
+    <div class="fg"><label>上線日期</label><input type="date" id="abe-launch" value="${g.launchDate}"></div>
+    <div class="fg"><label>狀態</label><select id="abe-status"><option${g.status==='打磨中'?' selected':''}>打磨中</option><option${g.status==='已定版'?' selected':''}>已定版</option></select></div>
+    <h4 style="font-size:13px;color:#666;margin:12px 0 8px">版本列表</h4>
+    <div id="abe-versions">${versionsHtml}</div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitEditABGame(${gi})">儲存</button></div>`);
+}
+async function submitEditABGame(gi){
+  const g=getFilteredAB()[gi];
+  g.gameName=document.getElementById('abe-name').value;
+  g.gameTag=document.getElementById('abe-tag').value;
+  g.targetMarket=document.getElementById('abe-market').value;
+  g.launchDate=document.getElementById('abe-launch').value;
+  g.status=document.getElementById('abe-status').value;
+  const vEls=document.querySelectorAll('#abe-versions .fg');
+  const winnerRadio=document.querySelector('input[name="ab-winner"]:checked');
+  const winnerIdx=winnerRadio?parseInt(winnerRadio.value):-1;
+  g.versions=[];
+  vEls.forEach((el,i)=>{
+    const lbl=el.querySelector('input[type=text],input:not([type=date]):not([type=radio])');
+    const dt=el.querySelector('input[type=date]');
+    if(lbl&&dt)g.versions.push({label:lbl.value,date:dt.value,winner:i===winnerIdx});
+  });
+  if(g.versions.some(v=>v.winner))g.status='已定版';
+  closeModal();await saveABData();renderAB();
+}
+async function delABGame(gi){
+  const g=getFilteredAB()[gi];
+  if(!confirm('確定刪除「'+g.gameName+'」？'))return;
+  const idx=abData.indexOf(g);if(idx>=0)abData.splice(idx,1);
+  await saveABData();renderAB();
+}
+
+async function saveABData(){
+  if(canEdit()){
+    try{await apiPost({action:'writeAB',data:abData})}catch(e){}
+  }
 }
 
 // === Init ===

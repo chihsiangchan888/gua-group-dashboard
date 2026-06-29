@@ -32,6 +32,12 @@ function processAction(body) {
   if (a === 'archiveMachine') return jsonResponse(archiveMachine(body.machineName));
   if (a === 'getStages') return jsonResponse(getStages());
   if (a === 'setStages') return jsonResponse(setStages(body.stages));
+  if (a === 'readAB') return jsonResponse(readAB());
+  if (a === 'addABGame') return jsonResponse(addABGame(body.data));
+  if (a === 'addABVersion') return jsonResponse(addABVersion(body.data));
+  if (a === 'setABWinner') return jsonResponse(setABWinner(body.game, body.version));
+  if (a === 'deleteABVersion') return jsonResponse(deleteABVersion(body.row));
+  if (a === 'deleteABGame') return jsonResponse(deleteABGame(body.game));
   return jsonResponse({ success: false, error: 'Unknown action' });
 }
 
@@ -100,6 +106,53 @@ function setStages(stages) {
   if (!sheet) { sheet = ss.insertSheet('設定'); sheet.getRange(1,1,1,3).setValues([['階段名稱','顏色代碼','類型']]); }
   if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 3).clearContent();
   if (stages.length > 0) { sheet.getRange(2, 1, stages.length, 3).setValues(stages.map(function(s){return [s.name, s.color, s.type||'工作階段']})); }
+  return { success: true };
+}
+
+// === AB Test ===
+// Sheet「AB測試」: A:遊戲名稱 B:遊戲tag C:目標市場 D:上線日期 E:版本標籤 F:版本日期 G:是否勝出
+function getABSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('AB測試');
+  if (!sheet) { sheet = ss.insertSheet('AB測試'); sheet.getRange(1,1,1,7).setValues([['遊戲名稱','遊戲tag','目標市場','上線日期','版本標籤','版本日期','是否勝出']]); }
+  return sheet;
+}
+
+function readAB() {
+  var sheet = getABSheet();
+  var data = sheet.getDataRange().getValues();
+  var rows = [];
+  for (var i = 1; i < data.length; i++) {
+    rows.push({ row: i+1, game: data[i][0]||'', tag: data[i][1]||'', market: data[i][2]||'', launchDate: fmtDate(data[i][3]), version: data[i][4]||'', versionDate: fmtDate(data[i][5]), winner: data[i][6]==='Y'||data[i][6]===true });
+  }
+  return { success: true, data: rows };
+}
+
+function addABGame(data) {
+  getABSheet().appendRow([data.game||'', data.tag||'', data.market||'', data.launchDate||'', 'A', data.versionDate||'', '']);
+  return { success: true };
+}
+
+function addABVersion(data) {
+  getABSheet().appendRow([data.game||'', data.tag||'', data.market||'', '', data.version||'', data.versionDate||'', '']);
+  return { success: true };
+}
+
+function setABWinner(game, version) {
+  var sheet = getABSheet(); var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === game) {
+      sheet.getRange(i+1, 7).setValue(data[i][4] === version ? 'Y' : '');
+    }
+  }
+  return { success: true };
+}
+
+function deleteABVersion(rowNum) { getABSheet().deleteRow(rowNum); return { success: true }; }
+
+function deleteABGame(game) {
+  var sheet = getABSheet(); var data = sheet.getDataRange().getValues();
+  for (var i = data.length - 1; i >= 1; i--) { if (data[i][0] === game) sheet.deleteRow(i + 1); }
   return { success: true };
 }
 
