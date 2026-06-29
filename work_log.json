@@ -1,5 +1,23 @@
 [
   {
+    "date": "2026-06-28",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "push work_log.json、project-timeline.html、apps-script-code.gs 到 gua-group-dashboard（commit 6a1278d）"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "更新 work_log.json（6/27 全員日誌），委派達克萊伊 push"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"}
+    ]
+  },
+  {
     "date": "2026-06-27",
     "time": "09:00",
     "entries": [
