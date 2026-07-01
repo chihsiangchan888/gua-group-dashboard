@@ -179,6 +179,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" onclick="openAddABGame()" style="display:none">+ 新增遊戲</button></div>
     <div class="toolbar">
       <select id="ab-filter-status"><option value="all">全部</option><option value="打磨中">打磨中</option><option value="已定版">已定版</option></select>
+      <select id="ab-filter-month"><option value="">全部上線月份</option></select>
       <input type="text" id="ab-filter-search" placeholder="搜尋遊戲名稱...">
     </div>
     <div id="ab-table-area"></div>
@@ -200,6 +201,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <script>
 window.onerror=function(msg,url,line){document.getElementById('error-banner').textContent='JS Error: '+msg+' (line '+line+')';document.getElementById('error-banner').style.display='block';};
 window.onunhandledrejection=function(e){document.getElementById('error-banner').textContent='Promise Error: '+(e.reason&&e.reason.message||e.reason||'unknown');document.getElementById('error-banner').style.display='block';};
+// Safe localStorage wrappers — some environments (data: URLs, private mode) block storage access
+var _lsMem={};
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return _lsMem[k]!==undefined?_lsMem[k]:null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){_lsMem[k]=v}}
 const CONFIG = {
   SHEET_ID: '10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8',
   SHEET_NAME: '進行中',
@@ -310,7 +315,8 @@ function finish(){
   try{
     populateFilters();render();
     loadABData().then(()=>{
-      if(localStorage.getItem('activeTab')==='abtest')switchTab('abtest');
+      populateABMonths();
+      if(lsGet('activeTab')==='abtest')switchTab('abtest');
       else renderAB();
     });
   }catch(e){
@@ -321,6 +327,7 @@ function finish(){
   document.getElementById('filter-owner').onchange=render;
   document.getElementById('filter-search').oninput=render;
   document.getElementById('ab-filter-status').onchange=renderAB;
+  document.getElementById('ab-filter-month').onchange=renderAB;
   document.getElementById('ab-filter-search').oninput=renderAB;
 }
 
@@ -409,8 +416,8 @@ function renderTable(){
 }
 
 // === Gantt ===
-let ganttView=localStorage.getItem('ganttView')||'milestone';
-function setGanttView(v){ganttView=v;localStorage.setItem('ganttView',v);renderGantt()}
+let ganttView=lsGet('ganttView')||'milestone';
+function setGanttView(v){ganttView=v;lsSet('ganttView',v);renderGantt()}
 
 function renderGantt(){
   document.getElementById('btn-milestone').className='btn btn-sm'+(ganttView==='milestone'?' active':'');
@@ -519,17 +526,60 @@ function openAddMachine(){
 async function submitAddMachine(){const name=document.getElementById('m-name').value,owner=document.getElementById('m-owner').value,priority=document.getElementById('m-priority').value;if(!name){alert('請輸入名稱');return}closeModal();await apiPost({action:'addMachine',name,owner,priority});await loadData()}
 
 function openAddStage(machine,owner){
-  openModal(`<h3>新增階段 — ${machine}</h3>
-    <div class="fg"><label>類型</label><select id="s-type" onchange="updateStageOpts()"><option value="工作階段">工作階段</option><option value="里程碑">里程碑</option></select></div>
-    <div class="fg"><label>階段名稱</label><select id="s-stage"></select></div>
-    <div class="fg"><label>計畫開始日</label><input type="date" id="s-ps"></div>
-    <div class="fg"><label>計畫結束日（里程碑=Deadline）</label><input type="date" id="s-pe"></div>
-    <div class="fg"><label>備註</label><textarea id="s-note"></textarea></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddStage('${esc(machine)}','${esc(owner)}')">確認</button></div>`);
-  updateStageOpts();
+  window._addStageCtx={machine:machine,owner:owner};
+  openModal(`<h3>新增階段 — ${esc(machine)}</h3>
+    <div class="fg"><label>類型</label><select id="s-type" onchange="renderAddStageBody()"><option value="工作階段">工作階段</option><option value="里程碑">里程碑</option></select></div>
+    <div id="s-body"></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddStage()">確認</button></div>`);
+  renderAddStageBody();
 }
-function updateStageOpts(){const t=document.getElementById('s-type').value;const sel=document.getElementById('s-stage');sel.innerHTML=stagesOfType(t).map(s=>`<option>${esc(s)}</option>`).join('')}
-async function submitAddStage(machine,owner){const data={machine,stage:document.getElementById('s-stage').value,planStart:document.getElementById('s-ps').value,planEnd:document.getElementById('s-pe').value,actualStart:'',actualEnd:'',owner,note:document.getElementById('s-note').value,priority:'',type:document.getElementById('s-type').value};closeModal();await apiPost({action:'addStage',data});await loadData()}
+function renderAddStageBody(){
+  var t=document.getElementById('s-type').value;
+  var body=document.getElementById('s-body');
+  if(t==='里程碑'){
+    var msNames=stagesOfType('里程碑');
+    ['送審','過審','封測','公測','上線','版更','審核完成','正式上線'].forEach(function(d){if(msNames.indexOf(d)<0)msNames.push(d)});
+    var opts=msNames.map(function(s){return`<option value="${esc(s)}">`}).join('');
+    body.innerHTML=`<datalist id="ms-names">${opts}</datalist>
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:3px">里程碑節點（名稱可下拉或自行輸入，日期為 Deadline）</label>
+      <div id="ms-nodes"></div>
+      <button type="button" class="btn btn-sm btn-add-stage" onclick="addMsNode()" style="margin-top:2px">＋ 再加一個節點</button>`;
+    addMsNode();
+  }else{
+    var wopts=stagesOfType('工作階段').map(function(s){return`<option>${esc(s)}</option>`}).join('');
+    body.innerHTML=`<div class="fg"><label>階段名稱</label><select id="s-stage">${wopts}</select></div>
+      <div class="fg"><label>計畫開始日</label><input type="date" id="s-ps"></div>
+      <div class="fg"><label>計畫結束日</label><input type="date" id="s-pe"></div>
+      <div class="fg"><label>備註</label><textarea id="s-note"></textarea></div>`;
+  }
+}
+function addMsNode(name,date){
+  var wrap=document.getElementById('ms-nodes');
+  var div=document.createElement('div');
+  div.className='ms-node';
+  div.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:8px';
+  div.innerHTML=`<input class="ms-name" list="ms-names" placeholder="里程碑名稱" value="${esc(name||'')}" style="flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+    <input class="ms-date" type="date" value="${date||''}" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+    <button type="button" class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>`;
+  wrap.appendChild(div);
+}
+async function submitAddStage(){
+  var ctx=window._addStageCtx||{},machine=ctx.machine,owner=ctx.owner;
+  var t=document.getElementById('s-type').value;
+  if(t==='里程碑'){
+    var nodes=[].slice.call(document.querySelectorAll('#ms-nodes .ms-node'));
+    var items=nodes.map(function(n){return{name:n.querySelector('.ms-name').value.trim(),date:n.querySelector('.ms-date').value}}).filter(function(x){return x.name});
+    if(items.length===0){alert('請至少輸入一個里程碑名稱');return}
+    closeModal();
+    for(var i=0;i<items.length;i++){
+      await apiPost({action:'addStage',data:{machine:machine,stage:items[i].name,planStart:'',planEnd:items[i].date,actualStart:'',actualEnd:'',owner:owner,note:'',priority:'',type:'里程碑'}});
+    }
+  }else{
+    var data={machine:machine,stage:document.getElementById('s-stage').value,planStart:document.getElementById('s-ps').value,planEnd:document.getElementById('s-pe').value,actualStart:'',actualEnd:'',owner:owner,note:document.getElementById('s-note').value,priority:'',type:'工作階段'};
+    closeModal();await apiPost({action:'addStage',data});
+  }
+  await loadData();
+}
 
 function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority,type){
   const opts=STAGES.map(s=>`<option${s===stage?' selected':''}>${esc(s)}</option>`).join('');
@@ -548,7 +598,7 @@ async function submitEditStage(row,machine,owner,priority){const data={machine,s
 async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
 async function delMachine(name){if(!confirm('確定刪除「'+name+'」的所有階段？'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
 async function archiveMach(name){if(!confirm('確定歸檔「'+name+'」？'))return;await apiPost({action:'archiveMachine',machineName:name});await loadData()}
-async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const next=cycle[current]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);await apiPost({action:'setPriority',machineName:name,priority:next});await loadData()}
+async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const now=(el.textContent||'').trim();const next=cycle[now]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);rawData.forEach(r=>{if(r.machine===name)r.priority=next});await apiPost({action:'setPriority',machineName:name,priority:next})}
 async function toggleStageDone(cb,row,machine,stage,ps,pe,as,owner,note,priority,type){const ae=cb.checked?TODAY:'';cb.parentElement.parentElement.style.opacity=cb.checked?'.55':'1';const data={machine,stage,planStart:ps,planEnd:pe,actualStart:as||(cb.checked?TODAY:''),actualEnd:ae,owner,note,priority,type};await apiPost({action:'update',row,data});await loadData()}
 
 // === Settings ===
@@ -611,13 +661,13 @@ function switchTab(tab){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(tab==='timeline'?0:1)));
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
-  localStorage.setItem('activeTab',tab);
+  lsSet('activeTab',tab);
   if(tab==='abtest')renderAB();
 }
 
 // === AB Test Data ===
 const AB_DEMO_DATA=[
-  {gameName:'烘焙寶藏',gameTag:'pay any',targetMarket:'TADA',launchDate:'2026-05-30',status:'打磨中',versions:[{label:'A',date:'2026-05-30',winner:false},{label:'B',date:'2026-05-30',winner:false},{label:'C',date:'2026-06-07',winner:false},{label:'D',date:'2026-06-14',winner:false}]},
+  {gameName:'烘焙寶藏',gameTag:'pay any',targetMarket:'TADA',launchDate:'2026-05-30',status:'打磨中',versions:[{label:'A',date:'2026-05-30',winner:false},{label:'B',date:'2026-05-30',winner:false},{label:'C',date:'2026-06-07',winner:false,running:true},{label:'D',date:'2026-06-14',winner:false,running:true}]},
   {gameName:'龍珠獵人',gameTag:'penny',targetMarket:'TADA',launchDate:'2026-04-15',status:'已定版',versions:[{label:'A',date:'2026-04-15',winner:false},{label:'B',date:'2026-04-22',winner:false},{label:'C',date:'2026-05-01',winner:true}]},
   {gameName:'金礦探險',gameTag:'high vol',targetMarket:'JILI',launchDate:'2026-06-01',status:'打磨中',versions:[{label:'A',date:'2026-06-01',winner:false},{label:'B',date:'2026-06-10',winner:false}]}
 ];
@@ -633,7 +683,7 @@ async function loadABData(){
         r.data.forEach(row=>{
           if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',versions:[]})}
           const g=map.get(row.game);
-          if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,row:row.row})}
+          if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,running:!!row.running,row:row.row})}
           if(row.launchDate&&!g.launchDate)g.launchDate=normDate(row.launchDate);
         });
         map.forEach(g=>{if(g.versions.some(v=>v.winner))g.status='已定版'});
@@ -647,14 +697,24 @@ async function loadABData(){
 function getFilteredAB(){
   const status=document.getElementById('ab-filter-status').value;
   const search=document.getElementById('ab-filter-search').value.toLowerCase();
+  const monthEl=document.getElementById('ab-filter-month');
+  const month=monthEl?monthEl.value:'';
   return abData.filter(g=>{
     if(status!=='all'&&g.status!==status)return false;
+    if(month&&(g.launchDate||'').slice(0,7)!==month)return false;
     if(search&&!g.gameName.toLowerCase().includes(search))return false;
     return true;
   });
 }
+function populateABMonths(){
+  const sel=document.getElementById('ab-filter-month');if(!sel)return;
+  const cur=sel.value;
+  const months=[...new Set(abData.map(g=>(g.launchDate||'').slice(0,7)).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">全部上線月份</option>'+months.map(m=>`<option value="${m}">${m.replace('-','/')} 上線</option>`).join('');
+  if(cur&&months.indexOf(cur)>=0)sel.value=cur;
+}
 
-function renderAB(){renderABKPI();renderABTable();renderABTimeline()}
+function renderAB(){populateABMonths();renderABKPI();renderABTable();renderABTimeline()}
 
 function renderABKPI(){
   const total=abData.length;
@@ -677,8 +737,10 @@ function renderABTable(){
     html+=`<tr><td style="font-weight:600">${esc(g.gameName)}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
       <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>`;
     g.versions.forEach((v,vi)=>{
-      const c=colors[vi%colors.length];
-      html+=`<span class="ab-version${v.winner?' winner':''}" style="background:${c}22;color:${c}" title="${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}">${v.label} ${fmtDate(v.date)}${v.winner?' 🏆':''}</span>`;
+      const running=!!v.running;
+      const style=running?'background:#fff3cd;color:#b8860b;border:1px solid #eab308':'background:#fff;color:#555;border:1px solid #ddd';
+      const tip=v.label+'版 '+fmtDate(v.date)+(running?' ·測試中':'')+(v.winner?' 🏆':'');
+      html+=`<span class="ab-version${v.winner?' winner':''}" style="${style}" title="${esc(tip)}">${v.label} ${fmtDate(v.date)}${v.winner?' 🏆':''}</span>`;
     });
     html+=`</td>`;
     if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" onclick="openAddABVersion(${gi})">+版本</button> <button class="btn btn-sm btn-edit" onclick="openEditABGame(${gi})">✎</button> <button class="btn btn-sm btn-delete" onclick="delABGame(${gi})">✕</button></td>`;
@@ -761,10 +823,11 @@ async function submitAddABVersion(gi){
 }
 function openEditABGame(gi){
   const g=getFilteredAB()[gi];
-  let versionsHtml=g.versions.map((v,vi)=>`<div class="fg" style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow:visible">
-    <input style="width:36px;flex-shrink:0" value="${esc(v.label)}" id="abv-l-${vi}">
-    <input type="date" value="${v.date}" id="abv-d-${vi}" style="flex:1;min-width:0">
-    <label style="font-size:11px;white-space:nowrap;flex-shrink:0"><input type="radio" name="ab-winner" value="${vi}" ${v.winner?'checked':''}> 🏆</label>
+  let versionsHtml=g.versions.map((v,vi)=>`<div class="fg abv-row" style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow:visible">
+    <input class="abv-lbl" style="width:36px;flex-shrink:0" value="${esc(v.label)}">
+    <input class="abv-dt" type="date" value="${v.date}" style="flex:1;min-width:0">
+    <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="勝出版本（單選）"><input type="radio" name="ab-winner" value="${vi}" ${v.winner?'checked':''}>🏆</label>
+    <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="AB 測試中（可複選）"><input type="checkbox" class="abv-run" ${v.running?'checked':''}>測</label>
     <button class="btn btn-sm btn-delete" style="flex-shrink:0" onclick="this.parentElement.remove()">✕</button>
   </div>`).join('');
   openModal(`<h3>編輯 — ${esc(g.gameName)}</h3>
@@ -773,7 +836,15 @@ function openEditABGame(gi){
     <div class="fg"><label>目標市場</label><input id="abe-market" value="${esc(g.targetMarket)}"></div>
     <div class="fg"><label>上線日期</label><input type="date" id="abe-launch" value="${g.launchDate}"></div>
     <div class="fg"><label>狀態</label><select id="abe-status"><option${g.status==='打磨中'?' selected':''}>打磨中</option><option${g.status==='已定版'?' selected':''}>已定版</option></select></div>
-    <h4 style="font-size:13px;color:#666;margin:12px 0 8px">版本列表</h4>
+    <h4 style="font-size:13px;color:#666;margin:12px 0 4px">版本列表</h4>
+    <p style="font-size:11px;color:#999;margin-bottom:8px">🏆 = 勝出版本（單選）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
+    <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#888;font-weight:600;padding:0 2px 4px">
+      <span style="width:36px;flex-shrink:0;text-align:center">版本</span>
+      <span style="flex:1;min-width:0">日期</span>
+      <span style="width:34px;flex-shrink:0;text-align:center">🏆</span>
+      <span style="width:34px;flex-shrink:0;text-align:center">測</span>
+      <span style="width:28px;flex-shrink:0"></span>
+    </div>
     <div id="abe-versions">${versionsHtml}</div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitEditABGame(${gi})">儲存</button></div>`);
 }
@@ -784,14 +855,15 @@ async function submitEditABGame(gi){
   g.targetMarket=document.getElementById('abe-market').value;
   g.launchDate=document.getElementById('abe-launch').value;
   g.status=document.getElementById('abe-status').value;
-  const vEls=document.querySelectorAll('#abe-versions .fg');
+  const vEls=document.querySelectorAll('#abe-versions .abv-row');
   const winnerRadio=document.querySelector('input[name="ab-winner"]:checked');
   const winnerIdx=winnerRadio?parseInt(winnerRadio.value):-1;
   g.versions=[];
   vEls.forEach((el,i)=>{
-    const lbl=el.querySelector('input[type=text],input:not([type=date]):not([type=radio])');
-    const dt=el.querySelector('input[type=date]');
-    if(lbl&&dt)g.versions.push({label:lbl.value,date:dt.value,winner:i===winnerIdx});
+    const lbl=el.querySelector('.abv-lbl');
+    const dt=el.querySelector('.abv-dt');
+    const run=el.querySelector('.abv-run');
+    if(lbl&&dt)g.versions.push({label:lbl.value,date:dt.value,winner:i===winnerIdx,running:run?run.checked:false});
   });
   if(g.versions.some(v=>v.winner))g.status='已定版';
   closeModal();await saveABData();renderAB();
