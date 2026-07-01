@@ -1,5 +1,41 @@
 [
   {
+    "date": "2026-06-30",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "無"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "無"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"}
+    ]
+  },
+  {
+    "date": "2026-06-29",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "多次 push project-timeline.html 修正（syntax error fix, sorting, AB test feature）"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "實作 AB 測試追蹤 Tab、修正版本列表 overflow、設定分區功能"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"}
+    ]
+  },
+  {
     "date": "2026-06-28",
     "time": "09:00",
     "entries": [
