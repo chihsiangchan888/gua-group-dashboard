@@ -291,7 +291,7 @@ async function loadData(){
   if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;src.textContent='Demo';finish();return}
   try{
     if(canEdit()){
-      const r=await(await fetch(CONFIG.APPS_SCRIPT_URL+'?action=read',{redirect:'follow'})).json();
+      const r=await(await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'})).json();
       if(r.success){
         if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
         rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
