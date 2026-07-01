@@ -379,12 +379,13 @@ function renderKPI(){
 
 function renderTable(){
   const machines=getFilteredMachines();let html='';
+  let _machIdx=0;
   machines.forEach((stages,name)=>{
     const owner=stages[0]?.owner||'';
     const priority=stages[0]?.priority||'中';
     const pct=getWeightedProgress(stages);
     const currentStage=stages.find(s=>s.type==='工作階段'&&s.actualStart&&!s.actualEnd);
-    const id='tbl-'+name.replace(/\W/g,'');
+    const id='tbl-'+(_machIdx++)+'_'+encodeURIComponent(name).replace(/%/g,'');
     const ms=getMachineStatus(stages);
     const pctColor=pct>=100?'#22c55e':'#6366f1';
     html+=`<div class="machine-group">
