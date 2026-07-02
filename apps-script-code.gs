@@ -33,6 +33,8 @@ function processAction(body) {
   if (a === 'archiveMachine') return jsonResponse(archiveMachine(body.machineName));
   if (a === 'getStages') return jsonResponse(getStages());
   if (a === 'setStages') return jsonResponse(setStages(body.stages));
+  if (a === 'getABOptions') return jsonResponse(getABOptions());
+  if (a === 'setABOptions') return jsonResponse(setABOptions(body.options));
   if (a === 'readAB') return jsonResponse(readAB());
   if (a === 'writeAB') return jsonResponse(writeAB(body.data));
   if (a === 'addABGame') return jsonResponse(addABGame(body.data));
@@ -53,7 +55,8 @@ function readAll() {
     }
   }
   var stagesResult = getStages();
-  return { success: true, data: rows, stages: stagesResult.stages };
+  var abOptionsResult = getABOptions();
+  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets };
 }
 
 function addMachine(name, owner, priority) {
@@ -108,6 +111,33 @@ function setStages(stages) {
   if (!sheet) { sheet = ss.insertSheet('設定'); sheet.getRange(1,1,1,3).setValues([['階段名稱','顏色代碼','類型']]); }
   if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 3).clearContent();
   if (stages.length > 0) { sheet.getRange(2, 1, stages.length, 3).setValues(stages.map(function(s){return [s.name, s.color, s.type||'工作階段']})); }
+  return { success: true };
+}
+
+function getABOptions() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('AB選項');
+  if (!sheet) return { success: true, tags: [], markets: [] };
+  var data = sheet.getDataRange().getValues();
+  var tags = [], markets = [];
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) tags.push(String(data[i][0]));
+    if (data[i][1]) markets.push(String(data[i][1]));
+  }
+  return { success: true, tags: tags, markets: markets };
+}
+
+function setABOptions(options) {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('AB選項');
+  if (!sheet) { sheet = ss.insertSheet('AB選項'); sheet.getRange(1,1,1,2).setValues([['Tag選項','市場選項']]); }
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 2).clearContent();
+  var tags = options.tags || [];
+  var markets = options.markets || [];
+  var maxLen = Math.max(tags.length, markets.length, 1);
+  var rows = [];
+  for (var i = 0; i < maxLen; i++) { rows.push([tags[i]||'', markets[i]||'']); }
+  sheet.getRange(2, 1, rows.length, 2).setValues(rows);
   return { success: true };
 }
 

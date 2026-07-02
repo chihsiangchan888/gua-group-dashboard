@@ -219,6 +219,8 @@ let STAGES=[...DEFAULT_STAGES];
 let STAGE_COLORS={...DEFAULT_COLORS};
 let STAGE_TYPES={...DEFAULT_TYPES};
 function stagesOfType(t){return STAGES.filter(s=>STAGE_TYPES[s]===t)}
+let AB_TAGS=['pay any','penny','high vol'];
+let AB_MARKETS=['TADA','JILI','OKBet'];
 
 const DEMO_DATA=[
   {row:2,machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天',priority:'高',type:'工作階段'},
@@ -294,6 +296,8 @@ async function loadData(){
       const r=await(await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'})).json();
       if(r.success){
         if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
+        if(r.abTags&&Array.isArray(r.abTags)&&r.abTags.length>0)AB_TAGS=r.abTags;
+        if(r.abMarkets&&Array.isArray(r.abMarkets)&&r.abMarkets.length>0)AB_MARKETS=r.abMarkets;
         rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
         src.textContent='Google Sheet（即時）';finish();return;
       }
@@ -539,7 +543,6 @@ function renderAddStageBody(){
   var body=document.getElementById('s-body');
   if(t==='里程碑'){
     var msNames=stagesOfType('里程碑');
-    ['送審','過審','封測','公測','上線','版更','審核完成','正式上線'].forEach(function(d){if(msNames.indexOf(d)<0)msNames.push(d)});
     var opts=msNames.map(function(s){return`<option value="${esc(s)}">`}).join('');
     body.innerHTML=`<datalist id="ms-names">${opts}</datalist>
       <label style="display:block;font-size:12px;color:#666;margin-bottom:3px">里程碑節點（名稱可下拉或自行輸入，日期為 Deadline）</label>
@@ -630,6 +633,18 @@ function openSettings(){
       <input type="text" id="new-ws-name" placeholder="新工作階段名稱" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('工作階段')">新增</button>
     </div>
+    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🏷 AB 測試 Tag 選項</h4>
+    <ul class="settings-list" id="settings-tags">${AB_TAGS.map((t,i)=>`<li class="settings-item"><input type="text" value="${esc(t)}" data-field="tag" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <div style="margin:8px 0;display:flex;gap:8px">
+      <input type="text" id="new-tag-name" placeholder="新 Tag" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-tags').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-tag-name').value+'\\' data-field=\\'tag\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-tag-name').value=''">新增</button>
+    </div>
+    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🌍 AB 測試市場選項</h4>
+    <ul class="settings-list" id="settings-markets">${AB_MARKETS.map((m,i)=>`<li class="settings-item"><input type="text" value="${esc(m)}" data-field="market" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <div style="margin:8px 0;display:flex;gap:8px">
+      <input type="text" id="new-market-name" placeholder="新市場" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-markets').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-market-name').value+'\\' data-field=\\'market\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-market-name').value=''">新增</button>
+    </div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveSettings()">儲存</button></div>`);
 }
 function addStageTyped(type){
@@ -654,7 +669,12 @@ async function saveSettings(){
   });
   STAGES=stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};
   stages.forEach(s=>{STAGE_COLORS[s.name]=s.color;STAGE_TYPES[s.name]=s.type});
-  closeModal();await apiPost({action:'setStages',stages});render();
+  const tags=[],markets=[];
+  document.querySelectorAll('#settings-tags .settings-item').forEach(li=>{const v=li.querySelector('[data-field=tag]').value.trim();if(v)tags.push(v)});
+  document.querySelectorAll('#settings-markets .settings-item').forEach(li=>{const v=li.querySelector('[data-field=market]').value.trim();if(v)markets.push(v)});
+  AB_TAGS=tags.length?tags:AB_TAGS;
+  AB_MARKETS=markets.length?markets:AB_MARKETS;
+  closeModal();await apiPost({action:'setStages',stages});await apiPost({action:'setABOptions',options:{tags:AB_TAGS,markets:AB_MARKETS}});render();
 }
 
 // === Tabs ===
@@ -799,8 +819,8 @@ function renderABTimeline(){
 function openAddABGame(){
   openModal(`<h3>新增 AB 測試遊戲</h3>
     <div class="fg"><label>遊戲名稱</label><input id="ab-name"></div>
-    <div class="fg"><label>遊戲 Tag</label><input id="ab-tag" placeholder="pay any / penny / high vol"></div>
-    <div class="fg"><label>目標市場</label><input id="ab-market" placeholder="TADA / JILI"></div>
+    <div class="fg"><label>遊戲 Tag</label><select id="ab-tag"><option value="">-- 選擇 --</option>${AB_TAGS.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('')}</select></div>
+    <div class="fg"><label>目標市場</label><select id="ab-market"><option value="">-- 選擇 --</option>${AB_MARKETS.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select></div>
     <div class="fg"><label>上線日期</label><input type="date" id="ab-launch"></div>
     <div class="fg"><label>外部連結</label><input id="ab-link" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>A 版日期</label><input type="date" id="ab-v1-date"></div>
@@ -836,8 +856,8 @@ function openEditABGame(gi){
   </div>`).join('');
   openModal(`<h3>編輯 — ${esc(g.gameName)}</h3>
     <div class="fg"><label>遊戲名稱</label><input id="abe-name" value="${esc(g.gameName)}"></div>
-    <div class="fg"><label>遊戲 Tag</label><input id="abe-tag" value="${esc(g.gameTag)}"></div>
-    <div class="fg"><label>目標市場</label><input id="abe-market" value="${esc(g.targetMarket)}"></div>
+    <div class="fg"><label>遊戲 Tag</label><select id="abe-tag">${AB_TAGS.map(t=>`<option value="${esc(t)}"${t===g.gameTag?' selected':''}>${esc(t)}</option>`).join('')}${g.gameTag&&AB_TAGS.indexOf(g.gameTag)<0?`<option value="${esc(g.gameTag)}" selected>${esc(g.gameTag)}</option>`:''}</select></div>
+    <div class="fg"><label>目標市場</label><select id="abe-market">${AB_MARKETS.map(m=>`<option value="${esc(m)}"${m===g.targetMarket?' selected':''}>${esc(m)}</option>`).join('')}${g.targetMarket&&AB_MARKETS.indexOf(g.targetMarket)<0?`<option value="${esc(g.targetMarket)}" selected>${esc(g.targetMarket)}</option>`:''}</select></div>
     <div class="fg"><label>上線日期</label><input type="date" id="abe-launch" value="${g.launchDate}"></div>
     <div class="fg"><label>外部連結</label><input id="abe-link" value="${esc(g.link||'')}" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>狀態</label><select id="abe-status"><option${g.status==='打磨中'?' selected':''}>打磨中</option><option${g.status==='已定版'?' selected':''}>已定版</option></select></div>
