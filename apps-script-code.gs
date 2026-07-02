@@ -112,13 +112,14 @@ function setStages(stages) {
 }
 
 // === AB Test ===
-// Sheet「AB測試」: A:遊戲名稱 B:遊戲tag C:目標市場 D:上線日期 E:版本標籤 F:版本日期 G:是否勝出 H:是否在測
+// Sheet「AB測試」: A:遊戲名稱 B:遊戲tag C:目標市場 D:上線日期 E:版本標籤 F:版本日期 G:是否勝出 H:是否在測 I:外部連結
 function getABSheet() {
   var ss = SpreadsheetApp.openById(SHEET_ID);
   var sheet = ss.getSheetByName('AB測試');
-  if (!sheet) { sheet = ss.insertSheet('AB測試'); sheet.getRange(1,1,1,8).setValues([['遊戲名稱','遊戲tag','目標市場','上線日期','版本標籤','版本日期','是否勝出','是否在測']]); }
-  // Backfill H 標題（舊表可能只有 7 欄）
+  if (!sheet) { sheet = ss.insertSheet('AB測試'); sheet.getRange(1,1,1,9).setValues([['遊戲名稱','遊戲tag','目標市場','上線日期','版本標籤','版本日期','是否勝出','是否在測','外部連結']]); }
+  // Backfill H/I 標題（舊表可能欄位不全）
   if (String(sheet.getRange(1,8).getValue()||'') === '') sheet.getRange(1,8).setValue('是否在測');
+  if (String(sheet.getRange(1,9).getValue()||'') === '') sheet.getRange(1,9).setValue('外部連結');
   return sheet;
 }
 
@@ -127,7 +128,7 @@ function readAB() {
   var data = sheet.getDataRange().getValues();
   var rows = [];
   for (var i = 1; i < data.length; i++) {
-    rows.push({ row: i+1, game: data[i][0]||'', tag: data[i][1]||'', market: data[i][2]||'', launchDate: fmtDate(data[i][3]), version: data[i][4]||'', versionDate: fmtDate(data[i][5]), winner: data[i][6]==='Y'||data[i][6]===true, running: data[i][7]==='Y'||data[i][7]===true });
+    rows.push({ row: i+1, game: data[i][0]||'', tag: data[i][1]||'', market: data[i][2]||'', launchDate: fmtDate(data[i][3]), version: data[i][4]||'', versionDate: fmtDate(data[i][5]), winner: data[i][6]==='Y'||data[i][6]===true, running: data[i][7]==='Y'||data[i][7]===true, link: data[i][8]||'' });
   }
   return { success: true, data: rows };
 }
@@ -135,19 +136,19 @@ function readAB() {
 // 前端 saveABData 送完整巢狀 abData，這裡攤平後整表覆寫
 function writeAB(games) {
   var sheet = getABSheet();
-  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 8).clearContent();
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 9).clearContent();
   var rows = [];
   (games || []).forEach(function(g) {
     var vs = g.versions || [];
     if (vs.length === 0) {
-      rows.push([g.gameName||'', g.gameTag||'', g.targetMarket||'', g.launchDate||'', '', '', '', '']);
+      rows.push([g.gameName||'', g.gameTag||'', g.targetMarket||'', g.launchDate||'', '', '', '', '', g.link||'']);
     } else {
-      vs.forEach(function(v) {
-        rows.push([g.gameName||'', g.gameTag||'', g.targetMarket||'', g.launchDate||'', v.label||'', v.date||'', v.winner?'Y':'', v.running?'Y':'']);
+      vs.forEach(function(v, i) {
+        rows.push([g.gameName||'', g.gameTag||'', g.targetMarket||'', g.launchDate||'', v.label||'', v.date||'', v.winner?'Y':'', v.running?'Y':'', i===0?(g.link||''):'']);
       });
     }
   });
-  if (rows.length > 0) sheet.getRange(2, 1, rows.length, 8).setValues(rows);
+  if (rows.length > 0) sheet.getRange(2, 1, rows.length, 9).setValues(rows);
   return { success: true };
 }
 

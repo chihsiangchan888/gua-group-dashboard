@@ -682,10 +682,11 @@ async function loadABData(){
         // Group flat rows by game name
         const map=new Map();
         r.data.forEach(row=>{
-          if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',versions:[]})}
+          if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',link:row.link||'',versions:[]})}
           const g=map.get(row.game);
           if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,running:!!row.running,row:row.row})}
           if(row.launchDate&&!g.launchDate)g.launchDate=normDate(row.launchDate);
+          if(row.link&&!g.link)g.link=row.link;
         });
         map.forEach(g=>{if(g.versions.some(v=>v.winner))g.status='已定版'});
         abData=[...map.values()];return;
@@ -733,7 +734,7 @@ function renderABTable(){
   const games=getFilteredAB();
   if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:#888;text-align:center;padding:20px">無符合條件的遊戲</p>';return}
   const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
-  let html=`<table class="ab-table"><thead><tr><th>遊戲名稱</th><th>Tag</th><th>市場</th><th>上線日</th><th>狀態</th><th>版本</th>${canEdit()?'<th>操作</th>':''}</tr></thead><tbody>`;
+  let html=`<table class="ab-table"><thead><tr><th>遊戲名稱</th><th>Tag</th><th>市場</th><th>上線日</th><th>狀態</th><th>版本</th><th>連結</th>${canEdit()?'<th>操作</th>':''}</tr></thead><tbody>`;
   games.forEach((g,gi)=>{
     html+=`<tr><td style="font-weight:600">${esc(g.gameName)}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
       <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>`;
@@ -744,6 +745,7 @@ function renderABTable(){
       html+=`<span class="ab-version${v.winner?' winner':''}" style="${style}" title="${esc(tip)}">${v.label} ${fmtDate(v.date)}${v.winner?' 🏆':''}</span>`;
     });
     html+=`</td>`;
+    html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:#6366f1;text-decoration:none;font-size:14px">&#128279; 詳情</a>`:''}</td>`;
     if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" onclick="openAddABVersion(${gi})">+版本</button> <button class="btn btn-sm btn-edit" onclick="openEditABGame(${gi})">✎</button> <button class="btn btn-sm btn-delete" onclick="delABGame(${gi})">✕</button></td>`;
     html+=`</tr>`;
   });
@@ -800,11 +802,12 @@ function openAddABGame(){
     <div class="fg"><label>遊戲 Tag</label><input id="ab-tag" placeholder="pay any / penny / high vol"></div>
     <div class="fg"><label>目標市場</label><input id="ab-market" placeholder="TADA / JILI"></div>
     <div class="fg"><label>上線日期</label><input type="date" id="ab-launch"></div>
+    <div class="fg"><label>外部連結</label><input id="ab-link" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>A 版日期</label><input type="date" id="ab-v1-date"></div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddABGame()">確認</button></div>`);
 }
 async function submitAddABGame(){
-  const g={gameName:document.getElementById('ab-name').value,gameTag:document.getElementById('ab-tag').value,targetMarket:document.getElementById('ab-market').value,launchDate:document.getElementById('ab-launch').value,status:'打磨中',versions:[]};
+  const g={gameName:document.getElementById('ab-name').value,gameTag:document.getElementById('ab-tag').value,targetMarket:document.getElementById('ab-market').value,launchDate:document.getElementById('ab-launch').value,link:document.getElementById('ab-link').value,status:'打磨中',versions:[]};
   const d=document.getElementById('ab-v1-date').value;
   if(d)g.versions.push({label:'A',date:d,winner:false});
   if(!g.gameName){alert('請輸入遊戲名稱');return}
@@ -836,6 +839,7 @@ function openEditABGame(gi){
     <div class="fg"><label>遊戲 Tag</label><input id="abe-tag" value="${esc(g.gameTag)}"></div>
     <div class="fg"><label>目標市場</label><input id="abe-market" value="${esc(g.targetMarket)}"></div>
     <div class="fg"><label>上線日期</label><input type="date" id="abe-launch" value="${g.launchDate}"></div>
+    <div class="fg"><label>外部連結</label><input id="abe-link" value="${esc(g.link||'')}" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>狀態</label><select id="abe-status"><option${g.status==='打磨中'?' selected':''}>打磨中</option><option${g.status==='已定版'?' selected':''}>已定版</option></select></div>
     <h4 style="font-size:13px;color:#666;margin:12px 0 4px">版本列表</h4>
     <p style="font-size:11px;color:#999;margin-bottom:8px">🏆 = 勝出版本（單選）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
@@ -855,6 +859,7 @@ async function submitEditABGame(gi){
   g.gameTag=document.getElementById('abe-tag').value;
   g.targetMarket=document.getElementById('abe-market').value;
   g.launchDate=document.getElementById('abe-launch').value;
+  g.link=document.getElementById('abe-link').value;
   g.status=document.getElementById('abe-status').value;
   const vEls=document.querySelectorAll('#abe-versions .abv-row');
   const winnerRadio=document.querySelector('input[name="ab-winner"]:checked');
