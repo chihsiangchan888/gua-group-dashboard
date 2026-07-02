@@ -69,9 +69,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .gantt-wk{flex:1;text-align:center;padding:4px 2px;font-size:9px;color:#bbb;border-left:1px solid #f0f0f0}
 .gantt-group-label{padding:6px 10px;font-size:12px;font-weight:600;color:#1a1a2e;background:#fafafa;border-bottom:1px solid #eee}
 .gantt-row{display:flex;border-bottom:1px solid #f8f8f8;min-height:28px;align-items:center}
+.gantt-row.gantt-row-ms{min-height:70px;align-items:flex-start;padding-top:4px}
 .gantt-row:hover{background:#fafafa}
 .gantt-row-lbl{width:180px;min-width:180px;padding:4px 10px 4px 24px;font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gantt-row-tl{display:flex;flex:1;position:relative;height:28px}
+.gantt-row-ms .gantt-row-tl{height:60px}
 .gantt-cell{flex:1;border-left:1px solid #fafafa}
 .g-plan{position:absolute;top:4px;height:8px;border-radius:4px;opacity:.4}
 .g-actual{position:absolute;top:14px;height:10px;border-radius:4px}
@@ -447,16 +449,21 @@ function renderGanttMilestone(machines,weeks,total){
     // Find overall span from all stages
     let minD=null,maxD=null;
     stages.forEach(s=>{[s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{if(d){if(!minD||d<minD)minD=d;if(!maxD||d>maxD)maxD=d}})});
-    html+=`<div class="gantt-row"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl">`;
+    html+=`<div class="gantt-row gantt-row-ms"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl">`;
     weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
     if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div><span style="position:absolute;top:0;left:${l}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(minD)}</span><span style="position:absolute;top:0;left:${r}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(maxD)}</span>`}
     // Only show milestone-type items
+    const msPositions=[];
     milestones.forEach(s=>{
       const dt=s.planEnd||s.actualEnd||s.planStart;
       if(!dt)return;
       const pos=datePos(weeks,dt)*100;
       const st=stageStatus(s);
-      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div><span style="position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:10px;color:#333;white-space:nowrap;font-weight:500">${esc(s.stage)}<br>${fmtDate(dt)}</span></div>`;
+      // Stagger labels if too close (within 8% of each other)
+      let labelTop=18;
+      for(let p of msPositions){if(Math.abs(pos-p.pos)<8&&labelTop===p.top){labelTop+=28}}
+      msPositions.push({pos,top:labelTop});
+      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div><span style="position:absolute;top:${labelTop}px;left:50%;transform:translateX(-50%);font-size:10px;color:#333;white-space:nowrap;font-weight:500">${esc(s.stage)}<br>${fmtDate(dt)}</span></div>`;
     });
     html+=`</div></div>`;
   });
