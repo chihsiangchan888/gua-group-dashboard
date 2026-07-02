@@ -1,5 +1,24 @@
 [
   {
+    "date": "2026-07-01",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "commit work_log + index.html for 6/30 report; push 初次失敗（403 token issue，後由 general 解決）"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "執行 generate.py 重新產生 index.html；協調 git push；回報 token 權限問題"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"},
+      {"agent": "general", "report": "修正 project-timeline.html 2 個 bug（API call fix for stages loading + machine toggle ID collision），push 3 commits"}
+    ]
+  },
+  {
     "date": "2026-06-30",
     "time": "09:00",
     "entries": [
