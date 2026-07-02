@@ -586,10 +586,11 @@ async function submitAddStage(){
 }
 
 function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority,type){
-  const opts=STAGES.map(s=>`<option${s===stage?' selected':''}>${esc(s)}</option>`).join('');
+  window._editStageCtx={row,machine,stage,ps,pe,as,ae,owner,note,priority,type};
+  function buildOpts(selType,current){return stagesOfType(selType).map(s=>`<option${s===current?' selected':''}>${esc(s)}</option>`).join('')}
   openModal(`<h3>編輯階段</h3>
-    <div class="fg"><label>類型</label><select id="e-type"><option value="工作階段"${type!=='里程碑'?' selected':''}>工作階段</option><option value="里程碑"${type==='里程碑'?' selected':''}>里程碑</option></select></div>
-    <div class="fg"><label>階段名稱</label><select id="e-stage">${opts}</select></div>
+    <div class="fg"><label>類型</label><select id="e-type" onchange="var o=stagesOfType(this.value).map(function(s){return'<option>'+s+'</option>'}).join('');document.getElementById('e-stage').innerHTML=o"><option value="工作階段"${type!=='里程碑'?' selected':''}>工作階段</option><option value="里程碑"${type==='里程碑'?' selected':''}>里程碑</option></select></div>
+    <div class="fg"><label>階段名稱</label><select id="e-stage">${buildOpts(type||'工作階段',stage)}</select></div>
     <div class="fg"><label>計畫開始日</label><input type="date" id="e-ps" value="${ps}"></div>
     <div class="fg"><label>計畫結束日</label><input type="date" id="e-pe" value="${pe}"></div>
     <div class="fg"><label>實際開始日</label><input type="date" id="e-as" value="${as}"></div>
