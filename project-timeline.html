@@ -133,7 +133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .settings-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0}
 .settings-item input[type=text]{flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:13px}
 .settings-item input[type=color]{width:32px;height:28px;border:none;cursor:pointer;border-radius:4px}
-@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{flex-direction:column;align-items:flex-start;gap:6px}}
+@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{flex-direction:column;align-items:flex-start;gap:6px}.g-dot .ms-label{display:none}}
 @media(max-width:480px){.grid{grid-template-columns:1fr 1fr}.gantt-lbl,.gantt-row-lbl{width:90px;min-width:90px}.toolbar{flex-direction:column}.toolbar select,.toolbar input{width:100%}}
 </style>
 </head>
@@ -456,7 +456,7 @@ function renderGanttMilestone(machines,weeks,total){
       if(!dt)return;
       const pos=datePos(weeks,dt)*100;
       const st=stageStatus(s);
-      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div><span style="position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:10px;color:#333;white-space:nowrap;font-weight:500">${esc(s.stage)}<br>${fmtDate(dt)}</span></div>`;
+      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div><span class="ms-label" style="position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:10px;color:#333;white-space:nowrap;font-weight:500">${esc(s.stage)}<br>${fmtDate(dt)}</span></div>`;
     });
     html+=`</div></div>`;
   });
