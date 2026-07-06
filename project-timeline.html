@@ -396,9 +396,8 @@ function getFilteredMachines(){
   const filtered=[];
   machines.forEach((stages,name)=>{
     const ms=getMachineStatus(stages);
-    const launched=!!(machStatusMap[name]&&machStatusMap[name].launched);
-    if(status==='active'&&(ms==='done'||launched))return;
-    if(status==='done'&&!(ms==='done'||launched))return;
+    if(status==='active'&&ms==='done')return;
+    if(status==='done'&&ms!=='done')return;
     if(owner&&!stages.some(s=>s.owner===owner))return;
     if(search&&!name.toLowerCase().includes(search))return;
     filtered.push([name,stages]);
@@ -441,7 +440,8 @@ function renderTable(){
     const launched=!!(info&&info.launched);
     const prog=(info&&info.progress!=null&&info.progress!=='')?Number(info.progress):pct;
     const progColor=prog>=100?'#22c55e':'#6366f1';
-    const statusText=(info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始'));
+    const statusText=launched?('✓ 已上線'+(info.launched?' '+fmtDate(info.launched):'')):((info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始')));
+    const statusStyle=launched?'background:#d1fae5;color:#047857':'background:#f3f0ff;color:#6366f1';
     const health=machHealth(stages);
     const hColor=health==='red'?'#ef4444':health==='yellow'?'#eab308':'#22c55e';
     const nm=nextMilestone(stages);
@@ -457,7 +457,7 @@ function renderTable(){
         </div>
         <div class="machine-meta">
           <span class="machine-owner" style="cursor:pointer;min-width:40px;${owner?'':'color:#bbb;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人">${owner?esc(owner):'未指派'}</span>
-          <span class="badge" style="background:#f3f0ff;color:#6366f1;cursor:pointer;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度">${esc(statusText)}</span>
+          <span class="badge" style="${statusStyle};cursor:pointer;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度">${esc(statusText)}</span>
           ${nm?`<span class="badge badge-${nm.st}" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:''}
           <span style="cursor:pointer" onclick="event.stopPropagation();openMachStatus('${esc(name)}')">${prog}%</span>
           <div class="progress-bar"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div>
@@ -465,7 +465,7 @@ function renderTable(){
           ${canEdit()?`<div class="machine-actions">
             <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
             <button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+階段</button>
-            ${launched?'<span class="badge badge-green" style="align-self:center">✓ 已上線</span>':`<button class="btn btn-sm" style="background:#d1fae5;color:#047857" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
+            ${launched?'':`<button class="btn btn-sm" style="background:#d1fae5;color:#047857" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
             <button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${esc(name)}')">✕</button>
           </div>`:''}</div>
       </div>
