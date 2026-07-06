@@ -221,6 +221,7 @@ let STAGE_TYPES={...DEFAULT_TYPES};
 function stagesOfType(t){return STAGES.filter(s=>STAGE_TYPES[s]===t)}
 let AB_TAGS=['pay any','penny','high vol'];
 let AB_MARKETS=['TADA','JILI','OKBet'];
+let LAUNCH_CHECKLIST=['數值文件已上傳','美術素材已交付','送審通過','QA 測試通過','版本號已確認'];
 
 const DEMO_DATA=[
   {row:2,machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天',priority:'高',type:'工作階段'},
@@ -238,6 +239,8 @@ const DEMO_DATA=[
 ];
 
 let rawData=[];
+let machStatusMap={}; // 機台層級手填狀態 {機台名: {status, progress, updated}}
+const MACH_STATUS_DEMO={'龍之谷 v2.0':{status:'開發中—Bonus 玩法',progress:55,updated:'2026-07-04'},'麻將至尊':{status:'測試中—平衡調整',progress:80,updated:'2026-06-20'}};
 const canEdit=()=>!!CONFIG.APPS_SCRIPT_URL;
 const TODAY=new Date().toISOString().slice(0,10);
 
@@ -287,10 +290,49 @@ function getWeightedProgress(stages){
   return totalDays?Math.round(doneDays/totalDays*100):0;
 }
 
+// 機台健康燈：任一未完成階段/里程碑逾期→red，接近死線→yellow，否則green
+function machHealth(stages){
+  let health='green';
+  stages.filter(s=>!s.actualEnd&&s.planEnd).forEach(s=>{
+    const st=stageStatus(s);
+    if(st==='red')health='red';
+    else if(st==='yellow'&&health!=='red')health='yellow';
+  });
+  return health;
+}
+// 下一個未完成里程碑（依 planEnd 最近者）
+function nextMilestone(stages){
+  let best=null;
+  stages.filter(s=>s.type==='里程碑'&&!s.actualEnd).forEach(s=>{
+    const d=s.planEnd||s.actualStart;if(!d)return;
+    if(!best||d<best.date)best={stage:s.stage,date:d,daysLeft:diffDays(TODAY,d),st:stageStatus(s)};
+  });
+  return best;
+}
+function openMachStatus(name){
+  const info=machStatusMap[name]||{};
+  const stages=groupByMachine(rawData).get(name)||[];
+  const computed=getWeightedProgress(stages);
+  const prog=(info.progress!=null&&info.progress!=='')?info.progress:computed;
+  openModal(`<h3>更新機台狀態 — ${esc(name)}</h3>
+    <div class="fg"><label>目前狀態（自由描述，例：開發中—金框動畫）</label><input id="mst-status" value="${esc(info.status||'')}" placeholder="這台現在到哪了？"></div>
+    <div class="fg"><label>進度 %</label><input type="number" id="mst-prog" min="0" max="100" value="${prog}"></div>
+    <p style="font-size:11px;color:#999;margin-top:-4px">儲存後「最後更新日」自動設為今天。進度留空則沿用階段自動計算（目前 ${computed}%）。</p>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitMachStatus('${esc(name)}')">儲存</button></div>`);
+}
+async function submitMachStatus(name){
+  const status=document.getElementById('mst-status').value.trim();
+  const progRaw=document.getElementById('mst-prog').value;
+  const progress=progRaw===''?'':Math.max(0,Math.min(100,Number(progRaw)));
+  machStatusMap[name]={status:status,progress:progress,updated:TODAY};
+  closeModal();renderTable();
+  await apiPost({action:'setMachineStatus',machineName:name,status:status,progress:progress});
+}
+
 // === Load ===
 async function loadData(){
   const loading=document.getElementById('loading'),err=document.getElementById('error-banner'),src=document.getElementById('source-note');
-  if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;src.textContent='Demo';finish();return}
+  if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;src.textContent='Demo';finish();return}
   try{
     if(canEdit()){
       const r=await(await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'})).json();
@@ -298,14 +340,16 @@ async function loadData(){
         if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
         if(r.abTags&&Array.isArray(r.abTags)&&r.abTags.length>0)AB_TAGS=r.abTags;
         if(r.abMarkets&&Array.isArray(r.abMarkets)&&r.abMarkets.length>0)AB_MARKETS=r.abMarkets;
+        if(r.launchChecklist&&Array.isArray(r.launchChecklist)&&r.launchChecklist.length>0)LAUNCH_CHECKLIST=r.launchChecklist;
         rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
+        machStatusMap=r.statuses||{};
         src.textContent='Google Sheet（即時）';finish();return;
       }
     }
     let text;try{const r=await fetch(gvizUrl('csv'));if(r.ok)text=await r.text()}catch(e){}
     if(text)rawData=parseCsv(text);else{const r=await fetch(gvizUrl('json'));rawData=parseGvizJson(await r.text())}
     src.textContent='Google Sheet（即時）';finish();
-  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;src.textContent='Demo';finish()}
+  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;src.textContent='Demo';finish()}
 }
 function gvizUrl(f){return`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${f}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
 function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||'',type:c[9]||'工作階段'})}return res}
@@ -352,8 +396,9 @@ function getFilteredMachines(){
   const filtered=[];
   machines.forEach((stages,name)=>{
     const ms=getMachineStatus(stages);
-    if(status==='active'&&ms==='done')return;
-    if(status==='done'&&ms!=='done')return;
+    const launched=!!(machStatusMap[name]&&machStatusMap[name].launched);
+    if(status==='active'&&(ms==='done'||launched))return;
+    if(status==='done'&&!(ms==='done'||launched))return;
     if(owner&&!stages.some(s=>s.owner===owner))return;
     if(search&&!name.toLowerCase().includes(search))return;
     filtered.push([name,stages]);
@@ -392,17 +437,35 @@ function renderTable(){
     const id='tbl-'+(_machIdx++)+'_'+encodeURIComponent(name).replace(/%/g,'');
     const ms=getMachineStatus(stages);
     const pctColor=pct>=100?'#22c55e':'#6366f1';
+    const info=machStatusMap[name]||null;
+    const launched=!!(info&&info.launched);
+    const prog=(info&&info.progress!=null&&info.progress!=='')?Number(info.progress):pct;
+    const progColor=prog>=100?'#22c55e':'#6366f1';
+    const statusText=(info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始'));
+    const health=machHealth(stages);
+    const hColor=health==='red'?'#ef4444':health==='yellow'?'#eab308':'#22c55e';
+    const nm=nextMilestone(stages);
+    const upd=(info&&info.updated)?info.updated:'';
+    const stale=upd?diffDays(upd,TODAY)>14:false;
+    const nmTxt=nm?(nm.daysLeft<0?'逾期'+(-nm.daysLeft)+'天':nm.daysLeft===0?'今天':'剩'+nm.daysLeft+'天'):'';
     html+=`<div class="machine-group">
       <div class="machine-header" onclick="document.getElementById('${id}').classList.toggle('open')">
-        <div><span class="machine-name">${esc(name)}</span> <span class="badge priority-${priority}" style="cursor:pointer;transition:transform .15s" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};flex-shrink:0;box-shadow:0 0 0 3px ${hColor}22"></span>
+          <span class="machine-name">${esc(name)}</span>
+          <span class="badge priority-${priority}" style="cursor:pointer;transition:transform .15s" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</span>
+        </div>
         <div class="machine-meta">
           <span class="machine-owner" style="cursor:pointer;min-width:40px;${owner?'':'color:#bbb;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人">${owner?esc(owner):'未指派'}</span>
-          ${currentStage?`<span class="badge" style="background:${STAGE_COLORS[currentStage.stage]||'#ddd'}22;color:${STAGE_COLORS[currentStage.stage]||'#666'}">${esc(currentStage.stage)}</span>`:(ms==='done'?'<span class="badge badge-green">完成</span>':'<span class="badge priority-低">未開始</span>')}
-          <span>${pct}%</span>
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${pctColor}"></div></div>
+          <span class="badge" style="background:#f3f0ff;color:#6366f1;cursor:pointer;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度">${esc(statusText)}</span>
+          ${nm?`<span class="badge badge-${nm.st}" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:''}
+          <span style="cursor:pointer" onclick="event.stopPropagation();openMachStatus('${esc(name)}')">${prog}%</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div>
+          ${upd?`<span style="font-size:10px;color:${stale?'#f97316':'#bbb'}" title="最後更新">更新 ${fmtDate(upd)}${stale?' ⚠':''}</span>`:'<span style="font-size:10px;color:#ccc">未更新</span>'}
           ${canEdit()?`<div class="machine-actions">
+            <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
             <button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+階段</button>
-            ${ms!=='done'?`<button class="btn btn-sm btn-edit" onclick="event.stopPropagation();archiveMach('${esc(name)}')">歸檔</button>`:''}
+            ${launched?'<span class="badge badge-green" style="align-self:center">✓ 已上線</span>':`<button class="btn btn-sm" style="background:#d1fae5;color:#047857" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
             <button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${esc(name)}')">✕</button>
           </div>`:''}</div>
       </div>
@@ -602,7 +665,42 @@ async function submitEditStage(row,machine,owner,priority){const data={machine,s
 
 async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
 async function delMachine(name){if(!confirm('確定刪除「'+name+'」的所有階段？'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
-async function archiveMach(name){if(!confirm('確定歸檔「'+name+'」？'))return;await apiPost({action:'archiveMachine',machineName:name});await loadData()}
+// === 確定上線關卡 ===
+function openLaunch(name){
+  const tagOpts=AB_TAGS.map(t=>`<option value="${esc(t)}">`).join('');
+  const mktOpts=AB_MARKETS.map(m=>`<option value="${esc(m)}">`).join('');
+  openModal(`<h3>確定上線 — ${esc(name)}</h3>
+    <p style="font-size:12px;color:#666;margin-bottom:8px">完成以下檢查後才能上線；上線後此機台會移出「進行中」，並自動加入 AB 測試追蹤。</p>
+    <ul style="list-style:none;margin-bottom:12px" id="launch-checks">
+      ${LAUNCH_CHECKLIST.map(it=>`<li style="padding:5px 0"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" class="lc-item" onchange="updateLaunchBtn()" style="width:16px;height:16px;accent-color:#22c55e">${esc(it)}</label></li>`).join('')}
+    </ul>
+    <div class="fg"><label>上線日期</label><input type="date" id="lc-date" value="${TODAY}"></div>
+    <div class="fg"><label>目標市場</label><input id="lc-market" list="lc-markets" placeholder="TADA / JILI"><datalist id="lc-markets">${mktOpts}</datalist></div>
+    <div class="fg"><label>遊戲 Tag</label><input id="lc-tag" list="lc-tags" placeholder="pay any / penny"><datalist id="lc-tags">${tagOpts}</datalist></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" id="lc-confirm" onclick="submitLaunch('${esc(name)}')" disabled style="opacity:.5">✅ 確定上線</button></div>`);
+  updateLaunchBtn();
+}
+function updateLaunchBtn(){
+  const all=[].slice.call(document.querySelectorAll('#launch-checks .lc-item'));
+  const ok=all.length>0&&all.every(c=>c.checked);
+  const btn=document.getElementById('lc-confirm');
+  if(btn){btn.disabled=!ok;btn.style.opacity=ok?'1':'.5'}
+}
+async function submitLaunch(name){
+  const all=[].slice.call(document.querySelectorAll('#launch-checks .lc-item'));
+  if(!(all.length&&all.every(c=>c.checked))){alert('請完成所有檢查項目');return}
+  const date=document.getElementById('lc-date').value||TODAY;
+  const market=document.getElementById('lc-market').value.trim();
+  const tag=document.getElementById('lc-tag').value.trim();
+  closeModal();
+  machStatusMap[name]=Object.assign({},machStatusMap[name],{launched:date});
+  if(!abData.some(g=>g.gameName===name)){
+    abData.push({gameName:name,gameTag:tag,targetMarket:market,launchDate:date,status:'打磨中',versions:[{label:'A',date:date,winner:false,running:false}]});
+    await saveABData();
+  }
+  await apiPost({action:'launchMachine',machineName:name,launchDate:date});
+  renderTable();renderAB();
+}
 async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const now=(el.textContent||'').trim();const next=cycle[now]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);rawData.forEach(r=>{if(r.machine===name)r.priority=next});await apiPost({action:'setPriority',machineName:name,priority:next})}
 function editOwner(machine,current){
   const newOwner=prompt('設定「'+machine+'」的負責人：',current||'');
@@ -653,7 +751,18 @@ function openSettings(){
       <input type="text" id="new-market-name" placeholder="新市場" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-markets').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-market-name').value+'\\' data-field=\\'market\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-market-name').value=''">新增</button>
     </div>
+    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🚀 上線檢查清單項目</h4>
+    <ul class="settings-list" id="settings-launch">${LAUNCH_CHECKLIST.map(it=>`<li class="settings-item"><input type="text" value="${esc(it)}" data-field="launch" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <div style="margin:8px 0;display:flex;gap:8px">
+      <input type="text" id="new-launch-name" placeholder="新檢查項目" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <button class="btn btn-sm btn-add-stage" onclick="addSettingItem('settings-launch','launch')">新增</button>
+    </div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveSettings()">儲存</button></div>`);
+}
+function addSettingItem(listId,field){
+  const inp=document.getElementById('new-'+field+'-name');const v=(inp.value||'').trim();if(!v)return;
+  document.getElementById(listId).insertAdjacentHTML('beforeend',`<li class="settings-item"><input type="text" value="${esc(v)}" data-field="${field}" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`);
+  inp.value='';
 }
 function addStageTyped(type){
   const prefix=type==='里程碑'?'ms':'ws';
@@ -682,7 +791,10 @@ async function saveSettings(){
   document.querySelectorAll('#settings-markets .settings-item').forEach(li=>{const v=li.querySelector('[data-field=market]').value.trim();if(v)markets.push(v)});
   AB_TAGS=tags.length?tags:AB_TAGS;
   AB_MARKETS=markets.length?markets:AB_MARKETS;
-  closeModal();await apiPost({action:'setStages',stages});await apiPost({action:'setABOptions',options:{tags:AB_TAGS,markets:AB_MARKETS}});render();
+  const launch=[];
+  document.querySelectorAll('#settings-launch .settings-item').forEach(li=>{const v=li.querySelector('[data-field=launch]').value.trim();if(v)launch.push(v)});
+  LAUNCH_CHECKLIST=launch.length?launch:LAUNCH_CHECKLIST;
+  closeModal();await apiPost({action:'setStages',stages});await apiPost({action:'setABOptions',options:{tags:AB_TAGS,markets:AB_MARKETS}});await apiPost({action:'setLaunchChecklist',items:LAUNCH_CHECKLIST});render();
 }
 
 // === Tabs ===

@@ -31,6 +31,10 @@ function processAction(body) {
   if (a === 'deleteMachine') return jsonResponse(deleteMachine(body.machineName));
   if (a === 'setPriority') return jsonResponse(setPriority(body.machineName, body.priority));
   if (a === 'archiveMachine') return jsonResponse(archiveMachine(body.machineName));
+  if (a === 'setMachineStatus') return jsonResponse(setMachineStatus(body.machineName, body.status, body.progress));
+  if (a === 'launchMachine') return jsonResponse(launchMachine(body.machineName, body.launchDate));
+  if (a === 'getLaunchChecklist') return jsonResponse(getLaunchChecklist());
+  if (a === 'setLaunchChecklist') return jsonResponse(setLaunchChecklist(body.items));
   if (a === 'getStages') return jsonResponse(getStages());
   if (a === 'setStages') return jsonResponse(setStages(body.stages));
   if (a === 'getABOptions') return jsonResponse(getABOptions());
@@ -56,7 +60,9 @@ function readAll() {
   }
   var stagesResult = getStages();
   var abOptionsResult = getABOptions();
-  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets };
+  var msResult = getMachineStatus();
+  var lcResult = getLaunchChecklist();
+  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets, statuses: msResult.statuses, launchChecklist: lcResult.items };
 }
 
 function addMachine(name, owner, priority) {
@@ -91,6 +97,74 @@ function setPriority(machineName, priority) {
 function archiveMachine(machineName) {
   var sheet = getSheet(); var data = sheet.getDataRange().getValues();
   for (var i = 1; i < data.length; i++) { if (data[i][0] === machineName) sheet.getRange(i+1, 2).setValue('已完成'); }
+  return { success: true };
+}
+
+// === 機台層級狀態 ===
+// Sheet「機台狀態」: A:機台名稱 B:目前狀態 C:進度 D:最後更新日 E:上線日期
+function getMSSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('機台狀態');
+  if (!sheet) { sheet = ss.insertSheet('機台狀態'); sheet.getRange(1,1,1,5).setValues([['機台名稱','目前狀態','進度','最後更新日','上線日期']]); }
+  if (String(sheet.getRange(1,5).getValue()||'') === '') sheet.getRange(1,5).setValue('上線日期'); // 舊表補 E 欄標題
+  return sheet;
+}
+function getMachineStatus() {
+  var sheet = getMSSheet();
+  var data = sheet.getDataRange().getValues();
+  var map = {};
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) {
+      var p = data[i][2];
+      map[String(data[i][0])] = { status: String(data[i][1]||''), progress: (p===''||p==null)?null:Number(p), updated: fmtDate(data[i][3]), launched: fmtDate(data[i][4]) };
+    }
+  }
+  return { success: true, statuses: map };
+}
+// 標記機台已上線（寫入 E 欄），不動其他狀態欄
+function launchMachine(machineName, launchDate) {
+  var sheet = getMSSheet();
+  var data = sheet.getDataRange().getValues();
+  var d = launchDate || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd');
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === machineName) { sheet.getRange(i+1, 5).setValue(d); return { success: true }; }
+  }
+  sheet.appendRow([machineName, '', '', '', d]);
+  return { success: true };
+}
+// === 上線檢查清單設定 ===
+// Sheet「上線清單」: A:檢查項目
+function getLCSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('上線清單');
+  if (!sheet) { sheet = ss.insertSheet('上線清單'); sheet.getRange(1,1).setValue('檢查項目'); }
+  return sheet;
+}
+function getLaunchChecklist() {
+  var sheet = getLCSheet();
+  var data = sheet.getDataRange().getValues();
+  var items = [];
+  for (var i = 1; i < data.length; i++) { if (data[i][0]) items.push(String(data[i][0])); }
+  return { success: true, items: items };
+}
+function setLaunchChecklist(items) {
+  var sheet = getLCSheet();
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 1).clearContent();
+  if (items && items.length > 0) sheet.getRange(2, 1, items.length, 1).setValues(items.map(function(x){return [x]}));
+  return { success: true };
+}
+function setMachineStatus(machineName, status, progress) {
+  var sheet = getMSSheet();
+  var data = sheet.getDataRange().getValues();
+  var today = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd');
+  var prog = (progress===''||progress==null)?'':Number(progress);
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === machineName) {
+      sheet.getRange(i+1, 2, 1, 3).setValues([[status||'', prog, today]]);
+      return { success: true };
+    }
+  }
+  sheet.appendRow([machineName, status||'', prog, today]);
   return { success: true };
 }
 
