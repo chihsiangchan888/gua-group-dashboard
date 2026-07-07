@@ -1,5 +1,24 @@
 [
   {
+    "date": "2026-07-06",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "2 次 push（commit 5d060ee \"feat: 確定上線關卡\" + commit dee499a \"ui: 上線後保留顯示已上線；移除迷你時間軸\"）+ 每日 Skill 備份確認"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "更新 work_log.json（7/5 日報）+ generate.py + push（commit 279cafc）"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"},
+      {"agent": "general", "report": "無"}
+    ]
+  },
+  {
     "date": "2026-07-05",
     "time": "09:00",
     "entries": [
