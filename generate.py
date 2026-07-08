@@ -328,6 +328,26 @@ AGENT_META = {
         "weakness": "Fighting",
         "retreat": "⚪",
     },
+    "大奶罐-t4876": {
+        "type": "Normal",
+        "color": "#A8A878",
+        "desc": "遊戲機率架構設計夥伴",
+        "hp": 140,
+        "pokemon": "大奶罐 Miltank",
+        "sprite": f"{SPRITE_BASE}/241.gif",
+        "skills": [
+            {"name": "機制共創", "cost": "⚪", "desc": "與呱老大共創老虎機遊戲機制設計"},
+            {"name": "RTP 架構", "cost": "⚪⚪", "desc": "設計轉輪帶、Feature 參數、RTP 結構"},
+        ],
+        "rules": [
+            "遊戲機率架構設計夥伴 — Generative Design Partner",
+            "與呱老大共創老虎機遊戲機制設計",
+            "專精：轉輪帶設計、Feature 參數、RTP 架構",
+            "Co-creation 模式：不只回答問題，主動提案與迭代",
+        ],
+        "weakness": "Fighting",
+        "retreat": "⚪⚪",
+    },
 }
 
 
