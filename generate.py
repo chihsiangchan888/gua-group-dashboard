@@ -6,8 +6,8 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-# PokeAPI Gen5 animated sprites (pixel art style)
-SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated"
+# Local sprites (downloaded from Pokémon Showdown)
+SPRITE_BASE = "sprites"
 
 # Agent metadata with full rules extracted from steering files
 AGENT_META = {
@@ -863,6 +863,9 @@ footer code {{
   padding: 0 0.8rem 0.6rem;
 }}
 .log-day.expanded .log-day-content {{ display: block; }}
+.log-hidden {{ display: none; }}
+.log-load-more {{ text-align: center; padding: 12px; color: #f8d030; cursor: pointer; border: 1px dashed #3a5a3a; border-radius: 8px; margin-top: 8px; transition: background 0.2s; }}
+.log-load-more:hover {{ background: rgba(248,208,48,0.1); }}
 .log-entry {{
   display: flex;
   gap: 0.6rem;
@@ -994,14 +997,21 @@ def generate_work_log_html(work_log):
               <span class="log-report">{entry["report"]}</span>
             </div>'''
         expanded = " expanded" if i == 0 else ""
+        hidden = " log-hidden" if i >= 7 else ""
         entries_html += f'''
-        <div class="log-day{expanded}" data-date="{date}">
+        <div class="log-day{expanded}{hidden}" data-date="{date}">
           <div class="log-day-header" onclick="this.parentElement.classList.toggle('expanded')">
             <span class="log-date">📅 {date}{time_display}</span>
             <span class="log-count">{len(day.get("entries", []))} 筆報告</span>
             <span class="log-toggle">▸</span>
           </div>
           <div class="log-day-content">{reports}</div>
+        </div>'''
+
+    if len(work_log) > 7:
+        entries_html += f'''
+        <div class="log-load-more" id="logLoadMore" onclick="document.querySelectorAll('.log-hidden').forEach(e=>e.classList.remove('log-hidden'));this.style.display='none'">
+          載入更早紀錄（共 {len(work_log) - 7} 天）
         </div>'''
 
     return entries_html
