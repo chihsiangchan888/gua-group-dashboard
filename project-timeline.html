@@ -133,8 +133,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .settings-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0}
 .settings-item input[type=text]{flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:13px}
 .settings-item input[type=color]{width:32px;height:28px;border:none;cursor:pointer;border-radius:4px}
-@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{flex-direction:column;align-items:flex-start;gap:6px}.g-dot .ms-label{display:none}}
-@media(max-width:480px){.grid{grid-template-columns:1fr 1fr}.gantt-lbl,.gantt-row-lbl{width:90px;min-width:90px}.toolbar{flex-direction:column}.toolbar select,.toolbar input{width:100%}}
+@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{flex-direction:column;align-items:flex-start;gap:6px}.g-dot .ms-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{flex:0 0 40px;font-size:8px}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4){display:none}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
 </style>
 </head>
 <body>
@@ -182,7 +182,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <select id="ab-filter-month"><option value="">全部上線月份</option></select>
       <input type="text" id="ab-filter-search" placeholder="搜尋遊戲名稱...">
     </div>
-    <div id="ab-table-area"></div>
+    <div id="ab-table-area" style="overflow-x:auto;-webkit-overflow-scrolling:touch"></div>
   </div>
   <div class="section">
     <div class="section-hdr"><h2>版本時間軸</h2></div>
