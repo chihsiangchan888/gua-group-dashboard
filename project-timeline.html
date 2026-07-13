@@ -970,7 +970,7 @@ function openEditABGame(gi){
   let versionsHtml=g.versions.map((v,vi)=>`<div class="fg abv-row" style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow:visible">
     <input class="abv-lbl" style="width:36px;flex-shrink:0" value="${esc(v.label)}">
     <input class="abv-dt" type="date" value="${v.date}" style="flex:1;min-width:0">
-    <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="勝出版本（單選）"><input type="radio" name="ab-winner" value="${vi}" ${v.winner?'checked':''}>🏆</label>
+    <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="勝出版本（可取消）"><input type="checkbox" class="abv-winner" value="${vi}" ${v.winner?'checked':''} onchange="if(this.checked){document.querySelectorAll('.abv-winner').forEach(c=>{if(c!==this)c.checked=false})}">🏆</label>
     <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="AB 測試中（可複選）"><input type="checkbox" class="abv-run" ${v.running?'checked':''}>測</label>
     <button class="btn btn-sm btn-delete" style="flex-shrink:0" onclick="this.parentElement.remove()">✕</button>
   </div>`).join('');
@@ -982,7 +982,7 @@ function openEditABGame(gi){
     <div class="fg"><label>外部連結</label><input id="abe-link" value="${esc(g.link||'')}" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>狀態</label><select id="abe-status"><option${g.status==='打磨中'?' selected':''}>打磨中</option><option${g.status==='已定版'?' selected':''}>已定版</option></select></div>
     <h4 style="font-size:13px;color:#666;margin:12px 0 4px">版本列表</h4>
-    <p style="font-size:11px;color:#999;margin-bottom:8px">🏆 = 勝出版本（單選）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
+    <p style="font-size:11px;color:#999;margin-bottom:8px">🏆 = 勝出版本（單選，可取消）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
     <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#888;font-weight:600;padding:0 2px 4px">
       <span style="width:36px;flex-shrink:0;text-align:center">版本</span>
       <span style="flex:1;min-width:0">日期</span>
@@ -1002,16 +1002,14 @@ async function submitEditABGame(gi){
   g.link=document.getElementById('abe-link').value;
   g.status=document.getElementById('abe-status').value;
   const vEls=document.querySelectorAll('#abe-versions .abv-row');
-  const winnerRadio=document.querySelector('input[name="ab-winner"]:checked');
-  const winnerIdx=winnerRadio?parseInt(winnerRadio.value):-1;
   g.versions=[];
   vEls.forEach((el,i)=>{
     const lbl=el.querySelector('.abv-lbl');
     const dt=el.querySelector('.abv-dt');
     const run=el.querySelector('.abv-run');
-    if(lbl&&dt)g.versions.push({label:lbl.value,date:dt.value,winner:i===winnerIdx,running:run?run.checked:false});
+    const win=el.querySelector('.abv-winner');
+    if(lbl&&dt)g.versions.push({label:lbl.value,date:dt.value,winner:win?win.checked:false,running:run?run.checked:false});
   });
-  if(g.versions.some(v=>v.winner))g.status='已定版';
   closeModal();await saveABData();renderAB();
 }
 async function delABGame(gi){
