@@ -43,7 +43,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .btn-delete{background:#fee2e2;color:#dc2626}
 .btn-add-stage{background:#d1fae5;color:#047857}
 .machine-group{border:1px solid #eee;border-radius:8px;margin-bottom:12px;overflow:hidden}
-.machine-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fafafa;cursor:pointer;user-select:none}
+.machine-header{display:grid;grid-template-columns:14px minmax(90px,max-content) 46px 64px minmax(80px,max-content) 118px 132px 76px max-content;align-items:center;gap:10px;padding:12px 16px;background:#fafafa;cursor:pointer;user-select:none}
 .machine-header:hover{background:#f3f0ff}
 .machine-name{font-weight:600;font-size:14px;color:#1a1a2e}
 .machine-meta{font-size:12px;color:#888;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -133,7 +133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .settings-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0}
 .settings-item input[type=text]{flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:13px}
 .settings-item input[type=color]{width:32px;height:28px;border:none;cursor:pointer;border-radius:4px}
-@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{flex-direction:column;align-items:flex-start;gap:6px}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
+@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{grid-template-columns:1fr;align-items:flex-start;gap:6px}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
 @media(max-width:480px){.grid{grid-template-columns:1fr}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{flex:0 0 40px;font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(7),.ab-table td:nth-child(7){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
 </style>
 </head>
@@ -152,14 +152,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </div>
   <div class="tab-content active" id="tab-timeline">
   <div class="grid" id="kpis"></div>
-  <div class="section">
-    <div class="section-hdr"><h2>專案總覽</h2><button class="btn btn-primary edit-only" onclick="openAddMachine()" style="display:none">+ 新增機台</button></div>
-    <div class="toolbar">
-      <select id="filter-status"><option value="active">進行中</option><option value="done">已完成</option><option value="all">全部</option></select>
-      <select id="filter-owner"><option value="">全部負責人</option></select>
-      <input type="text" id="filter-search" placeholder="搜尋機台名稱...">
+  <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:20px">
+    <div class="section" style="flex:2 1 620px;min-width:0;margin-top:0">
+      <div class="section-hdr"><h2>機台追蹤</h2><button class="btn btn-primary edit-only" onclick="openAddMachine()" style="display:none">+ 新增機台</button></div>
+      <div class="toolbar">
+        <select id="filter-status"><option value="active">進行中</option><option value="done">已完成</option><option value="all">全部</option></select>
+        <select id="filter-owner"><option value="">全部負責人</option></select>
+        <input type="text" id="filter-search" placeholder="搜尋機台名稱...">
+      </div>
+      <div id="table-area" style="overflow-x:auto"></div>
     </div>
-    <div id="table-area"></div>
+    <div class="section" style="flex:1 1 300px;min-width:0;margin-top:0">
+      <div class="section-hdr"><h2>議題追蹤</h2><button class="btn btn-primary edit-only" onclick="openIssueNew()" style="display:none">+ 新增議題</button></div>
+      <div class="toolbar">
+        <select id="issue-filter"><option value="open">未解決</option><option value="blocker">只看阻塞</option><option value="all">全部</option></select>
+      </div>
+      <div id="issue-area"></div>
+    </div>
   </div>
   <div class="section">
     <div class="section-hdr"><h2>甘特圖（週粒度）</h2><div class="gantt-toggle"><button class="btn btn-sm" id="btn-milestone" onclick="setGanttView('milestone')">里程碑</button><button class="btn btn-sm" id="btn-detail" onclick="setGanttView('detail')">詳細</button></div></div>
@@ -222,6 +231,8 @@ function stagesOfType(t){return STAGES.filter(s=>STAGE_TYPES[s]===t)}
 let AB_TAGS=['pay any','penny','high vol'];
 let AB_MARKETS=['TADA','JILI','OKBet'];
 let LAUNCH_CHECKLIST=['數值文件已上傳','美術素材已交付','送審通過','QA 測試通過','版本號已確認'];
+let issuesMap={}; // 議題追蹤 {機台名: [{title,status,severity,owner,date,note}]}
+const ISSUES_DEMO={'龍之谷 v2.0':[{title:'Bonus 數值待數學確認',status:'處理中',severity:'阻塞',owner:'阿凱',date:'2026-07-02',note:''},{title:'金框動畫美術延遲',status:'待處理',severity:'一般',owner:'小美',date:'2026-07-04',note:''}],'麻將至尊':[{title:'送審文件缺一份',status:'待處理',severity:'低',owner:'小美',date:'2026-06-28',note:''}]};
 
 const DEMO_DATA=[
   {row:2,machine:'龍之谷 v2.0',stage:'規劃中',planStart:'2026-05-19',planEnd:'2026-06-01',actualStart:'2026-05-19',actualEnd:'2026-06-03',owner:'阿凱',note:'延遲 2 天',priority:'高',type:'工作階段'},
@@ -332,7 +343,7 @@ async function submitMachStatus(name){
 // === Load ===
 async function loadData(){
   const loading=document.getElementById('loading'),err=document.getElementById('error-banner'),src=document.getElementById('source-note');
-  if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;src.textContent='Demo';finish();return}
+  if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesMap=ISSUES_DEMO;src.textContent='Demo';finish();return}
   try{
     if(canEdit()){
       const r=await(await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'})).json();
@@ -343,13 +354,14 @@ async function loadData(){
         if(r.launchChecklist&&Array.isArray(r.launchChecklist)&&r.launchChecklist.length>0)LAUNCH_CHECKLIST=r.launchChecklist;
         rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
         machStatusMap=r.statuses||{};
+        issuesMap=r.issues||{};
         src.textContent='Google Sheet（即時）';finish();return;
       }
     }
     let text;try{const r=await fetch(gvizUrl('csv'));if(r.ok)text=await r.text()}catch(e){}
     if(text)rawData=parseCsv(text);else{const r=await fetch(gvizUrl('json'));rawData=parseGvizJson(await r.text())}
     src.textContent='Google Sheet（即時）';finish();
-  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;src.textContent='Demo';finish()}
+  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesMap=ISSUES_DEMO;src.textContent='Demo';finish()}
 }
 function gvizUrl(f){return`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${f}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
 function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||'',type:c[9]||'工作階段'})}return res}
@@ -374,6 +386,7 @@ function finish(){
   document.getElementById('filter-status').onchange=render;
   document.getElementById('filter-owner').onchange=render;
   document.getElementById('filter-search').oninput=render;
+  var _if=document.getElementById('issue-filter');if(_if)_if.onchange=renderIssues;
   document.getElementById('ab-filter-status').onchange=renderAB;
   document.getElementById('ab-filter-month').onchange=renderAB;
   document.getElementById('ab-filter-search').oninput=renderAB;
@@ -386,7 +399,7 @@ function populateFilters(){
 }
 
 // === Render ===
-function render(){renderKPI();renderTable();renderGantt()}
+function render(){renderKPI();renderTable();renderGantt();renderIssues()}
 
 function getFilteredMachines(){
   const status=document.getElementById('filter-status').value;
@@ -450,24 +463,20 @@ function renderTable(){
     const nmTxt=nm?(nm.daysLeft<0?'逾期'+(-nm.daysLeft)+'天':nm.daysLeft===0?'今天':'剩'+nm.daysLeft+'天'):'';
     html+=`<div class="machine-group">
       <div class="machine-header" onclick="document.getElementById('${id}').classList.toggle('open')">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};flex-shrink:0;box-shadow:0 0 0 3px ${hColor}22"></span>
-          <span class="machine-name">${esc(name)}</span>
-          <span class="badge priority-${priority}" style="cursor:pointer;transition:transform .15s" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</span>
-        </div>
-        <div class="machine-meta">
-          <span class="machine-owner" style="cursor:pointer;min-width:40px;${owner?'':'color:#bbb;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人">${owner?esc(owner):'未指派'}</span>
-          <span class="badge" style="${statusStyle};cursor:pointer;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度">${esc(statusText)}</span>
-          ${nm?`<span class="badge badge-${nm.st}" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:''}
-          <span style="cursor:pointer" onclick="event.stopPropagation();openMachStatus('${esc(name)}')">${prog}%</span>
-          <div class="progress-bar"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div>
-          ${upd?`<span style="font-size:10px;color:${stale?'#f97316':'#bbb'}" title="最後更新">更新 ${fmtDate(upd)}${stale?' ⚠':''}</span>`:'<span style="font-size:10px;color:#ccc">未更新</span>'}
-          ${canEdit()?`<div class="machine-actions">
-            <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
-            <button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+階段</button>
-            ${launched?'':`<button class="btn btn-sm" style="background:#d1fae5;color:#047857" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
-            <button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${esc(name)}')">✕</button>
-          </div>`:''}</div>
+        <span title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
+        <span class="machine-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
+        <span class="badge priority-${priority}" style="cursor:pointer;transition:transform .15s;justify-self:start" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</span>
+        <span class="machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${owner?'color:#666':'color:#bbb;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人">${owner?esc(owner):'未指派'}</span>
+        <span class="badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度">${esc(statusText)}</span>
+        ${nm?`<span class="badge badge-${nm.st}" style="justify-self:start;white-space:nowrap" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888"><span style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')">${prog}%</span><div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
+        <span style="font-size:10px;text-align:right;color:${upd?(stale?'#f97316':'#bbb'):'#ccc'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
+        ${canEdit()?`<div class="machine-actions" style="justify-self:start">
+          <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
+          <button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+階段</button>
+          ${launched?'':`<button class="btn btn-sm" style="background:#d1fae5;color:#047857" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
+          <button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${esc(name)}')">✕</button>
+        </div>`:'<span></span>'}
       </div>
       <table class="stage-table" id="${id}">
         <thead><tr>${canEdit()?'<th></th>':''}<th>階段</th><th>狀態</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
@@ -576,8 +585,16 @@ function datePos(weeks,dateStr){
 
 // === API ===
 async function apiPost(body){
-  try{const params=encodeURIComponent(JSON.stringify(body));const r=await fetch(CONFIG.APPS_SCRIPT_URL+'?payload='+params,{redirect:'follow'});return await r.json()}
-  catch(e){alert('操作失敗：'+e.message);return{success:false}}
+  try{
+    const params=encodeURIComponent(JSON.stringify(body));
+    const r=await fetch(CONFIG.APPS_SCRIPT_URL+'?payload='+params,{redirect:'follow'});
+    const j=await r.json();
+    if(j&&j.success===false){
+      alert('⚠ 儲存失敗，資料未寫入 Google Sheet。\n後端回應：'+(j.error||'未知錯誤')+'\n（動作「'+(body.action||'')+'」）\n\n最可能原因：Apps Script 後端尚未部署最新版。');
+    }
+    return j;
+  }
+  catch(e){alert('⚠ 操作失敗（連線錯誤）：'+e.message);return{success:false}}
 }
 
 // === Modals ===
@@ -665,6 +682,91 @@ async function submitEditStage(row,machine,owner,priority){const data={machine,s
 
 async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
 async function delMachine(name){if(!confirm('確定刪除「'+name+'」的所有階段？'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
+// === 議題追蹤 ===
+function issSevColor(s){return s==='阻塞'?'#ef4444':s==='一般'?'#eab308':'#9ca3af'}
+function issuesCell(name){
+  const list=issuesMap[name]||[];
+  const open=list.filter(i=>i.status!=='已解決');
+  const addBtn=canEdit()?`<button class="btn btn-sm" style="background:#eef2ff;color:#6366f1;flex-shrink:0" onclick="event.stopPropagation();openIssues('${esc(name)}')">＋議題</button>`:'';
+  if(open.length===0)return `<div style="display:flex;align-items:center;gap:6px;overflow:hidden">${addBtn||'<span style="color:#ccc;font-size:12px">—</span>'}</div>`;
+  const chips=open.slice(0,2).map(i=>`<span style="display:inline-flex;align-items:center;gap:4px;background:#f7f7f9;border:1px solid #eee;border-radius:10px;padding:2px 8px;font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1"><span style="width:7px;height:7px;border-radius:50%;background:${issSevColor(i.severity)};flex-shrink:0"></span>${esc(i.title)}</span>`).join('');
+  const more=open.length>2?`<span style="font-size:11px;color:#888;flex-shrink:0">+${open.length-2}</span>`:'';
+  return `<div style="display:flex;align-items:center;gap:6px;cursor:pointer;overflow:hidden" onclick="event.stopPropagation();openIssues('${esc(name)}')" title="點擊管理議題">${chips}${more}${addBtn}</div>`;
+}
+function openIssues(name){
+  const list=(issuesMap[name]||[]).map(i=>Object.assign({},i));
+  openModal(`<h3>議題追蹤 — ${esc(name)}</h3>
+    <p style="font-size:11px;color:#999;margin-bottom:8px">嚴重度：🔴阻塞 / 🟡一般 / ⚪低。有未解決的「阻塞」議題，機台健康燈會轉紅。</p>
+    <div id="issue-list">${list.map(issueRow).join('')}</div>
+    <button type="button" class="btn btn-sm btn-add-stage" onclick="addIssueRow()" style="margin-top:4px">＋ 新增議題</button>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitIssues('${esc(name)}')">儲存</button></div>`);
+}
+function issueRow(it){
+  it=it||{};const sev=it.severity||'一般',st=it.status||'待處理';
+  return `<div class="issue-row" data-date="${it.date||''}" style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+    <input class="iss-title" value="${esc(it.title||'')}" placeholder="議題標題" style="flex:1;min-width:0;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+    <select class="iss-sev" style="padding:6px;border:1px solid #ddd;border-radius:6px;font-size:12px">${['阻塞','一般','低'].map(o=>`<option${o===sev?' selected':''}>${o}</option>`).join('')}</select>
+    <select class="iss-status" style="padding:6px;border:1px solid #ddd;border-radius:6px;font-size:12px">${['待處理','處理中','已解決'].map(o=>`<option${o===st?' selected':''}>${o}</option>`).join('')}</select>
+    <input class="iss-owner" value="${esc(it.owner||'')}" placeholder="負責" style="width:56px;flex-shrink:0;padding:6px;border:1px solid #ddd;border-radius:6px;font-size:12px">
+    <button type="button" class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>
+  </div>`;
+}
+function addIssueRow(){document.getElementById('issue-list').insertAdjacentHTML('beforeend',issueRow({date:TODAY}))}
+async function submitIssues(name){
+  const rows=[].slice.call(document.querySelectorAll('#issue-list .issue-row'));
+  const issues=rows.map(r=>({title:r.querySelector('.iss-title').value.trim(),severity:r.querySelector('.iss-sev').value,status:r.querySelector('.iss-status').value,owner:r.querySelector('.iss-owner').value.trim(),date:r.dataset.date||TODAY,note:''})).filter(x=>x.title);
+  issuesMap[name]=issues;
+  closeModal();renderIssues();
+  await apiPost({action:'setIssues',machineName:name,issues:issues});
+}
+function renderIssues(){
+  const area=document.getElementById('issue-area');if(!area)return;
+  const filter=(document.getElementById('issue-filter')||{}).value||'open';
+  let all=[];
+  Object.keys(issuesMap).forEach(m=>(issuesMap[m]||[]).forEach(it=>all.push(Object.assign({machine:m},it))));
+  all=all.filter(i=>{
+    if(filter==='open')return i.status!=='已解決';
+    if(filter==='blocker')return i.status!=='已解決'&&i.severity==='阻塞';
+    return true;
+  });
+  const sevRank={阻塞:0,一般:1,低:2};
+  all.sort((a,b)=>{const ao=a.status==='已解決'?1:0,bo=b.status==='已解決'?1:0;if(ao!==bo)return ao-bo;return (sevRank[a.severity]==null?1:sevRank[a.severity])-(sevRank[b.severity]==null?1:sevRank[b.severity])});
+  if(all.length===0){area.innerHTML='<p style="color:#aaa;text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
+  area.innerHTML=all.map(i=>{
+    const c=issSevColor(i.severity);
+    const stColor=i.status==='已解決'?'#9ca3af':i.status==='處理中'?'#3b82f6':'#eab308';
+    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid #f2f2f2;cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" onclick="openIssues('${esc(i.machine)}')" title="點擊管理此機台議題">
+      <span style="width:9px;height:9px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0" title="${esc(i.severity)}"></span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.machine)}${i.owner?' · '+esc(i.owner):''}</div>
+      </div>
+      <span style="font-size:11px;color:${stColor};flex-shrink:0;white-space:nowrap">${esc(i.status)}</span>
+    </div>`;
+  }).join('');
+}
+function openIssueNew(){
+  const machines=[...new Set(rawData.map(r=>r.machine).filter(Boolean))];
+  openModal(`<h3>新增議題</h3>
+    <div class="fg"><label>機台</label><select id="ni-machine">${machines.map(m=>`<option>${esc(m)}</option>`).join('')}</select></div>
+    <div class="fg"><label>議題標題</label><input id="ni-title" placeholder="發生什麼問題？"></div>
+    <div class="fg" style="display:flex;gap:8px">
+      <div style="flex:1"><label>嚴重度</label><select id="ni-sev"><option>阻塞</option><option selected>一般</option><option>低</option></select></div>
+      <div style="flex:1"><label>狀態</label><select id="ni-status"><option selected>待處理</option><option>處理中</option><option>已解決</option></select></div>
+    </div>
+    <div class="fg"><label>負責人</label><input id="ni-owner"></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitIssueNew()">確認</button></div>`);
+}
+async function submitIssueNew(){
+  const m=document.getElementById('ni-machine').value;
+  const title=document.getElementById('ni-title').value.trim();
+  if(!title){alert('請輸入議題標題');return}
+  const issue={title:title,severity:document.getElementById('ni-sev').value,status:document.getElementById('ni-status').value,owner:document.getElementById('ni-owner').value.trim(),date:TODAY,note:''};
+  if(!issuesMap[m])issuesMap[m]=[];
+  issuesMap[m].push(issue);
+  closeModal();renderIssues();
+  await apiPost({action:'setIssues',machineName:m,issues:issuesMap[m]});
+}
 // === 確定上線關卡 ===
 function openLaunch(name){
   const tagOpts=AB_TAGS.map(t=>`<option value="${esc(t)}">`).join('');
