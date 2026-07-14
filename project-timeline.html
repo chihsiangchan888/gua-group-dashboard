@@ -748,7 +748,7 @@ function renderIssues(){
 function openIssueNew(){
   const machines=[...new Set(rawData.map(r=>r.machine).filter(Boolean))];
   openModal(`<h3>新增議題</h3>
-    <div class="fg"><label>機台</label><select id="ni-machine">${machines.map(m=>`<option>${esc(m)}</option>`).join('')}</select></div>
+    <div class="fg"><label>機台</label><select id="ni-machine"><option value="通用">通用（無特定機台）</option>${machines.map(m=>`<option>${esc(m)}</option>`).join('')}</select></div>
     <div class="fg"><label>議題標題</label><input id="ni-title" placeholder="發生什麼問題？"></div>
     <div class="fg" style="display:flex;gap:8px">
       <div style="flex:1"><label>嚴重度</label><select id="ni-sev"><option>阻塞</option><option selected>一般</option><option>低</option></select></div>
