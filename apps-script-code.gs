@@ -91,8 +91,15 @@ function updateRow(rowNum, data) {
 function deleteRow(rowNum) { getSheet().deleteRow(rowNum); return { success: true }; }
 
 function deleteMachine(machineName) {
+  // 1. 刪除「進行中」分頁的所有相關列
   var sheet = getSheet(); var data = sheet.getDataRange().getValues();
   for (var i = data.length - 1; i >= 1; i--) { if (data[i][0] === machineName) sheet.deleteRow(i + 1); }
+  // 2. 刪除「機台狀態」分頁的對應列
+  var msSheet = getMSSheet(); var msData = msSheet.getDataRange().getValues();
+  for (var i = msData.length - 1; i >= 1; i--) { if (msData[i][0] === machineName) msSheet.deleteRow(i + 1); }
+  // 3. 刪除「議題」分頁的對應列
+  var issSheet = getIssueSheet(); var issData = issSheet.getDataRange().getValues();
+  for (var i = issData.length - 1; i >= 1; i--) { if (issData[i][0] === machineName) issSheet.deleteRow(i + 1); }
   return { success: true };
 }
 
