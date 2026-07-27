@@ -450,7 +450,7 @@ function renderTable(){
     const ms=getMachineStatus(stages);
     const pctColor=pct>=100?'#22c55e':'#6366f1';
     const info=machStatusMap[name]||null;
-    const launched=!!(info&&info.launched);
+    const launched=!!(info&&info.launched&&/^\d{4}-\d{2}-\d{2}$/.test(info.launched));
     const prog=(info&&info.progress!=null&&info.progress!=='')?Number(info.progress):pct;
     const progColor=prog>=100?'#22c55e':'#6366f1';
     const statusText=launched?('✓ 已上線'+(info.launched?' '+fmtDate(info.launched):'')):((info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始')));

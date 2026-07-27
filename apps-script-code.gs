@@ -69,6 +69,12 @@ function readAll() {
 
 function addMachine(name, owner, priority) {
   getSheet().appendRow([name, '未開始', '', '', '', '', owner, '', priority||'中', '工作階段']);
+  // Initialize a clean entry in 機台狀態 with no launched date
+  var msSheet = getMSSheet();
+  var msData = msSheet.getDataRange().getValues();
+  var exists = false;
+  for (var i = 1; i < msData.length; i++) { if (msData[i][0] === name) { exists = true; break; } }
+  if (!exists) { msSheet.appendRow([name, '', '', '', '']); }
   return { success: true };
 }
 
