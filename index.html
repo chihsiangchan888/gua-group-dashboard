@@ -426,11 +426,11 @@ footer code {
 <body>
 <header>
   <h1>⚡ 呱集團 Pokémon Agent Dashboard</h1>
-  <p class="subtitle">最後更新：2026-07-19 09:04:51</p>
+  <p class="subtitle">最後更新：2026-07-28 11:46:29</p>
 </header>
 <div class="fleet-bar">
-  <span class="pill">🟢 活躍 <strong>14</strong></span>
-  <span class="pill">🟡 待命 <strong>0</strong></span>
+  <span class="pill">🟢 活躍 <strong>3</strong></span>
+  <span class="pill">🟡 待命 <strong>11</strong></span>
   <span class="pill">🔴 停止 <strong>0</strong></span>
   <span class="pill">📦 總計 <strong>14</strong></span>
 </div>
@@ -486,7 +486,57 @@ footer code {
   </div>
   <div class="work-log-entries" id="logEntries">
     
-        <div class="log-day expanded" data-date="2026-07-18">
+        <div class="log-day expanded" data-date="2026-07-27">
+          <div class="log-day-header" onclick="this.parentElement.classList.toggle('expanded')">
+            <span class="log-date">📅 2026-07-27 09:00</span>
+            <span class="log-count">14 筆報告</span>
+            <span class="log-toggle">▸</span>
+          </div>
+          <div class="log-day-content"><div class="log-entry">
+              <span class="log-agent">幸福蛋</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">嘎拉嘎拉</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">波克比</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">傑尼龜</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">木守宮</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">達克萊伊</span>
+              <span class="log-report">完成 gua-group-dashboard 2 次 push（commit 1e80a8b + commit 62df224）</span>
+            </div><div class="log-entry">
+              <span class="log-agent">火雉雞</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">未知圖騰</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">魔牆人偶</span>
+              <span class="log-report">修正新增機台誤顯示「已上線」bug（frontend launched 判斷加 date 格式驗證 + backend addMachine 初始化機台狀態列）(commit 1e80a8b) + 修正 deleteMachine 同時清除機台狀態與議題分頁殘留資料 (commit 62df224)</span>
+            </div><div class="log-entry">
+              <span class="log-agent">魔尼尼</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">烏波</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">伊布</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">大奶罐</span>
+              <span class="log-report">無</span>
+            </div><div class="log-entry">
+              <span class="log-agent">general</span>
+              <span class="log-report">無</span>
+            </div></div>
+        </div>
+        <div class="log-day" data-date="2026-07-18">
           <div class="log-day-header" onclick="this.parentElement.classList.toggle('expanded')">
             <span class="log-date">📅 2026-07-18 09:00</span>
             <span class="log-count">14 筆報告</span>
@@ -786,7 +836,7 @@ footer code {
               <span class="log-report">無</span>
             </div></div>
         </div>
-        <div class="log-day" data-date="2026-07-12">
+        <div class="log-day log-hidden" data-date="2026-07-12">
           <div class="log-day-header" onclick="this.parentElement.classList.toggle('expanded')">
             <span class="log-date">📅 2026-07-12 09:00</span>
             <span class="log-count">14 筆報告</span>
@@ -1987,7 +2037,7 @@ footer code {
             </div></div>
         </div>
         <div class="log-load-more" id="logLoadMore" onclick="document.querySelectorAll('.log-hidden').forEach(e=>e.classList.remove('log-hidden'));this.style.display='none'">
-          載入更早紀錄（共 26 天）
+          載入更早紀錄（共 27 天）
         </div>
   </div>
 </div>
@@ -2031,7 +2081,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fighting</span>
             <span class="retreat">撤退: ⚪⚪⚪⚪</span>
-            <span class="last-seen">🕐 8s ago</span>
+            <span class="last-seen">🕐 14s ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2061,7 +2111,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #EE99AC">
             <img class="pokemon-sprite" src="sprites/242.gif" alt="幸福蛋 Blissey" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">幸福蛋 Blissey</div>
           <div class="card-name-bar">
@@ -2088,7 +2138,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fighting</span>
             <span class="retreat">撤退: ⚪⚪</span>
-            <span class="last-seen">🕐 30s ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2118,7 +2168,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #E0C068">
             <img class="pokemon-sprite" src="sprites/105.gif" alt="嘎拉嘎拉 Marowak" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">嘎拉嘎拉 Marowak</div>
           <div class="card-name-bar">
@@ -2145,7 +2195,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Water</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 43s ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2175,7 +2225,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #EE99AC">
             <img class="pokemon-sprite" src="sprites/175.gif" alt="波克比 Togepi" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">波克比 Togepi</div>
           <div class="card-name-bar">
@@ -2202,7 +2252,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Steel</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 57s ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2232,7 +2282,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #6890F0">
             <img class="pokemon-sprite" src="sprites/7.gif" alt="傑尼龜 Squirtle" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">傑尼龜 Squirtle</div>
           <div class="card-name-bar">
@@ -2259,7 +2309,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Electric</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 47s ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2289,7 +2339,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #78C850">
             <img class="pokemon-sprite" src="sprites/252.gif" alt="木守宮 Treecko" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">木守宮 Treecko</div>
           <div class="card-name-bar">
@@ -2316,7 +2366,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fire</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2373,7 +2423,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fighting</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 28s ago</span>
+            <span class="last-seen">🕐 1m ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2403,7 +2453,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #F08030">
             <img class="pokemon-sprite" src="sprites/255.gif" alt="火雉雞 Torchic" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">火雉雞 Torchic</div>
           <div class="card-name-bar">
@@ -2430,7 +2480,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Water</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 35s ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2460,7 +2510,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #F85888">
             <img class="pokemon-sprite" src="sprites/201.gif" alt="未知圖騰 Unown" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">未知圖騰 Unown</div>
           <div class="card-name-bar">
@@ -2487,7 +2537,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Dark</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2574,7 +2624,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #F85888">
             <img class="pokemon-sprite" src="sprites/439.gif" alt="魔尼尼 Mime Jr." />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">魔尼尼 Mime Jr.</div>
           <div class="card-name-bar">
@@ -2601,7 +2651,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Dark</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2631,7 +2681,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #6890F0">
             <img class="pokemon-sprite" src="sprites/194.gif" alt="烏波 Wooper" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">烏波 Wooper</div>
           <div class="card-name-bar">
@@ -2658,7 +2708,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Grass</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 1m ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2688,7 +2738,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #A8A878">
             <img class="pokemon-sprite" src="sprites/133.gif" alt="伊布 Eevee" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">伊布 Eevee</div>
           <div class="card-name-bar">
@@ -2715,7 +2765,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fighting</span>
             <span class="retreat">撤退: ⚪</span>
-            <span class="last-seen">🕐 39s ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
@@ -2745,7 +2795,7 @@ footer code {
           </div>
           <div class="card-image" style="--type-color: #A8A878">
             <img class="pokemon-sprite" src="sprites/241.gif" alt="大奶罐 Miltank" />
-            <div class="status-indicator active">● 活躍中</div>
+            <div class="status-indicator idle">◐ 待命中</div>
           </div>
           <div class="pokemon-name">大奶罐 Miltank</div>
           <div class="card-name-bar">
@@ -2772,7 +2822,7 @@ footer code {
           <div class="card-bottom">
             <span class="weakness">弱點: Fighting</span>
             <span class="retreat">撤退: ⚪⚪</span>
-            <span class="last-seen">🕐 52s ago</span>
+            <span class="last-seen">🕐 2h ago</span>
           </div>
           <div class="flip-hint">👆 點擊翻牌看完整規範</div>
         </div>
