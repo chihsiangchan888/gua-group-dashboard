@@ -152,6 +152,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </div>
   <div class="tab-content active" id="tab-timeline">
   <div class="grid" id="kpis"></div>
+  <div class="section" style="margin-top:16px;padding:12px 16px">
+    <div class="section-hdr" style="margin-bottom:8px"><h2 style="font-size:14px">🔗 常用連結</h2><button class="btn btn-primary btn-sm edit-only" onclick="openLinksEdit()" style="display:none">編輯</button></div>
+    <div id="links-area"></div>
+  </div>
   <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:20px">
     <div class="section" style="flex:2 1 620px;min-width:0;margin-top:0">
       <div class="section-hdr"><h2>機台追蹤</h2><button class="btn btn-primary edit-only" onclick="openAddMachine()" style="display:none">+ 新增機台</button></div>
@@ -231,6 +235,8 @@ function stagesOfType(t){return STAGES.filter(s=>STAGE_TYPES[s]===t)}
 let AB_TAGS=['pay any','penny','high vol'];
 let AB_MARKETS=['TADA','JILI','OKBet'];
 let LAUNCH_CHECKLIST=['數值文件已上傳','美術素材已交付','送審通過','QA 測試通過','版本號已確認'];
+let linksList=[]; // 常用連結 [{name,url,desc}]
+const LINKS_DEMO=[{name:'Looker 營運報表',url:'https://lookerstudio.google.com',desc:'整體營運數據 / ABTEST'},{name:'GA 送審系統',url:'https://example.com/ga',desc:'合規送審入口'},{name:'規格文件庫',url:'https://example.com/spec',desc:'各機台規格書'}];
 let issuesList=[]; // 議題追蹤（獨立清單）[{title,severity,status,owner,created,updated,desc,log:[{date,text}]}]
 const ISSUES_DEMO=[
   {title:'AI A/B Test 串接',severity:'阻塞',status:'處理中',owner:'阿凱',created:'2026-07-02',updated:'2026-07-05',desc:'新版 AB 分流要串 AI 推薦，需後端提供 API',log:[{date:'2026-07-02',text:'開議題，待與後端確認 API'},{date:'2026-07-05',text:'API 規格已給，開始串接'}]},
@@ -347,7 +353,7 @@ async function submitMachStatus(name){
 // === Load ===
 async function loadData(){
   const loading=document.getElementById('loading'),err=document.getElementById('error-banner'),src=document.getElementById('source-note');
-  if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;src.textContent='Demo';finish();return}
+  if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;linksList=LINKS_DEMO;src.textContent='Demo';finish();return}
   try{
     if(canEdit()){
       const r=await(await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'})).json();
@@ -359,13 +365,14 @@ async function loadData(){
         rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
         machStatusMap=r.statuses||{};
         issuesList=Array.isArray(r.issues)?r.issues:[];
+        linksList=Array.isArray(r.links)?r.links:[];
         src.textContent='Google Sheet（即時）';finish();return;
       }
     }
     let text;try{const r=await fetch(gvizUrl('csv'));if(r.ok)text=await r.text()}catch(e){}
     if(text)rawData=parseCsv(text);else{const r=await fetch(gvizUrl('json'));rawData=parseGvizJson(await r.text())}
     src.textContent='Google Sheet（即時）';finish();
-  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;src.textContent='Demo';finish()}
+  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;linksList=LINKS_DEMO;src.textContent='Demo';finish()}
 }
 function gvizUrl(f){return`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${f}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
 function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||'',type:c[9]||'工作階段'})}return res}
@@ -403,7 +410,7 @@ function populateFilters(){
 }
 
 // === Render ===
-function render(){renderKPI();renderTable();renderGantt();renderIssues()}
+function render(){renderKPI();renderTable();renderGantt();renderIssues();renderLinks()}
 
 function getFilteredMachines(){
   const status=document.getElementById('filter-status').value;
@@ -784,6 +791,41 @@ async function delIssue(idx){
   issuesList.splice(idx,1);
   closeModal();renderIssues();
   await saveIssues();
+}
+// === 常用連結 ===
+function renderLinks(){
+  const area=document.getElementById('links-area');if(!area)return;
+  if(!linksList.length){area.innerHTML='<span style="color:#bbb;font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>';return}
+  area.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px">'+linksList.map(l=>{
+    let url=(l.url||'').trim();if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
+    return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;gap:2px;text-decoration:none;background:#f7f7fb;border:1px solid #eee;border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px">
+      <span style="font-size:13px;font-weight:600;color:#6366f1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ${esc(l.name||l.url||'連結')}</span>
+      ${l.desc?`<span style="font-size:11px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.desc)}</span>`:''}
+    </a>`;
+  }).join('')+'</div>';
+}
+function openLinksEdit(){
+  openModal(`<h3>編輯常用連結</h3>
+    <p style="font-size:11px;color:#999;margin-bottom:8px">名稱｜網址｜說明。網址可省略 https://。</p>
+    <div id="links-list">${linksList.map(linkRow).join('')}</div>
+    <button type="button" class="btn btn-sm btn-add-stage" onclick="addLinkRow()" style="margin-top:4px">＋ 新增連結</button>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitLinks()">儲存</button></div>`);
+}
+function linkRow(l){
+  l=l||{};
+  return `<div class="link-row" style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+    <input class="lk-name" value="${esc(l.name||'')}" placeholder="名稱" style="width:96px;flex-shrink:0;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
+    <input class="lk-url" value="${esc(l.url||'')}" placeholder="https://..." style="flex:1;min-width:0;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
+    <input class="lk-desc" value="${esc(l.desc||'')}" placeholder="說明" style="width:110px;flex-shrink:0;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
+    <button type="button" class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>
+  </div>`;
+}
+function addLinkRow(){document.getElementById('links-list').insertAdjacentHTML('beforeend',linkRow({}))}
+async function submitLinks(){
+  const rows=[].slice.call(document.querySelectorAll('#links-list .link-row'));
+  linksList=rows.map(r=>({name:r.querySelector('.lk-name').value.trim(),url:r.querySelector('.lk-url').value.trim(),desc:r.querySelector('.lk-desc').value.trim()})).filter(x=>x.url||x.name);
+  closeModal();renderLinks();
+  await apiPost({action:'setLinks',links:linksList});
 }
 // === 確定上線關卡 ===
 function openLaunch(name){

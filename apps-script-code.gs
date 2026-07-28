@@ -36,6 +36,7 @@ function processAction(body) {
   if (a === 'getLaunchChecklist') return jsonResponse(getLaunchChecklist());
   if (a === 'setLaunchChecklist') return jsonResponse(setLaunchChecklist(body.items));
   if (a === 'setIssues') return jsonResponse(setIssues(body.issues));
+  if (a === 'setLinks') return jsonResponse(setLinks(body.links));
   if (a === 'getStages') return jsonResponse(getStages());
   if (a === 'setStages') return jsonResponse(setStages(body.stages));
   if (a === 'getABOptions') return jsonResponse(getABOptions());
@@ -64,7 +65,8 @@ function readAll() {
   var msResult = getMachineStatus();
   var lcResult = getLaunchChecklist();
   var issResult = getIssues();
-  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets, statuses: msResult.statuses, launchChecklist: lcResult.items, issues: issResult.issues };
+  var lkResult = getLinks();
+  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets, statuses: msResult.statuses, launchChecklist: lcResult.items, issues: issResult.issues, links: lkResult.links };
 }
 
 function addMachine(name, owner, priority) {
@@ -176,6 +178,33 @@ function setIssues(issues) {
   });
   if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 8).clearContent();
   if (rows.length > 0) sheet.getRange(2, 1, rows.length, 8).setValues(rows);
+  return { success: true };
+}
+
+// === 常用連結 ===
+// Sheet「常用連結」: A:名稱 B:網址 C:說明
+function getLinkSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('常用連結');
+  if (!sheet) { sheet = ss.insertSheet('常用連結'); sheet.getRange(1,1,1,3).setValues([['名稱','網址','說明']]); }
+  return sheet;
+}
+function getLinks() {
+  var sheet = getLinkSheet();
+  var data = sheet.getDataRange().getValues();
+  var arr = [];
+  for (var i = 1; i < data.length; i++) {
+    if (!data[i][0] && !data[i][1]) continue;
+    arr.push({ name: String(data[i][0]||''), url: String(data[i][1]||''), desc: String(data[i][2]||'') });
+  }
+  return { success: true, links: arr };
+}
+function setLinks(links) {
+  var sheet = getLinkSheet();
+  var rows = [];
+  (links || []).forEach(function(v) { rows.push([v.name||'', v.url||'', v.desc||'']); });
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 3).clearContent();
+  if (rows.length > 0) sheet.getRange(2, 1, rows.length, 3).setValues(rows);
   return { success: true };
 }
 
