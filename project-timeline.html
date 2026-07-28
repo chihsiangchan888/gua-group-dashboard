@@ -415,10 +415,21 @@ function getFilteredMachines(){
     if(search&&!name.toLowerCase().includes(search))return;
     filtered.push([name,stages]);
   });
-  filtered.sort((a,b)=>{return(getLaunchDate(a[1])||'9999')>(getLaunchDate(b[1])||'9999')?1:-1});
+  filtered.sort((a,b)=>{return(firstMilestoneDate(a[1])||'9999')>(firstMilestoneDate(b[1])||'9999')?1:-1});
   const result=new Map();
   filtered.forEach(([n,s])=>result.set(n,s));
   return result;
+}
+function firstMilestoneDate(stages){
+  let earliest=null;
+  stages.filter(s=>s.type==='里程碑').forEach(s=>{
+    const d=s.planEnd||s.actualEnd||s.planStart||s.actualStart;
+    if(d&&(!earliest||d<earliest))earliest=d;
+  });
+  if(earliest)return earliest;
+  // 無里程碑 → 退回所有階段最早日期
+  stages.forEach(s=>{[s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{if(d&&(!earliest||d<earliest))earliest=d})});
+  return earliest||null;
 }
 function getLaunchDate(stages){
   const launch=stages.find(s=>s.type==='里程碑'&&(/上線/.test(s.stage)));
