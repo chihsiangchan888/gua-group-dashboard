@@ -35,7 +35,7 @@ function processAction(body) {
   if (a === 'launchMachine') return jsonResponse(launchMachine(body.machineName, body.launchDate));
   if (a === 'getLaunchChecklist') return jsonResponse(getLaunchChecklist());
   if (a === 'setLaunchChecklist') return jsonResponse(setLaunchChecklist(body.items));
-  if (a === 'setIssues') return jsonResponse(setIssues(body.machineName, body.issues));
+  if (a === 'setIssues') return jsonResponse(setIssues(body.issues));
   if (a === 'getStages') return jsonResponse(getStages());
   if (a === 'setStages') return jsonResponse(setStages(body.stages));
   if (a === 'getABOptions') return jsonResponse(getABOptions());
@@ -147,36 +147,35 @@ function launchMachine(machineName, launchDate) {
   sheet.appendRow([machineName, '', '', '', d]);
   return { success: true };
 }
-// === 議題追蹤 ===
-// Sheet「議題」: A:機台名稱 B:議題標題 C:狀態 D:嚴重度 E:負責人 F:建立日 G:備註
+// === 議題追蹤（獨立清單，不綁機台）===
+// Sheet「議題清單」: A:標題 B:狀態 C:嚴重度 D:負責人 E:建立日 F:更新日 G:描述 H:處理紀錄(JSON)
 function getIssueSheet() {
   var ss = SpreadsheetApp.openById(SHEET_ID);
-  var sheet = ss.getSheetByName('議題');
-  if (!sheet) { sheet = ss.insertSheet('議題'); sheet.getRange(1,1,1,7).setValues([['機台名稱','議題標題','狀態','嚴重度','負責人','建立日','備註']]); }
+  var sheet = ss.getSheetByName('議題清單');
+  if (!sheet) { sheet = ss.insertSheet('議題清單'); sheet.getRange(1,1,1,8).setValues([['標題','狀態','嚴重度','負責人','建立日','更新日','描述','處理紀錄']]); }
   return sheet;
 }
 function getIssues() {
   var sheet = getIssueSheet();
   var data = sheet.getDataRange().getValues();
-  var map = {};
+  var arr = [];
   for (var i = 1; i < data.length; i++) {
-    var m = data[i][0]; if (!m) continue;
-    if (!map[m]) map[m] = [];
-    map[m].push({ title: String(data[i][1]||''), status: String(data[i][2]||'待處理'), severity: String(data[i][3]||'一般'), owner: String(data[i][4]||''), date: fmtDate(data[i][5]), note: String(data[i][6]||'') });
+    if (!data[i][0]) continue;
+    var log = [];
+    try { if (data[i][7]) log = JSON.parse(data[i][7]); } catch (e) { log = []; }
+    arr.push({ title: String(data[i][0]||''), status: String(data[i][1]||'待處理'), severity: String(data[i][2]||'一般'), owner: String(data[i][3]||''), created: fmtDate(data[i][4]), updated: fmtDate(data[i][5]), desc: String(data[i][6]||''), log: log });
   }
-  return { success: true, issues: map };
+  return { success: true, issues: arr };
 }
-// 覆寫某機台的所有議題（其他機台不動）
-function setIssues(machineName, issues) {
+// 整表覆寫全部議題
+function setIssues(issues) {
   var sheet = getIssueSheet();
-  var data = sheet.getDataRange().getValues();
-  var kept = [];
-  for (var i = 1; i < data.length; i++) { if (data[i][0] && data[i][0] !== machineName) kept.push(data[i].slice(0,7)); }
+  var rows = [];
   (issues || []).forEach(function(v) {
-    kept.push([machineName, v.title||'', v.status||'待處理', v.severity||'一般', v.owner||'', v.date||'', v.note||'']);
+    rows.push([v.title||'', v.status||'待處理', v.severity||'一般', v.owner||'', v.created||'', v.updated||'', v.desc||'', JSON.stringify(v.log||[])]);
   });
-  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 7).clearContent();
-  if (kept.length > 0) sheet.getRange(2, 1, kept.length, 7).setValues(kept);
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 8).clearContent();
+  if (rows.length > 0) sheet.getRange(2, 1, rows.length, 8).setValues(rows);
   return { success: true };
 }
 
