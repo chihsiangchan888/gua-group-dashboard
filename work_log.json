@@ -1,5 +1,25 @@
 [
   {
+    "date": "2026-07-28",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "完成 4 次 push + 2 次 clasp 部署 + Apps Script 部署問題排查修復至 @18"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "更新 work_log.json（7/27 日報）+ generate.py + 委派 push（commit ffa90f6）；機台清單改依版更日期排序（commit 62dcb13）；議題追蹤改為獨立清單+詳情日誌（commit ca6d80d）；新增常用連結板塊（commit a871f7b）"},
+      {"agent": "魔尼尼", "report": "回覆呱老大 XBomb Fiesta 基本玩法/三種特色玩法查詢 + 引導呱老大找大奶罐討論機率設計"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"},
+      {"agent": "大奶罐", "report": "解析 SexBomb 機率表 + 整理核心機制骨架 + 確認與 XBomb 對應關係 + 討論 SexBomb 二代設計方向（三種 Wild 變體方案）"},
+      {"agent": "general", "report": "無"}
+    ]
+  },
+  {
     "date": "2026-07-27",
     "time": "09:00",
     "entries": [
