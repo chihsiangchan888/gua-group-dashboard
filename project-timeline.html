@@ -539,14 +539,17 @@ function renderGanttMilestone(machines,weeks,total){
   let html='';
   machines.forEach((stages,name)=>{
     const milestones=stages.filter(s=>s.type==='里程碑');
-    // Find overall span from all stages
+    const milestonesWithDate=milestones.filter(s=>s.planEnd||s.actualEnd||s.planStart);
+    // Skip machines with no milestones that have dates — nothing to show in milestone view
+    if(milestonesWithDate.length===0)return;
+    // Find overall span from milestone dates only
     let minD=null,maxD=null;
-    stages.forEach(s=>{[s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{if(d){if(!minD||d<minD)minD=d;if(!maxD||d>maxD)maxD=d}})});
+    milestonesWithDate.forEach(s=>{[s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{if(d){if(!minD||d<minD)minD=d;if(!maxD||d>maxD)maxD=d}})});
     html+=`<div class="gantt-row"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl">`;
     weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
-    if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div><span class="g-date-label" style="position:absolute;top:0;left:${l}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(minD)}</span><span class="g-date-label" style="position:absolute;top:0;left:${r}%;font-size:8px;color:#999;transform:translateX(-50%)">${fmtDate(maxD)}</span>`}
+    if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div>`}
     // Only show milestone-type items
-    milestones.forEach(s=>{
+    milestonesWithDate.forEach(s=>{
       const dt=s.planEnd||s.actualEnd||s.planStart;
       if(!dt)return;
       const pos=datePos(weeks,dt)*100;
