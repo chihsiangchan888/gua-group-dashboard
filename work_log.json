@@ -1,5 +1,25 @@
 [
   {
+    "date": "2026-07-29",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "回覆呱老大知識庫內容查詢（列出 AB知識庫架構與 skills 清單）+ 提供跨遊戲通則.md 完整內容"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "完成 gua-group-dashboard daily report push（commit 65163ee）"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "更新 work_log.json（7/28 日報）+ 執行 generate.py + 委派達克萊伊 push（commit 65163ee）"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"},
+      {"agent": "大奶罐", "report": "修正 Targeted Wild 可視化工具候選計算邏輯 + 新增 decay/deficit_coeff/threshold 參數 + 加入完整公式說明面板 + 製作方案 D/E HTML 儀表板 + D vs E 並排比較版 + 勾選框切換功能 + 底板乘倍視覺改善"},
+      {"agent": "general", "report": "無"}
+    ]
+  },
+  {
     "date": "2026-07-28",
     "time": "09:00",
     "entries": [
