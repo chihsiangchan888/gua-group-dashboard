@@ -405,8 +405,9 @@ function finish(){
 
 function populateFilters(){
   const sel=document.getElementById('filter-owner');
+  const cur=sel.value;
   const owners=[...new Set(rawData.map(r=>r.owner).filter(Boolean))];
-  sel.innerHTML='<option value="">全部負責人</option>'+owners.map(o=>`<option>${esc(o)}</option>`).join('');
+  sel.innerHTML='<option value="">全部負責人</option>'+owners.map(o=>`<option${o===cur?' selected':''}>${esc(o)}</option>`).join('');
 }
 
 // === Render ===
@@ -858,18 +859,19 @@ async function submitLaunch(name){
   machStatusMap[name]=Object.assign({},machStatusMap[name],{launched:date});
   if(!abData.some(g=>g.gameName===name)){
     abData.push({gameName:name,gameTag:tag,targetMarket:market,launchDate:date,status:'打磨中',versions:[{label:'A',date:date,winner:false,running:false}]});
-    await saveABData();
   }
-  await apiPost({action:'launchMachine',machineName:name,launchDate:date});
   renderTable();renderAB();
+  await saveABData();
+  await apiPost({action:'launchMachine',machineName:name,launchDate:date});
 }
 async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const now=(el.textContent||'').trim();const next=cycle[now]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);rawData.forEach(r=>{if(r.machine===name)r.priority=next});await apiPost({action:'setPriority',machineName:name,priority:next})}
 function editOwner(machine,current){
   const newOwner=prompt('設定「'+machine+'」的負責人：',current||'');
   if(newOwner===null)return;
   rawData.forEach(r=>{if(r.machine===machine)r.owner=newOwner});
+  populateFilters();render();
   const rows=rawData.filter(r=>r.machine===machine);
-  (async()=>{for(const r of rows){await apiPost({action:'update',row:r.row,data:{machine:r.machine,stage:r.stage,planStart:r.planStart,planEnd:r.planEnd,actualStart:r.actualStart,actualEnd:r.actualEnd,owner:newOwner,note:r.note,priority:r.priority,type:r.type}})}render()})();
+  (async()=>{for(const r of rows){await apiPost({action:'update',row:r.row,data:{machine:r.machine,stage:r.stage,planStart:r.planStart,planEnd:r.planEnd,actualStart:r.actualStart,actualEnd:r.actualEnd,owner:newOwner,note:r.note,priority:r.priority,type:r.type}})}})();
 }
 async function toggleStageDone(cb,row,machine,stage,ps,pe,as,owner,note,priority,type){const ae=cb.checked?TODAY:'';cb.parentElement.parentElement.style.opacity=cb.checked?'.55':'1';const data={machine,stage,planStart:ps,planEnd:pe,actualStart:as||(cb.checked?TODAY:''),actualEnd:ae,owner,note,priority,type};await apiPost({action:'update',row,data});await loadData()}
 
@@ -956,7 +958,7 @@ async function saveSettings(){
   const launch=[];
   document.querySelectorAll('#settings-launch .settings-item').forEach(li=>{const v=li.querySelector('[data-field=launch]').value.trim();if(v)launch.push(v)});
   LAUNCH_CHECKLIST=launch.length?launch:LAUNCH_CHECKLIST;
-  closeModal();await apiPost({action:'setStages',stages});await apiPost({action:'setABOptions',options:{tags:AB_TAGS,markets:AB_MARKETS}});await apiPost({action:'setLaunchChecklist',items:LAUNCH_CHECKLIST});render();
+  closeModal();render();await apiPost({action:'setStages',stages});await apiPost({action:'setABOptions',options:{tags:AB_TAGS,markets:AB_MARKETS}});await apiPost({action:'setLaunchChecklist',items:LAUNCH_CHECKLIST});
 }
 
 // === Tabs ===
@@ -1113,7 +1115,7 @@ async function submitAddABGame(){
   const d=document.getElementById('ab-v1-date').value;
   if(d)g.versions.push({label:'A',date:d,winner:false});
   if(!g.gameName){alert('請輸入遊戲名稱');return}
-  abData.push(g);closeModal();await saveABData();renderAB();
+  abData.push(g);closeModal();renderAB();await saveABData();
 }
 function openAddABVersion(gi){
   const g=getFilteredAB()[gi];const nextLabel=String.fromCharCode(65+g.versions.length);
@@ -1125,7 +1127,7 @@ function openAddABVersion(gi){
 async function submitAddABVersion(gi){
   const g=getFilteredAB()[gi];
   g.versions.push({label:document.getElementById('abv-label').value||'?',date:document.getElementById('abv-date').value,winner:false});
-  closeModal();await saveABData();renderAB();
+  closeModal();renderAB();await saveABData();
 }
 function openEditABGame(gi){
   const g=getFilteredAB()[gi];
@@ -1172,13 +1174,13 @@ async function submitEditABGame(gi){
     const win=el.querySelector('.abv-winner');
     if(lbl&&dt)g.versions.push({label:lbl.value,date:dt.value,winner:win?win.checked:false,running:run?run.checked:false});
   });
-  closeModal();await saveABData();renderAB();
+  closeModal();renderAB();await saveABData();
 }
 async function delABGame(gi){
   const g=getFilteredAB()[gi];
   if(!confirm('確定刪除「'+g.gameName+'」？'))return;
   const idx=abData.indexOf(g);if(idx>=0)abData.splice(idx,1);
-  await saveABData();renderAB();
+  renderAB();await saveABData();
 }
 
 async function saveABData(){
