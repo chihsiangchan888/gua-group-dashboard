@@ -1,5 +1,45 @@
 [
   {
+    "date": "2026-08-04",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "無"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "無"},
+      {"agent": "魔尼尼", "report": "回覆呱老大查詢「黃金神殿裂變之力」賠率表（含全部 11 個符號的 3X~6X 賠率及特殊符號說明）"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"},
+      {"agent": "大奶罐", "report": "無"},
+      {"agent": "general", "report": "無"}
+    ]
+  },
+  {
+    "date": "2026-08-03",
+    "time": "09:00",
+    "entries": [
+      {"agent": "幸福蛋", "report": "無"},
+      {"agent": "嘎拉嘎拉", "report": "無"},
+      {"agent": "波克比", "report": "無"},
+      {"agent": "傑尼龜", "report": "無"},
+      {"agent": "木守宮", "report": "無"},
+      {"agent": "達克萊伊", "report": "完成 gua-group-dashboard daily report push（commit 18c8abd）"},
+      {"agent": "火雉雞", "report": "無"},
+      {"agent": "未知圖騰", "report": "無"},
+      {"agent": "魔牆人偶", "report": "更新 work_log.json（8/2 日報）+ generate.py + 委派達克萊伊 push（commit 18c8abd）"},
+      {"agent": "魔尼尼", "report": "無"},
+      {"agent": "烏波", "report": "無"},
+      {"agent": "伊布", "report": "無"},
+      {"agent": "大奶罐", "report": "無"},
+      {"agent": "general", "report": "無"}
+    ]
+  },
+  {
     "date": "2026-08-02",
     "time": "09:00",
     "entries": [
