@@ -31,6 +31,12 @@ function processAction(body) {
   if (a === 'deleteMachine') return jsonResponse(deleteMachine(body.machineName));
   if (a === 'setPriority') return jsonResponse(setPriority(body.machineName, body.priority));
   if (a === 'archiveMachine') return jsonResponse(archiveMachine(body.machineName));
+  if (a === 'setMachineStatus') return jsonResponse(setMachineStatus(body.machineName, body.status, body.progress));
+  if (a === 'launchMachine') return jsonResponse(launchMachine(body.machineName, body.launchDate));
+  if (a === 'getLaunchChecklist') return jsonResponse(getLaunchChecklist());
+  if (a === 'setLaunchChecklist') return jsonResponse(setLaunchChecklist(body.items));
+  if (a === 'setIssues') return jsonResponse(setIssues(body.issues));
+  if (a === 'setLinks') return jsonResponse(setLinks(body.links));
   if (a === 'getStages') return jsonResponse(getStages());
   if (a === 'setStages') return jsonResponse(setStages(body.stages));
   if (a === 'getABOptions') return jsonResponse(getABOptions());
@@ -56,11 +62,21 @@ function readAll() {
   }
   var stagesResult = getStages();
   var abOptionsResult = getABOptions();
-  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets };
+  var msResult = getMachineStatus();
+  var lcResult = getLaunchChecklist();
+  var issResult = getIssues();
+  var lkResult = getLinks();
+  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets, statuses: msResult.statuses, launchChecklist: lcResult.items, issues: issResult.issues, links: lkResult.links };
 }
 
 function addMachine(name, owner, priority) {
   getSheet().appendRow([name, '未開始', '', '', '', '', owner, '', priority||'中', '工作階段']);
+  // Initialize a clean entry in 機台狀態 with no launched date
+  var msSheet = getMSSheet();
+  var msData = msSheet.getDataRange().getValues();
+  var exists = false;
+  for (var i = 1; i < msData.length; i++) { if (msData[i][0] === name) { exists = true; break; } }
+  if (!exists) { msSheet.appendRow([name, '', '', '', '']); }
   return { success: true };
 }
 
@@ -77,8 +93,15 @@ function updateRow(rowNum, data) {
 function deleteRow(rowNum) { getSheet().deleteRow(rowNum); return { success: true }; }
 
 function deleteMachine(machineName) {
+  // 1. 刪除「進行中」分頁的所有相關列
   var sheet = getSheet(); var data = sheet.getDataRange().getValues();
   for (var i = data.length - 1; i >= 1; i--) { if (data[i][0] === machineName) sheet.deleteRow(i + 1); }
+  // 2. 刪除「機台狀態」分頁的對應列
+  var msSheet = getMSSheet(); var msData = msSheet.getDataRange().getValues();
+  for (var i = msData.length - 1; i >= 1; i--) { if (msData[i][0] === machineName) msSheet.deleteRow(i + 1); }
+  // 3. 刪除「議題」分頁的對應列
+  var issSheet = getIssueSheet(); var issData = issSheet.getDataRange().getValues();
+  for (var i = issData.length - 1; i >= 1; i--) { if (issData[i][0] === machineName) issSheet.deleteRow(i + 1); }
   return { success: true };
 }
 
@@ -91,6 +114,133 @@ function setPriority(machineName, priority) {
 function archiveMachine(machineName) {
   var sheet = getSheet(); var data = sheet.getDataRange().getValues();
   for (var i = 1; i < data.length; i++) { if (data[i][0] === machineName) sheet.getRange(i+1, 2).setValue('已完成'); }
+  return { success: true };
+}
+
+// === 機台層級狀態 ===
+// Sheet「機台狀態」: A:機台名稱 B:目前狀態 C:進度 D:最後更新日 E:上線日期
+function getMSSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('機台狀態');
+  if (!sheet) { sheet = ss.insertSheet('機台狀態'); sheet.getRange(1,1,1,5).setValues([['機台名稱','目前狀態','進度','最後更新日','上線日期']]); }
+  if (String(sheet.getRange(1,5).getValue()||'') === '') sheet.getRange(1,5).setValue('上線日期'); // 舊表補 E 欄標題
+  return sheet;
+}
+function getMachineStatus() {
+  var sheet = getMSSheet();
+  var data = sheet.getDataRange().getValues();
+  var map = {};
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) {
+      var p = data[i][2];
+      map[String(data[i][0])] = { status: String(data[i][1]||''), progress: (p===''||p==null)?null:Number(p), updated: fmtDate(data[i][3]), launched: fmtDate(data[i][4]) };
+    }
+  }
+  return { success: true, statuses: map };
+}
+// 標記機台已上線（寫入 E 欄），不動其他狀態欄
+function launchMachine(machineName, launchDate) {
+  var sheet = getMSSheet();
+  var data = sheet.getDataRange().getValues();
+  var d = launchDate || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd');
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === machineName) { sheet.getRange(i+1, 5).setValue(d); return { success: true }; }
+  }
+  sheet.appendRow([machineName, '', '', '', d]);
+  return { success: true };
+}
+// === 議題追蹤（獨立清單，不綁機台）===
+// Sheet「議題清單」: A:標題 B:狀態 C:嚴重度 D:負責人 E:建立日 F:更新日 G:描述 H:處理紀錄(JSON)
+function getIssueSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('議題清單');
+  if (!sheet) { sheet = ss.insertSheet('議題清單'); sheet.getRange(1,1,1,8).setValues([['標題','狀態','嚴重度','負責人','建立日','更新日','描述','處理紀錄']]); }
+  return sheet;
+}
+function getIssues() {
+  var sheet = getIssueSheet();
+  var data = sheet.getDataRange().getValues();
+  var arr = [];
+  for (var i = 1; i < data.length; i++) {
+    if (!data[i][0]) continue;
+    var log = [];
+    try { if (data[i][7]) log = JSON.parse(data[i][7]); } catch (e) { log = []; }
+    arr.push({ title: String(data[i][0]||''), status: String(data[i][1]||'待處理'), severity: String(data[i][2]||'一般'), owner: String(data[i][3]||''), created: fmtDate(data[i][4]), updated: fmtDate(data[i][5]), desc: String(data[i][6]||''), log: log });
+  }
+  return { success: true, issues: arr };
+}
+// 整表覆寫全部議題
+function setIssues(issues) {
+  var sheet = getIssueSheet();
+  var rows = [];
+  (issues || []).forEach(function(v) {
+    rows.push([v.title||'', v.status||'待處理', v.severity||'一般', v.owner||'', v.created||'', v.updated||'', v.desc||'', JSON.stringify(v.log||[])]);
+  });
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 8).clearContent();
+  if (rows.length > 0) sheet.getRange(2, 1, rows.length, 8).setValues(rows);
+  return { success: true };
+}
+
+// === 常用連結 ===
+// Sheet「常用連結」: A:名稱 B:網址 C:說明
+function getLinkSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('常用連結');
+  if (!sheet) { sheet = ss.insertSheet('常用連結'); sheet.getRange(1,1,1,3).setValues([['名稱','網址','說明']]); }
+  return sheet;
+}
+function getLinks() {
+  var sheet = getLinkSheet();
+  var data = sheet.getDataRange().getValues();
+  var arr = [];
+  for (var i = 1; i < data.length; i++) {
+    if (!data[i][0] && !data[i][1]) continue;
+    arr.push({ name: String(data[i][0]||''), url: String(data[i][1]||''), desc: String(data[i][2]||'') });
+  }
+  return { success: true, links: arr };
+}
+function setLinks(links) {
+  var sheet = getLinkSheet();
+  var rows = [];
+  (links || []).forEach(function(v) { rows.push([v.name||'', v.url||'', v.desc||'']); });
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 3).clearContent();
+  if (rows.length > 0) sheet.getRange(2, 1, rows.length, 3).setValues(rows);
+  return { success: true };
+}
+
+// === 上線檢查清單設定 ===
+// Sheet「上線清單」: A:檢查項目
+function getLCSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName('上線清單');
+  if (!sheet) { sheet = ss.insertSheet('上線清單'); sheet.getRange(1,1).setValue('檢查項目'); }
+  return sheet;
+}
+function getLaunchChecklist() {
+  var sheet = getLCSheet();
+  var data = sheet.getDataRange().getValues();
+  var items = [];
+  for (var i = 1; i < data.length; i++) { if (data[i][0]) items.push(String(data[i][0])); }
+  return { success: true, items: items };
+}
+function setLaunchChecklist(items) {
+  var sheet = getLCSheet();
+  if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 1).clearContent();
+  if (items && items.length > 0) sheet.getRange(2, 1, items.length, 1).setValues(items.map(function(x){return [x]}));
+  return { success: true };
+}
+function setMachineStatus(machineName, status, progress) {
+  var sheet = getMSSheet();
+  var data = sheet.getDataRange().getValues();
+  var today = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd');
+  var prog = (progress===''||progress==null)?'':Number(progress);
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === machineName) {
+      sheet.getRange(i+1, 2, 1, 3).setValues([[status||'', prog, today]]);
+      return { success: true };
+    }
+  }
+  sheet.appendRow([machineName, status||'', prog, today]);
   return { success: true };
 }
 

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "agend-魔牆人偶-t2137": {
+      "command": "/home/chihsiangchan/.agend/instances/魔牆人偶-t2137/mcp-wrapper-agend.sh",
+      "args": []
+    }
+  }
+}
