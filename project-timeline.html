@@ -356,8 +356,12 @@ async function loadData(){
   if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;linksList=LINKS_DEMO;src.textContent='Demo';finish();return}
   try{
     if(canEdit()){
-      const r=await(await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'})).json();
-      if(r.success){
+      // Retry up to 2 times — Google Apps Script sometimes returns HTML on first call
+      let r=null;
+      for(let _try=0;_try<2;_try++){
+        try{const resp=await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'});const txt=await resp.text();r=JSON.parse(txt);break}catch(e){if(_try===0)await new Promise(ok=>setTimeout(ok,1000))}
+      }
+      if(r&&r.success){
         if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
         if(r.abTags&&Array.isArray(r.abTags)&&r.abTags.length>0)AB_TAGS=r.abTags;
         if(r.abMarkets&&Array.isArray(r.abMarkets)&&r.abMarkets.length>0)AB_MARKETS=r.abMarkets;
