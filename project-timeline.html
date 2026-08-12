@@ -862,9 +862,10 @@ async function submitLaunch(name){
   machStatusMap[name]=Object.assign({},machStatusMap[name],{launched:date});
   if(!abData.some(g=>g.gameName===name)){
     abData.push({gameName:name,gameTag:tag,targetMarket:market,launchDate:date,status:'打磨中',versions:[{label:'A',date:date,winner:false,running:false}]});
+    // Use targeted append instead of full overwrite to avoid wiping existing AB data
+    await apiPost({action:'addABGame',data:{game:name,tag:tag,market:market,launchDate:date,versionDate:date}});
   }
   renderTable();renderAB();
-  await saveABData();
   await apiPost({action:'launchMachine',machineName:name,launchDate:date});
 }
 async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const now=(el.textContent||'').trim();const next=cycle[now]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);rawData.forEach(r=>{if(r.machine===name)r.priority=next});await apiPost({action:'setPriority',machineName:name,priority:next})}
@@ -1118,7 +1119,7 @@ async function submitAddABGame(){
   const d=document.getElementById('ab-v1-date').value;
   if(d)g.versions.push({label:'A',date:d,winner:false});
   if(!g.gameName){alert('請輸入遊戲名稱');return}
-  abData.push(g);closeModal();renderAB();await saveABData();
+  abData.push(g);closeModal();renderAB();await apiPost({action:'addABGame',data:{game:g.gameName,tag:g.gameTag,market:g.targetMarket,launchDate:g.launchDate,versionDate:d||''}});
 }
 function openAddABVersion(gi){
   const g=getFilteredAB()[gi];const nextLabel=String.fromCharCode(65+g.versions.length);
@@ -1129,8 +1130,10 @@ function openAddABVersion(gi){
 }
 async function submitAddABVersion(gi){
   const g=getFilteredAB()[gi];
-  g.versions.push({label:document.getElementById('abv-label').value||'?',date:document.getElementById('abv-date').value,winner:false});
-  closeModal();renderAB();await saveABData();
+  const lbl=document.getElementById('abv-label').value||'?';
+  const dt=document.getElementById('abv-date').value;
+  g.versions.push({label:lbl,date:dt,winner:false});
+  closeModal();renderAB();await apiPost({action:'addABVersion',data:{game:g.gameName,tag:g.gameTag,market:g.targetMarket,version:lbl,versionDate:dt}});
 }
 function openEditABGame(gi){
   const g=getFilteredAB()[gi];
@@ -1183,7 +1186,7 @@ async function delABGame(gi){
   const g=getFilteredAB()[gi];
   if(!confirm('確定刪除「'+g.gameName+'」？'))return;
   const idx=abData.indexOf(g);if(idx>=0)abData.splice(idx,1);
-  renderAB();await saveABData();
+  renderAB();await apiPost({action:'deleteABGame',game:g.gameName});
 }
 
 async function saveABData(){
