@@ -316,6 +316,13 @@ function readAB() {
 // 前端 saveABData 送完整巢狀 abData，這裡攤平後整表覆寫
 function writeAB(games) {
   var sheet = getABSheet();
+  var existingRows = sheet.getLastRow() - 1; // exclude header
+  // Safety check: refuse to overwrite if new data is suspiciously small
+  var newRows = 0;
+  (games || []).forEach(function(g) { var vs = g.versions || []; newRows += vs.length > 0 ? vs.length : 1; });
+  if (existingRows > 4 && newRows < existingRows * 0.5) {
+    return { success: false, error: '安全防護：新資料筆數(' + newRows + ')不到現有(' + existingRows + ')的一半，拒絕覆寫。請使用單筆操作 API。' };
+  }
   if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow()-1, 9).clearContent();
   var rows = [];
   (games || []).forEach(function(g) {
@@ -367,3 +374,34 @@ function fmtDate(val) {
 }
 
 function jsonResponse(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
+
+// === 每日自動備份 ===
+// 設定方式：Apps Script → 觸發條件 → 新增觸發條件 → 選擇 dailyBackup → 時間驅動 → 每日 → 選時間
+function dailyBackup() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var today = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd');
+  var sheetsToBackup = ['進行中', '機台狀態', 'AB測試', '議題'];
+  
+  sheetsToBackup.forEach(function(name) {
+    var src = ss.getSheetByName(name);
+    if (!src) return;
+    var backupName = '備份_' + name + '_' + today;
+    // Delete old backup with same name if exists
+    var old = ss.getSheetByName(backupName);
+    if (old) ss.deleteSheet(old);
+    // Copy
+    var copy = src.copyTo(ss);
+    copy.setName(backupName);
+    copy.setTabColor('#cccccc');
+  });
+  
+  // Clean up backups older than 7 days
+  var sheets = ss.getSheets();
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+  var cutoffStr = Utilities.formatDate(cutoff, 'Asia/Taipei', 'yyyy-MM-dd');
+  sheets.forEach(function(s) {
+    var m = s.getName().match(/^備份_.+_(\d{4}-\d{2}-\d{2})$/);
+    if (m && m[1] < cutoffStr) ss.deleteSheet(s);
+  });
+}
