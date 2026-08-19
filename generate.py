@@ -967,6 +967,20 @@ function filterLog() {{
     if (text.includes(q)) day.classList.add('expanded');
   }});
 }}
+function toggleOlderLogs() {{
+  const btn = document.getElementById('logLoadMore');
+  const hiddenItems = document.querySelectorAll('.log-day.log-hidden');
+  if (hiddenItems.length > 0) {{
+    hiddenItems.forEach(e => e.classList.remove('log-hidden'));
+    btn.textContent = '收合舊紀錄';
+    btn.classList.add('log-expanded');
+  }} else {{
+    const days = document.querySelectorAll('.log-day');
+    days.forEach((e, i) => {{ if (i >= 7) e.classList.add('log-hidden'); }});
+    btn.textContent = '載入更早紀錄（共 ' + (days.length - 7) + ' 天）';
+    btn.classList.remove('log-expanded');
+  }}
+}}
 </script>
 </body>
 </html>'''
@@ -1008,7 +1022,7 @@ def generate_work_log_html(work_log):
 
     if len(work_log) > 7:
         entries_html += f'''
-        <div class="log-load-more" id="logLoadMore" onclick="document.querySelectorAll('.log-hidden').forEach(e=>e.classList.remove('log-hidden'));this.style.display='none'">
+        <div class="log-load-more" id="logLoadMore" onclick="toggleOlderLogs()">
           載入更早紀錄（共 {len(work_log) - 7} 天）
         </div>'''
 
