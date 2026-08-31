@@ -874,12 +874,27 @@ async function submitLaunch(name){
 }
 async function cyclePriority(name,current,el){const cycle={低:'中',中:'高',高:'低'};const now=(el.textContent||'').trim();const next=cycle[now]||'中';el.textContent=next;el.className='badge priority-'+next;el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',200);rawData.forEach(r=>{if(r.machine===name)r.priority=next});await apiPost({action:'setPriority',machineName:name,priority:next})}
 function editOwner(machine,current){
-  const newOwner=prompt('設定「'+machine+'」的負責人：',current||'');
-  if(newOwner===null)return;
+  const owners=[...new Set(rawData.map(r=>r.owner).filter(Boolean))].sort();
+  const opts=owners.map(o=>`<option value="${esc(o)}"${o===current?' selected':''}>${esc(o)}</option>`).join('');
+  openModal(`<h3>設定負責人 — ${esc(machine)}</h3>
+    <div class="fg"><label>負責人</label>
+      <select id="ow-sel" onchange="document.getElementById('ow-new').style.display=this.value==='__new__'?'block':'none'">
+        <option value=""${current?'':' selected'}>（未指派）</option>
+        ${opts}
+        <option value="__new__">＋ 新增負責人…</option>
+      </select>
+    </div>
+    <div class="fg" id="ow-new" style="display:none"><label>新負責人名稱</label><input id="ow-newname" placeholder="輸入新名稱"></div>
+    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitOwner('${esc(machine)}')">確認</button></div>`);
+}
+async function submitOwner(machine){
+  const sel=document.getElementById('ow-sel').value;
+  const newOwner=(sel==='__new__')?document.getElementById('ow-newname').value.trim():sel;
+  closeModal();
   rawData.forEach(r=>{if(r.machine===machine)r.owner=newOwner});
   populateFilters();render();
   const rows=rawData.filter(r=>r.machine===machine);
-  (async()=>{for(const r of rows){await apiPost({action:'update',row:r.row,data:{machine:r.machine,stage:r.stage,planStart:r.planStart,planEnd:r.planEnd,actualStart:r.actualStart,actualEnd:r.actualEnd,owner:newOwner,note:r.note,priority:r.priority,type:r.type}})}})();
+  for(const r of rows){await apiPost({action:'update',row:r.row,data:{machine:r.machine,stage:r.stage,planStart:r.planStart,planEnd:r.planEnd,actualStart:r.actualStart,actualEnd:r.actualEnd,owner:newOwner,note:r.note,priority:r.priority,type:r.type}})}
 }
 async function toggleStageDone(cb,row,machine,stage,ps,pe,as,owner,note,priority,type){const ae=cb.checked?TODAY:'';cb.parentElement.parentElement.style.opacity=cb.checked?'.55':'1';const data={machine,stage,planStart:ps,planEnd:pe,actualStart:as||(cb.checked?TODAY:''),actualEnd:ae,owner,note,priority,type};await apiPost({action:'update',row,data});await loadData()}
 
