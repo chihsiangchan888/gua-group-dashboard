@@ -380,7 +380,7 @@ function jsonResponse(obj) { return ContentService.createTextOutput(JSON.stringi
 function dailyBackup() {
   var ss = SpreadsheetApp.openById(SHEET_ID);
   var today = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd');
-  var sheetsToBackup = ['進行中', '機台狀態', 'AB測試', '議題'];
+  var sheetsToBackup = ['進行中', '機台狀態', 'AB測試', '議題清單', '常用連結', '上線清單'];
   
   sheetsToBackup.forEach(function(name) {
     var src = ss.getSheetByName(name);
