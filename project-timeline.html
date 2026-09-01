@@ -26,9 +26,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .loading::after{content:'';display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.kpi{background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);border-left:4px solid #6366f1}
-.kpi-label{font-size:11px;color:#888;text-transform:uppercase}
-.kpi-val{font-size:26px;font-weight:700;color:#1a1a2e}
+.kpi{background:#fff;border:1px solid #eceef2;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(16,24,40,.05);transition:transform .15s ease,box-shadow .15s ease}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(16,24,40,.09)}
+.kpi-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.kpi-body{display:flex;flex-direction:column;gap:3px;min-width:0}
+.kpi-label{font-size:12px;color:#667085;font-weight:500;white-space:nowrap}
+.kpi-val{font-size:28px;font-weight:700;line-height:1;color:#101828}
 .section{background:#fff;border-radius:10px;padding:20px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
 .section-hdr h2{font-size:16px;color:#1a1a2e;font-weight:600}
@@ -64,13 +67,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .gantt{position:relative}
 .gantt-hdr{display:flex;border-bottom:2px solid #eee}
-.gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:#888}
+.gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:#888;position:sticky;left:0;z-index:16;background:#fff;border-right:1px solid #eceef2}
 .gantt-timeline{display:flex;flex:1}
 .gantt-wk{flex:0 0 60px;text-align:center;padding:4px 2px;font-size:9px;color:#bbb;border-left:1px solid #f0f0f0}
-.gantt-group-label{padding:6px 10px;font-size:12px;font-weight:600;color:#1a1a2e;background:#fafafa;border-bottom:1px solid #eee}
+.gantt-mhdr{display:flex}
+.gantt-mhdr-lbl{width:180px;min-width:180px;position:sticky;left:0;z-index:16;background:#fff;border-right:1px solid #eceef2}
+.gantt-month{text-align:center;font-size:11px;font-weight:600;color:#667085;padding:5px 0;border-left:1px solid #eceef2;background:#f7f8fa}
+.gantt-group-label{padding:6px 10px;font-size:12px;font-weight:600;color:#1a1a2e;background:#fafafa;border-bottom:1px solid #eee;position:sticky;left:0;z-index:12}
 .gantt-row{display:flex;border-bottom:1px solid #f8f8f8;min-height:28px;align-items:center}
 .gantt-row:hover{background:#fafafa}
-.gantt-row-lbl{width:180px;min-width:180px;padding:4px 10px 4px 24px;font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt-row:hover .gantt-row-lbl{background:#fafafa}
+.gantt-row-lbl{width:180px;min-width:180px;padding:4px 10px 4px 24px;font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:sticky;left:0;z-index:12;background:#fff;border-right:1px solid #eceef2}
 .gantt-row-tl{display:flex;flex:1;position:relative;height:28px}
 .gantt-cell{flex:0 0 60px;border-left:1px solid #fafafa}
 .g-plan{position:absolute;top:4px;height:8px;border-radius:4px;opacity:.4}
@@ -118,6 +125,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-status-打磨中{background:#fff3cd;color:#b8860b}
 .ab-status-已定版{background:#d1fae5;color:#047857}
 .footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#bbb}
+.toast-wrap{position:fixed;right:16px;bottom:16px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{background:#1a1a2e;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.22);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;max-width:340px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-ok{border-left:4px solid #22c55e}
+.toast-err{border-left:4px solid #ef4444}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;justify-content:center;align-items:center}
 .modal-bg.active{display:flex}
 .modal{background:#fff;border-radius:12px;padding:24px;width:90%;max-width:480px;box-shadow:0 16px 48px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;overflow-x:visible}
@@ -210,6 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </div>
 <div class="footer">由 呱集團 AI Fleet 自動產生</div>
 <div class="modal-bg" id="modal-bg"><div class="modal" id="modal-content"></div></div>
+<div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
 window.onerror=function(msg,url,line){document.getElementById('error-banner').textContent='JS Error: '+msg+' (line '+line+')';document.getElementById('error-banner').style.display='block';};
@@ -456,13 +469,30 @@ function getLaunchDate(stages){
 }
 
 function renderKPI(){
-  const machines=groupByMachine(rawData);let total=machines.size,done=0,active=0;
-  machines.forEach(stages=>{const s=getMachineStatus(stages);if(s==='done')done++;else if(s==='active')active++});
-  document.getElementById('kpis').innerHTML=`
-    <div class="kpi"><div class="kpi-label">總機台數</div><div class="kpi-val">${total}</div></div>
-    <div class="kpi"><div class="kpi-label">進行中</div><div class="kpi-val">${active}</div></div>
-    <div class="kpi"><div class="kpi-label">已完成</div><div class="kpi-val">${done}</div></div>
-    <div class="kpi"><div class="kpi-label">未開始</div><div class="kpi-val">${total-done-active}</div></div>`;
+  const T=TODAY;
+  const in7=new Date(new Date(T+'T00:00:00').getTime()+7*86400000).toISOString().slice(0,10);
+  const curMonth=T.slice(0,7);
+  let overdue=0,due7=0,launchM=0;
+  rawData.forEach(s=>{
+    if(s.type==='里程碑'&&!s.actualEnd&&s.planEnd){
+      if(s.planEnd<T)overdue++;
+      else if(s.planEnd<=in7)due7++;
+    }
+    if(s.type==='里程碑'&&s.stage==='上線(OKBet)'&&s.planEnd&&s.planEnd.slice(0,7)===curMonth)launchM++;
+  });
+  const blockers=(typeof issuesList!=='undefined'?issuesList:[]).filter(i=>i.status!=='已解決'&&i.severity==='阻塞').length;
+  const svg={
+    alert:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    clock:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+    cal:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>',
+    ban:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>'
+  };
+  const cell=(ic,label,val,accent,bg,urgent)=>`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val"${urgent&&val>0?' style="color:'+accent+'"':''}>${val}</div><div class="kpi-label">${label}</div></div></div>`;
+  document.getElementById('kpis').innerHTML=
+    cell(svg.alert,'逾期里程碑',overdue,'#e5484d','#fdecec',true)+
+    cell(svg.clock,'本週到期',due7,'#d98908','#fdf3e2',false)+
+    cell(svg.cal,'本月上線',launchM,'#5b5bd6','#ecedfb',false)+
+    cell(svg.ban,'阻塞議題',blockers,'#e5484d','#fdecec',true);
 }
 
 function renderTable(){
@@ -528,7 +558,16 @@ function renderGantt(){
   document.getElementById('btn-detail').className='btn btn-sm'+(ganttView==='detail'?' active':'');
   const machines=getFilteredMachines();
   const weeks=getWeeks(),total=weeks.length;
-  let html=`<div class="gantt-hdr"><div class="gantt-lbl">機台${ganttView==='detail'?' / 階段':''}</div><div class="gantt-timeline">`;
+  let mh='<div class="gantt-mhdr"><div class="gantt-mhdr-lbl"></div>';
+  let wi=0;
+  while(wi<weeks.length){
+    const ym=weeks[wi].getFullYear()+'-'+weeks[wi].getMonth();
+    let cnt=0; while(wi+cnt<weeks.length && (weeks[wi+cnt].getFullYear()+'-'+weeks[wi+cnt].getMonth())===ym) cnt++;
+    mh+=`<div class="gantt-month" style="flex:0 0 ${cnt*60}px;width:${cnt*60}px">${weeks[wi].getFullYear()}/${String(weeks[wi].getMonth()+1).padStart(2,'0')}</div>`;
+    wi+=cnt;
+  }
+  mh+='</div>';
+  let html=mh+`<div class="gantt-hdr"><div class="gantt-lbl">機台${ganttView==='detail'?' / 階段':''}</div><div class="gantt-timeline">`;
   weeks.forEach(w=>{html+=`<div class="gantt-wk">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div></div>`;
 
@@ -558,7 +597,7 @@ function renderGanttMilestone(machines,weeks,total){
       if(!dt)return;
       const pos=datePos(weeks,dt)*100;
       const st=stageStatus(s);
-      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div><span class="ms-label" style="position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:10px;color:#333;white-space:nowrap;font-weight:500">${esc(s.stage)}<br>${fmtDate(dt)}</span></div>`;
+      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
     });
     html+=`</div></div>`;
   });
@@ -614,17 +653,25 @@ function datePos(weeks,dateStr){
 }
 
 // === API ===
+function toast(msg,type){
+  const wrap=document.getElementById('toast-wrap');if(!wrap)return;
+  const t=document.createElement('div');t.className='toast toast-'+(type||'ok');t.textContent=msg;
+  wrap.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)}, type==='err'?5500:2200);
+}
+let _okToastT;
+function okToast(){clearTimeout(_okToastT);_okToastT=setTimeout(()=>toast('✓ 已儲存','ok'),400)}
 async function apiPost(body){
   try{
     const params=encodeURIComponent(JSON.stringify(body));
     const r=await fetch(CONFIG.APPS_SCRIPT_URL+'?payload='+params,{redirect:'follow'});
     const j=await r.json();
     if(j&&j.success===false){
-      alert('⚠ 儲存失敗，資料未寫入 Google Sheet。\n後端回應：'+(j.error||'未知錯誤')+'\n（動作「'+(body.action||'')+'」）\n\n最可能原因：Apps Script 後端尚未部署最新版。');
-    }
+      toast('⚠ 儲存失敗：'+(j.error||'未知錯誤')+'（'+(body.action||'')+'）— 後端可能尚未部署最新版','err');
+    }else if(j&&j.success===true){ okToast(); }
     return j;
   }
-  catch(e){alert('⚠ 操作失敗（連線錯誤）：'+e.message);return{success:false}}
+  catch(e){toast('⚠ 操作失敗（連線錯誤）：'+(e.message||e),'err');return{success:false}}
 }
 
 // === Modals ===
