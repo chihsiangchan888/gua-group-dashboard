@@ -18,11 +18,11 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8f9fa;color:#333;padding:24px;line-height:1.5}
 .header{text-align:center;margin-bottom:28px;position:relative}
 .header h1{font-size:24px;color:#1a1a2e;font-weight:700}
-.header p{font-size:12px;color:#999;margin-top:4px}
+.header p{font-size:12px;color:#4a5160;margin-top:4px}
 .btn-gear{position:absolute;top:0;right:0;background:none;border:1px solid #ddd;border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer;color:#666}
 .btn-gear:hover{background:#f3f0ff;border-color:#6366f1;color:#6366f1}
 .error-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:16px;color:#dc2626;font-size:13px;display:none}
-.loading{text-align:center;padding:40px;color:#888}
+.loading{text-align:center;padding:40px;color:#4a5160}
 .loading::after{content:'';display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
@@ -40,36 +40,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .toolbar input{width:160px}
 .btn{padding:7px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer}
 .btn:hover{opacity:.85}
-.btn-primary{background:#6366f1;color:#fff}
+.btn-primary{background:#4f46e5;color:#fff}
 .btn-sm{padding:3px 8px;font-size:11px}
 .btn-edit{background:#e0f2fe;color:#0369a1}
-.btn-delete{background:#fee2e2;color:#dc2626}
+.btn-delete{background:#fde5e4;color:#b3211f}
 .btn-add-stage{background:#d1fae5;color:#047857}
 .machine-group{border:1px solid #eee;border-radius:8px;margin-bottom:12px;overflow:hidden}
 .machine-header{display:grid;grid-template-columns:14px minmax(90px,1fr) 46px 64px 100px 118px 132px 76px 208px;align-items:center;gap:10px;padding:12px 16px;background:#fafafa;cursor:pointer;user-select:none}
 .machine-header:hover{background:#f3f0ff}
 .machine-name{font-weight:600;font-size:14px;color:#1a1a2e}
-.machine-meta{font-size:12px;color:#888;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.machine-meta{font-size:12px;color:#4a5160;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .machine-actions{display:flex;gap:6px}
 .progress-bar{width:80px;height:6px;background:#eee;border-radius:3px;overflow:hidden}
 .progress-fill{height:100%;border-radius:3px}
 .stage-table{width:100%;border-collapse:collapse;display:none}
 .stage-table.open{display:table}
-.stage-table th{text-align:left;padding:8px 12px;border-bottom:1px solid #eee;color:#888;font-size:11px;text-transform:uppercase}
+.stage-table th{text-align:left;padding:8px 12px;border-bottom:1px solid #eee;color:#4a5160;font-size:11px;text-transform:uppercase}
 .stage-table td{padding:8px 12px;border-bottom:1px solid #f5f5f5;font-size:13px}
 .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
 .badge-green{background:#d1fae5;color:#047857}
-.badge-yellow{background:#fff3cd;color:#b8860b}
-.badge-red{background:#fee2e2;color:#dc2626}
-.priority-高{background:#fee2e2;color:#dc2626}
-.priority-中{background:#fff3cd;color:#b8860b}
-.priority-低{background:#f1f1f1;color:#888}
+.badge-yellow{background:#fbefd6;color:#754d00}
+.badge-red{background:#fde5e4;color:#b3211f}
+.priority-高{background:#fde5e4;color:#b3211f}
+.priority-中{background:#fbefd6;color:#754d00}
+.priority-低{background:#f1f1f1;color:#4a5160}
 .gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .gantt{position:relative}
 .gantt-hdr{display:flex;border-bottom:2px solid #eee}
-.gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:#888;position:sticky;left:0;z-index:16;background:#fff;border-right:1px solid #eceef2}
+.gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:#4a5160;position:sticky;left:0;z-index:16;background:#fff;border-right:1px solid #eceef2}
 .gantt-timeline{display:flex;flex:1}
-.gantt-wk{flex:0 0 60px;text-align:center;padding:4px 2px;font-size:9px;color:#bbb;border-left:1px solid #f0f0f0}
+.gantt-wk{flex:0 0 60px;text-align:center;padding:4px 2px;font-size:9px;color:#68707f;border-left:1px solid #f0f0f0}
 .gantt-mhdr{display:flex}
 .gantt-mhdr-lbl{width:180px;min-width:180px;position:sticky;left:0;z-index:16;background:#fff;border-right:1px solid #eceef2}
 .gantt-month{text-align:center;font-size:11px;font-weight:600;color:#667085;padding:5px 0;border-left:1px solid #eceef2;background:#f7f8fa}
@@ -84,10 +84,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .g-actual{position:absolute;top:14px;height:10px;border-radius:4px}
 .g-milestone{position:absolute;top:6px;width:12px;height:12px;transform:rotate(45deg);border:2px solid}
 .today-line{position:absolute;top:0;bottom:0;width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none}
-.today-label{position:absolute;top:-16px;font-size:9px;color:#ef4444;transform:translateX(-50%);white-space:nowrap}
+.today-label{position:absolute;top:-16px;font-size:9px;color:#b3211f;background:#fff;padding:0 3px;border-radius:3px;transform:translateX(-50%);white-space:nowrap}
 .gantt-toggle{display:flex;gap:4px}
 .gantt-toggle .btn-sm{background:#f1f1f1;color:#666}
-.gantt-toggle .btn-sm.active{background:#6366f1;color:#fff}
+.gantt-toggle .btn-sm.active{background:#4f46e5;color:#fff}
 .g-bar{position:absolute;top:8px;height:12px;border-radius:6px;opacity:.25}
 .g-dot{position:absolute;top:6px;width:14px;height:14px;border-radius:50%;border:2px solid #fff;cursor:pointer;transform:translateX(-7px);z-index:5}
 .g-dot-green{background:#22c55e}.g-dot-yellow{background:#eab308}.g-dot-red{background:#ef4444}
@@ -102,10 +102,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .legend-today{width:16px;height:2px;background:#ef4444}
 .tab-nav{display:flex;gap:4px;justify-content:center;margin-bottom:20px}
 .tab-btn{padding:10px 24px;border:1px solid #ddd;border-radius:8px 8px 0 0;background:#f8f9fa;font-size:14px;font-weight:600;cursor:pointer;color:#666;border-bottom:none;transition:all .2s}
-.tab-btn.active{background:#fff;color:#6366f1;border-color:#6366f1;border-bottom:2px solid #fff;margin-bottom:-1px}
+.tab-btn.active{background:#fff;color:#4f46e5;border-color:#4f46e5;border-bottom:2px solid #fff;margin-bottom:-1px}
 .tab-content{display:none}.tab-content.active{display:block}
 .ab-table{width:100%;border-collapse:collapse;font-size:13px}
-.ab-table th{text-align:left;padding:8px 10px;border-bottom:2px solid #eee;color:#888;font-size:11px;text-transform:uppercase}
+.ab-table th{text-align:left;padding:8px 10px;border-bottom:2px solid #eee;color:#4a5160;font-size:11px;text-transform:uppercase}
 .ab-table td{padding:8px 10px;border-bottom:1px solid #f5f5f5}
 .ab-table tr:hover{background:#fafafa}
 .ab-winner{background:#d1fae5;color:#047857;font-weight:700;border-radius:4px;padding:2px 6px}
@@ -122,9 +122,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-dot:hover .ab-dot-tip{opacity:1}
 .ab-connect{position:absolute;top:14px;height:2px;background:#ddd;z-index:1}
 .ab-status-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600}
-.ab-status-打磨中{background:#fff3cd;color:#b8860b}
+.ab-status-打磨中{background:#fbefd6;color:#754d00}
 .ab-status-已定版{background:#d1fae5;color:#047857}
-.footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#bbb}
+.footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#68707f}
 .toast-wrap{position:fixed;right:16px;bottom:16px;z-index:2000;display:flex;flex-direction:column;gap:8px}
 .toast{background:#1a1a2e;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.22);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;max-width:340px}
 .toast.show{opacity:1;transform:translateY(0)}
@@ -289,6 +289,27 @@ function normDate(s){
 }
 function fmtDate(s){if(!s)return '—';var m=s.match(/(\d{4})-(\d{2})-(\d{2})/);return m?m[2]+'/'+m[3]:'—'}
 function esc(s){return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+/* ---- P1-1: WCAG-safe badge colours. Keep the stage hue; force text dark (OKLCH L~.45) and background pale (L~.955). ---- */
+function _hexRgb(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');if(!/^[0-9a-f]{6}$/i.test(h))h='9ca3af';return [0,2,4].map(i=>parseInt(h.substr(i,2),16)/255)}
+function _lin(c){return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)}
+function _gam(c){c=Math.min(1,Math.max(0,c));return c<=.0031308?12.92*c:1.055*Math.pow(c,1/2.4)-.055}
+function _lum(rgb){const [r,g,b]=rgb.map(_lin);return .2126*r+.7152*g+.0722*b}
+function _ratio(a,b){const A=_lum(a),B=_lum(b);return (Math.max(A,B)+.05)/(Math.min(A,B)+.05)}
+function _toOklch(rgb){const [r,g,b]=rgb.map(_lin);const l=Math.cbrt(.4122214708*r+.5363325363*g+.0514459929*b),m=Math.cbrt(.2119034982*r+.6806995451*g+.1073969566*b),s=Math.cbrt(.0883024619*r+.2817188376*g+.6299787005*b);const L=.2104542553*l+.793617785*m-.0040720468*s,a=1.9779984951*l-2.428592205*m+.4505937099*s,bb=.0259040371*l+.7827717662*m-.808675766*s;return {L:L,C:Math.hypot(a,bb),h:Math.atan2(bb,a)}}
+function _fromOklch(L,C,h){const a=C*Math.cos(h),b=C*Math.sin(h);let l=L+.3963377774*a+.2158037573*b,m=L-.1055613458*a-.0638541728*b,s=L-.0894841775*a-1.291485548*b;l=l*l*l;m=m*m*m;s=s*s*s;return [4.0767416621*l-3.3077115913*m+.2309699292*s,-1.2684380046*l+2.6097574011*m-.3413193965*s,-.0041960863*l-.7034186147*m+1.707614701*s].map(_gam)}
+function _css(rgb){return 'rgb('+rgb.map(v=>Math.round(v*255)).join(',')+')'}
+const _badgeCache={};
+function badgeColors(hex){
+  if(_badgeCache[hex])return _badgeCache[hex];
+  const o=_toOklch(_hexRgb(hex));
+  const bg=_fromOklch(.955,Math.min(o.C*.5,.035),o.h);
+  let L=.45,fg=_fromOklch(L,Math.min(o.C,.13),o.h);
+  while(_ratio(fg,bg)<4.5&&L>.2){L-=.02;fg=_fromOklch(L,Math.min(o.C,.13),o.h)}
+  return _badgeCache[hex]={bg:_css(bg),fg:_css(fg)};
+}
+function badgeStyle(hex){const c=badgeColors(hex);return 'background:'+c.bg+';color:'+c.fg}
+function dotBg(hex){const rgb=_hexRgb(hex);if(_ratio([1,1,1],rgb)>=4.5)return hex;const o=_toOklch(rgb);let L=Math.min(o.L,.5),c=_fromOklch(L,o.C,o.h);while(_ratio([1,1,1],c)<4.5&&L>.2){L-=.02;c=_fromOklch(L,o.C,o.h)}return _css(c)}
 function diffDays(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)}
 function stageStatus(s){
   if(s.actualEnd)return 'green';
@@ -351,7 +372,7 @@ function openMachStatus(name){
   openModal(`<h3>更新機台狀態 — ${esc(name)}</h3>
     <div class="fg"><label>目前狀態（自由描述，例：開發中—金框動畫）</label><input id="mst-status" value="${esc(info.status||'')}" placeholder="這台現在到哪了？"></div>
     <div class="fg"><label>進度 %</label><input type="number" id="mst-prog" min="0" max="100" value="${prog}"></div>
-    <p style="font-size:11px;color:#999;margin-top:-4px">儲存後「最後更新日」自動設為今天。進度留空則沿用階段自動計算（目前 ${computed}%）。</p>
+    <p style="font-size:11px;color:#4a5160;margin-top:-4px">儲存後「最後更新日」自動設為今天。進度留空則沿用階段自動計算（目前 ${computed}%）。</p>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitMachStatus('${esc(name)}')">儲存</button></div>`);
 }
 async function submitMachStatus(name){
@@ -511,7 +532,7 @@ function renderTable(){
     const prog=(info&&info.progress!=null&&info.progress!=='')?Number(info.progress):pct;
     const progColor=prog>=100?'#22c55e':'#6366f1';
     const statusText=launched?'✓ 已上線':((info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始')));
-    const statusStyle=launched?'background:#d1fae5;color:#047857':'background:#f3f0ff;color:#6366f1';
+    const statusStyle=launched?'background:#d1fae5;color:#047857':badgeStyle('#6366f1');
     const health=machHealth(stages);
     const hColor=health==='red'?'#ef4444':health==='yellow'?'#eab308':'#22c55e';
     const nm=nextMilestone(stages);
@@ -523,11 +544,11 @@ function renderTable(){
         <span title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
         <span class="machine-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
         <span class="badge priority-${priority}" style="cursor:pointer;transition:transform .15s;justify-self:start" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</span>
-        <span class="machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${owner?'color:#666':'color:#bbb;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人">${owner?esc(owner):'未指派'}</span>
+        <span class="machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${owner?'color:#666':'color:#68707f;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人">${owner?esc(owner):'未指派'}</span>
         <span class="badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度">${esc(statusText)}</span>
         ${nm?`<span class="badge badge-${nm.st}" style="justify-self:start;white-space:nowrap" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
-        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888"><span style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')">${prog}%</span><div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
-        <span style="font-size:10px;text-align:right;color:${upd?(stale?'#f97316':'#bbb'):'#ccc'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5160"><span style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')">${prog}%</span><div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
+        <span style="font-size:10px;text-align:right;color:${upd?(stale?'#9a6206':'#68707f'):'#68707f'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
         ${canEdit()?`<div class="machine-actions" style="justify-self:start">
           <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
           <button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+階段</button>
@@ -539,14 +560,14 @@ function renderTable(){
         <thead><tr>${canEdit()?'<th></th>':''}<th>階段</th><th>狀態</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
         <tbody>${stages.map(s=>{const st=stageStatus(s);const done=!!s.actualEnd;return`<tr style="${done?'opacity:.55':''}">
           ${canEdit()?`<td><input type="checkbox" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>`:''} 
-          <td>${s.type==='里程碑'?'📌 ':''}<span class="badge" style="background:${STAGE_COLORS[s.stage]||'#ddd'}22;color:${STAGE_COLORS[s.stage]||'#666'}">${esc(s.stage)}</span></td>
+          <td>${s.type==='里程碑'?'📌 ':''}<span class="badge" style="${badgeStyle(STAGE_COLORS[s.stage]||'#9ca3af')}">${esc(s.stage)}</span></td>
           <td><span class="badge badge-${st}">${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</span></td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
           <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${esc(s.note)}</td>
           ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`}).join('')}</tbody>
       </table></div>`;
   });
-  document.getElementById('table-area').innerHTML=html||'<p style="color:#888;text-align:center;padding:20px">無符合條件的機台</p>';
+  document.getElementById('table-area').innerHTML=html||'<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的機台</p>';
 }
 
 // === Gantt ===
@@ -774,7 +795,7 @@ function renderIssues(){
     return true;
   });
   entries.sort((a,b)=>{const ao=a.it.status==='已解決'?1:0,bo=b.it.status==='已解決'?1:0;if(ao!==bo)return ao-bo;return (sevRank[a.it.severity]==null?1:sevRank[a.it.severity])-(sevRank[b.it.severity]==null?1:sevRank[b.it.severity])});
-  if(entries.length===0){area.innerHTML='<p style="color:#aaa;text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
+  if(entries.length===0){area.innerHTML='<p style="color:#68707f;text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
   area.innerHTML=entries.map(e=>{
     const i=e.it,c=issSevColor(i.severity);
     const logN=(i.log&&i.log.length)?i.log.length:0;
@@ -782,9 +803,9 @@ function renderIssues(){
       <span style="width:9px;height:9px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0" title="${esc(i.severity)}"></span>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:500;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</div>
-        <div style="font-size:11px;color:#888;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${i.updated?' · '+fmtDate(i.updated):''}</div>
+        <div style="font-size:11px;color:#4a5160;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${i.updated?' · '+fmtDate(i.updated):''}</div>
       </div>
-      <span style="font-size:11px;color:${issStColor(i.status)};flex-shrink:0;white-space:nowrap">${esc(i.status)}</span>
+      <span class="badge" style="${badgeStyle(issStColor(i.status))};flex-shrink:0;white-space:nowrap;font-size:10px;padding:2px 7px">${esc(i.status)}</span>
     </div>`;
   }).join('');
 }
@@ -811,7 +832,7 @@ function openIssueDetail(idx){
   const sevOpts=['阻塞','一般','低'].map(o=>`<option${o===i.severity?' selected':''}>${o}</option>`).join('');
   const stOpts=['待處理','處理中','已解決'].map(o=>`<option${o===i.status?' selected':''}>${o}</option>`).join('');
   const log=(i.log||[]);
-  const logHtml=log.length?log.map(e=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed #eee;font-size:12px"><span style="color:#999;flex-shrink:0;width:44px">${fmtDate(e.date)}</span><span style="color:#333">${esc(e.text)}</span></div>`).join(''):'<p style="font-size:12px;color:#bbb;padding:4px 0">尚無處理紀錄</p>';
+  const logHtml=log.length?log.map(e=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed #eee;font-size:12px"><span style="color:#4a5160;flex-shrink:0;width:44px">${fmtDate(e.date)}</span><span style="color:#333">${esc(e.text)}</span></div>`).join(''):'<p style="font-size:12px;color:#bbb;padding:4px 0">尚無處理紀錄</p>';
   openModal(`<h3 style="display:flex;align-items:center;gap:8px"><span style="width:11px;height:11px;border-radius:50%;background:${issSevColor(i.severity)}"></span>議題詳情</h3>
     <div class="fg"><label>標題</label><input id="id-title" value="${esc(i.title)}"></div>
     <div class="fg" style="display:flex;gap:8px">
@@ -825,7 +846,7 @@ function openIssueDetail(idx){
     <div style="display:flex;gap:6px;margin-top:6px">
       <input id="id-newlog" placeholder="新增一筆進度（存檔後記今天）" style="flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
     </div>
-    <p style="font-size:11px;color:#bbb;margin-top:6px">建立 ${fmtDate(i.created)}${i.updated?'　·　更新 '+fmtDate(i.updated):''}</p>
+    <p style="font-size:11px;color:#68707f;margin-top:6px">建立 ${fmtDate(i.created)}${i.updated?'　·　更新 '+fmtDate(i.updated):''}</p>
     <div class="modal-btns"><button class="btn btn-delete btn-sm" style="margin-right:auto" onclick="delIssue(${idx})">刪除</button><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitIssueDetail(${idx})">儲存</button></div>`);
 }
 async function submitIssueDetail(idx){
@@ -850,18 +871,18 @@ async function delIssue(idx){
 // === 常用連結 ===
 function renderLinks(){
   const area=document.getElementById('links-area');if(!area)return;
-  if(!linksList.length){area.innerHTML='<span style="color:#bbb;font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>';return}
+  if(!linksList.length){area.innerHTML='<span style="color:#68707f;font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>';return}
   area.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px">'+linksList.map(l=>{
     let url=(l.url||'').trim();if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
     return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;gap:2px;text-decoration:none;background:#f7f7fb;border:1px solid #eee;border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px">
-      <span style="font-size:13px;font-weight:600;color:#6366f1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ${esc(l.name||l.url||'連結')}</span>
-      ${l.desc?`<span style="font-size:11px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.desc)}</span>`:''}
+      <span style="font-size:13px;font-weight:600;color:#4f46e5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ${esc(l.name||l.url||'連結')}</span>
+      ${l.desc?`<span style="font-size:11px;color:#4a5160;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.desc)}</span>`:''}
     </a>`;
   }).join('')+'</div>';
 }
 function openLinksEdit(){
   openModal(`<h3>編輯常用連結</h3>
-    <p style="font-size:11px;color:#999;margin-bottom:8px">名稱｜網址｜說明。網址可省略 https://。</p>
+    <p style="font-size:11px;color:#4a5160;margin-bottom:8px">名稱｜網址｜說明。網址可省略 https://。</p>
     <div id="links-list">${linksList.map(linkRow).join('')}</div>
     <button type="button" class="btn btn-sm btn-add-stage" onclick="addLinkRow()" style="margin-top:4px">＋ 新增連結</button>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitLinks()">儲存</button></div>`);
@@ -1106,7 +1127,7 @@ function renderABKPI(){
 
 function renderABTable(){
   const games=getFilteredAB();
-  if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:#888;text-align:center;padding:20px">無符合條件的遊戲</p>';return}
+  if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的遊戲</p>';return}
   const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
   let html=`<table class="ab-table"><thead><tr><th>遊戲名稱</th><th>Tag</th><th>市場</th><th>上線日</th><th>狀態</th><th>版本</th><th>連結</th>${canEdit()?'<th>操作</th>':''}</tr></thead><tbody>`;
   games.forEach((g,gi)=>{
@@ -1114,12 +1135,12 @@ function renderABTable(){
       <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>`;
     g.versions.forEach((v,vi)=>{
       const running=!!v.running;
-      const style=running?'background:#fff3cd;color:#b8860b;border:1px solid #eab308':'background:#fff;color:#555;border:1px solid #ddd';
+      const style=running?'background:#fbefd6;color:#754d00;border:1px solid #eab308':'background:#fff;color:#555;border:1px solid #ddd';
       const tip=v.label+'版 '+fmtDate(v.date)+(running?' ·測試中':'')+(v.winner?' 🏆':'');
       html+=`<span class="ab-version${v.winner?' winner':''}" style="${style}" title="${esc(tip)}">${v.label} ${fmtDate(v.date)}${v.winner?' 🏆':''}</span>`;
     });
     html+=`</td>`;
-    html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:#6366f1;text-decoration:none;font-size:14px">&#128279; 詳情</a>`:''}</td>`;
+    html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:#4f46e5;text-decoration:none;font-size:14px">&#128279; 詳情</a>`:''}</td>`;
     if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" onclick="openAddABVersion(${gi})">+版本</button> <button class="btn btn-sm btn-edit" onclick="openEditABGame(${gi})">✎</button> <button class="btn btn-sm btn-delete" onclick="delABGame(${gi})">✕</button></td>`;
     html+=`</tr>`;
   });
@@ -1144,8 +1165,8 @@ function renderABTimeline(){
   const weeks=[];let wk=new Date(startMs);wk.setDate(wk.getDate()-((wk.getDay()+6)%7));
   while(wk.getTime()<=endMs){weeks.push(new Date(wk));wk=new Date(wk.getTime()+7*86400000)}
 
-  let html=`<div style="display:flex;border-bottom:2px solid #eee"><div style="width:160px;min-width:160px;padding:6px 10px;font-size:11px;color:#888">遊戲</div><div style="display:flex;flex:1">`;
-  weeks.forEach(w=>{html+=`<div style="flex:1;text-align:center;padding:4px 2px;font-size:9px;color:#bbb;border-left:1px solid #f0f0f0">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
+  let html=`<div style="display:flex;border-bottom:2px solid #eee"><div style="width:160px;min-width:160px;padding:6px 10px;font-size:11px;color:#4a5160">遊戲</div><div style="display:flex;flex:1">`;
+  weeks.forEach(w=>{html+=`<div style="flex:1;text-align:center;padding:4px 2px;font-size:9px;color:#68707f;border-left:1px solid #f0f0f0">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div></div>`;
 
   games.forEach(g=>{
@@ -1158,14 +1179,14 @@ function renderABTimeline(){
       if(!v.date)return;
       const p=pos(v.date);
       const c=colors[vi%colors.length];
-      html+=`<div class="ab-dot${v.winner?' winner':''}" style="left:${p}%;background:${c}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}</div>${v.label}</div>`;
+      html+=`<div class="ab-dot${v.winner?' winner':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}</div>${v.label}</div>`;
     });
     html+=`</div></div>`;
   });
 
   // Today line
   const todayPos=pos(TODAY);
-  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(160px + (100% - 160px)*${todayPos}/100);width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none"><div style="position:absolute;top:-16px;font-size:9px;color:#ef4444;transform:translateX(-50%);white-space:nowrap">Today</div></div>`}
+  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(160px + (100% - 160px)*${todayPos}/100);width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none"><div class="today-label">Today</div></div>`}
   document.getElementById('ab-timeline').innerHTML=`<div style="position:relative">${html}</div>`;
 }
 
@@ -1218,8 +1239,8 @@ function openEditABGame(gi){
     <div class="fg"><label>外部連結</label><input id="abe-link" value="${esc(g.link||'')}" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>狀態</label><select id="abe-status"><option${g.status==='打磨中'?' selected':''}>打磨中</option><option${g.status==='已定版'?' selected':''}>已定版</option></select></div>
     <h4 style="font-size:13px;color:#666;margin:12px 0 4px">版本列表</h4>
-    <p style="font-size:11px;color:#999;margin-bottom:8px">🏆 = 勝出版本（單選，可取消）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
-    <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#888;font-weight:600;padding:0 2px 4px">
+    <p style="font-size:11px;color:#4a5160;margin-bottom:8px">🏆 = 勝出版本（單選，可取消）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
+    <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#4a5160;font-weight:600;padding:0 2px 4px">
       <span style="width:36px;flex-shrink:0;text-align:center">版本</span>
       <span style="flex:1;min-width:0">日期</span>
       <span style="width:34px;flex-shrink:0;text-align:center">🏆</span>
