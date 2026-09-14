@@ -38,6 +38,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
 .toolbar select,.toolbar input{padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#fff}
 .toolbar input{width:160px}
+.as-btn{appearance:none;background:none;border:0;padding:0;margin:0;font:inherit;line-height:inherit;color:inherit;text-align:left;cursor:pointer}
 .btn{padding:7px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer}
 .btn:hover{opacity:.85}
 .btn-primary{background:#4f46e5;color:#fff}
@@ -45,7 +46,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .btn-edit{background:#e0f2fe;color:#0369a1}
 .btn-delete{background:#fde5e4;color:#b3211f}
 .btn-add-stage{background:#d1fae5;color:#047857}
-.machine-group{border:1px solid #eee;border-radius:8px;margin-bottom:12px;overflow:hidden}
+.machine-group{border:1px solid #eee;border-radius:8px;margin-bottom:12px;overflow:clip}
 .machine-header{display:grid;grid-template-columns:14px minmax(90px,1fr) 46px 64px 100px 118px 132px 76px 208px;align-items:center;gap:10px;padding:12px 16px;background:#fafafa;cursor:pointer;user-select:none}
 .machine-header:hover{background:#f3f0ff}
 .machine-name{font-weight:600;font-size:14px;color:#1a1a2e}
@@ -138,13 +139,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .fg label{display:block;font-size:12px;color:#666;margin-bottom:3px}
 .fg input,.fg select,.fg textarea{width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px}
 .fg textarea{height:50px;resize:vertical}
-.fg input:focus,.fg select:focus{outline:none;border-color:#6366f1}
+.fg input:focus,.fg select:focus{border-color:#4f46e5}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 .btn-cancel{background:#f1f1f1;color:#666}
 .settings-list{list-style:none;max-height:280px;overflow-y:auto}
 .settings-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0}
 .settings-item input[type=text]{flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:13px}
 .settings-item input[type=color]{width:32px;height:28px;border:none;cursor:pointer;border-radius:4px}
+:where(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid #4f46e5;outline-offset:2px}
+.machine-header:focus-within{background:#f3f0ff}
 @media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
 @media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px}.kpi-ico{width:36px;height:36px;font-size:18px;border-radius:10px}.kpi-label{font-size:11px}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{flex:0 0 40px;font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(7),.ab-table td:nth-child(7){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
 </style>
@@ -172,16 +175,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="section" style="flex:2 1 620px;min-width:0;margin-top:0">
       <div class="section-hdr"><h2>機台追蹤</h2><button class="btn btn-primary edit-only" onclick="openAddMachine()" style="display:none">+ 新增機台</button></div>
       <div class="toolbar">
-        <select id="filter-status"><option value="active">進行中</option><option value="done">已完成</option><option value="all">全部</option></select>
-        <select id="filter-owner"><option value="">全部負責人</option></select>
-        <input type="text" id="filter-search" placeholder="搜尋機台名稱...">
+        <select id="filter-status" aria-label="篩選機台狀態"><option value="active">進行中</option><option value="done">已完成</option><option value="all">全部</option></select>
+        <select id="filter-owner" aria-label="篩選負責人"><option value="">全部負責人</option></select>
+        <input type="text" id="filter-search" placeholder="搜尋機台名稱..." aria-label="搜尋機台名稱">
       </div>
       <div id="table-area" style="overflow-x:auto"></div>
     </div>
     <div class="section" style="flex:1 1 300px;min-width:0;margin-top:0">
       <div class="section-hdr"><h2>議題追蹤</h2><button class="btn btn-primary edit-only" onclick="openIssueNew()" style="display:none">+ 新增議題</button></div>
       <div class="toolbar">
-        <select id="issue-filter"><option value="open">未解決</option><option value="blocker">只看阻塞</option><option value="all">全部</option></select>
+        <select id="issue-filter" aria-label="篩選議題狀態"><option value="open">未解決</option><option value="blocker">只看阻塞</option><option value="all">全部</option></select>
       </div>
       <div id="issue-area"></div>
     </div>
@@ -203,9 +206,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div class="section">
     <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" onclick="openAddABGame()" style="display:none">+ 新增遊戲</button></div>
     <div class="toolbar">
-      <select id="ab-filter-status"><option value="all">全部</option><option value="打磨中">打磨中</option><option value="已定版">已定版</option></select>
-      <select id="ab-filter-month"><option value="">全部上線月份</option></select>
-      <input type="text" id="ab-filter-search" placeholder="搜尋遊戲名稱...">
+      <select id="ab-filter-status" aria-label="篩選 AB 測試狀態"><option value="all">全部</option><option value="打磨中">打磨中</option><option value="已定版">已定版</option></select>
+      <select id="ab-filter-month" aria-label="篩選上線月份"><option value="">全部上線月份</option></select>
+      <input type="text" id="ab-filter-search" placeholder="搜尋遊戲名稱..." aria-label="搜尋遊戲名稱">
     </div>
     <div id="ab-table-area" style="overflow-x:auto;-webkit-overflow-scrolling:touch"></div>
   </div>
@@ -540,14 +543,14 @@ function renderTable(){
     const stale=upd?diffDays(upd,TODAY)>14:false;
     const nmTxt=nm?(nm.daysLeft<0?'逾期'+(-nm.daysLeft)+'天':nm.daysLeft===0?'今天':'剩'+nm.daysLeft+'天'):'';
     html+=`<div class="machine-group">
-      <div class="machine-header" onclick="document.getElementById('${id}').classList.toggle('open')">
-        <span title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
-        <span class="machine-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
-        <span class="badge priority-${priority}" style="cursor:pointer;transition:transform .15s;justify-self:start" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</span>
-        <span class="machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${owner?'color:#666':'color:#68707f;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人">${owner?esc(owner):'未指派'}</span>
-        <span class="badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度">${esc(statusText)}</span>
+      <div class="machine-header" data-toggle="${id}">
+        <span role="img" aria-label="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
+        <button type="button" class="as-btn machine-name" aria-expanded="false" aria-controls="${id}" onclick="toggleMachine('${id}')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</button>
+        <button type="button" class="as-btn badge priority-${priority}" aria-label="優先級 ${priority}，點擊切換" style="cursor:pointer;transition:transform .15s;justify-self:start" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</button>
+        <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:#666':'color:#68707f;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人" aria-label="負責人：${owner?esc(owner):'未指派'}，點擊設定">${owner?esc(owner):'未指派'}</button>
+        <button type="button" class="as-btn badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度" aria-label="目前狀態：${esc(statusText)}，點擊更新">${esc(statusText)}</button>
         ${nm?`<span class="badge badge-${nm.st}" style="justify-self:start;white-space:nowrap" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
-        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5160"><span style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')">${prog}%</span><div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5160"><button type="button" class="as-btn" style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" aria-label="進度 ${prog}%，點擊更新">${prog}%</button><div class="progress-bar" role="progressbar" aria-valuenow="${prog}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(name)} 進度" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
         <span style="font-size:10px;text-align:right;color:${upd?(stale?'#9a6206':'#68707f'):'#68707f'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
         ${canEdit()?`<div class="machine-actions" style="justify-self:start">
           <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
@@ -557,9 +560,9 @@ function renderTable(){
         </div>`:'<span></span>'}
       </div>
       <table class="stage-table" id="${id}">
-        <thead><tr>${canEdit()?'<th></th>':''}<th>階段</th><th>狀態</th><th>計畫開始</th><th>計畫結束</th><th>實際開始</th><th>實際結束</th><th>備註</th>${canEdit()?'<th>操作</th>':''}</tr></thead>
+        <thead><tr>${canEdit()?'<th scope="col"></th>':''}<th scope="col">階段</th><th scope="col">狀態</th><th scope="col">計畫開始</th><th scope="col">計畫結束</th><th scope="col">實際開始</th><th scope="col">實際結束</th><th scope="col">備註</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead>
         <tbody>${stages.map(s=>{const st=stageStatus(s);const done=!!s.actualEnd;return`<tr style="${done?'opacity:.55':''}">
-          ${canEdit()?`<td><input type="checkbox" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>`:''} 
+          ${canEdit()?`<td><input type="checkbox" aria-label="標記「${esc(s.stage)}」完成" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>`:''} 
           <td>${s.type==='里程碑'?'📌 ':''}<span class="badge" style="${badgeStyle(STAGE_COLORS[s.stage]||'#9ca3af')}">${esc(s.stage)}</span></td>
           <td><span class="badge badge-${st}">${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</span></td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
@@ -696,7 +699,14 @@ async function apiPost(body){
 }
 
 // === Modals ===
-function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-bg').classList.add('active')}
+
+/* ---- P1-3: a11y helpers ---- */
+function toggleMachine(id){const p=document.getElementById(id);if(!p)return;const open=p.classList.toggle('open');const b=document.querySelector('.machine-header [aria-controls="'+id+'"]');if(b)b.setAttribute('aria-expanded',open?'true':'false')}
+let _fgSeq=0;
+function a11yLabels(root){if(!root)return;root.querySelectorAll('.fg').forEach(fg=>{const lab=fg.querySelector(':scope>label');const ctl=fg.querySelector('input,select,textarea');if(!lab||!ctl||lab.htmlFor)return;if(!ctl.id)ctl.id='fg-auto-'+(++_fgSeq);lab.htmlFor=ctl.id})}
+function _a11yInit(){const ta=document.getElementById('table-area');if(!ta)return;ta.addEventListener('click',e=>{const h=e.target.closest('.machine-header');if(!h||!h.dataset.toggle)return;if(e.target.closest('button,a,input,select,label,textarea'))return;toggleMachine(h.dataset.toggle)})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_a11yInit);else _a11yInit();
+function openModal(html){document.getElementById('modal-content').innerHTML=html;a11yLabels(document.getElementById('modal-content'));document.getElementById('modal-bg').classList.add('active')}
 function closeModal(){document.getElementById('modal-bg').classList.remove('active')}
 
 function openAddMachine(){
@@ -799,14 +809,14 @@ function renderIssues(){
   area.innerHTML=entries.map(e=>{
     const i=e.it,c=issSevColor(i.severity);
     const logN=(i.log&&i.log.length)?i.log.length:0;
-    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid #f2f2f2;cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" onclick="openIssueDetail(${e.idx})" title="點擊看詳情">
+    return `<button type="button" class="as-btn" style="display:flex;width:100%;text-align:left;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid #f2f2f2;cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" onclick="openIssueDetail(${e.idx})" title="點擊看詳情">
       <span style="width:9px;height:9px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0" title="${esc(i.severity)}"></span>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:500;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</div>
-        <div style="font-size:11px;color:#4a5160;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${i.updated?' · '+fmtDate(i.updated):''}</div>
-      </div>
+      <span style="display:block;flex:1;min-width:0">
+        <span style="display:block;font-size:13px;font-weight:500;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</span>
+        <span style="display:block;font-size:11px;color:#4a5160;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${i.updated?' · '+fmtDate(i.updated):''}</span>
+      </span>
       <span class="badge" style="${badgeStyle(issStColor(i.status))};flex-shrink:0;white-space:nowrap;font-size:10px;padding:2px 7px">${esc(i.status)}</span>
-    </div>`;
+    </button>`;
   }).join('');
 }
 function openIssueNew(){
@@ -972,8 +982,8 @@ function openSettings(){
   const wsItems=stagesOfType('工作階段');
   function renderList(items,type){
     return items.map((s,i)=>{const gi=STAGES.indexOf(s);return`<li class="settings-item" data-gi="${gi}" data-type="${type}">
-      <input type="color" value="${STAGE_COLORS[s]||'#9ca3af'}" data-field="color">
-      <input type="text" value="${esc(s)}" data-field="name">
+      <input type="color" value="${STAGE_COLORS[s]||'#9ca3af'}" data-field="color" aria-label="階段顏色">
+      <input type="text" value="${esc(s)}" data-field="name" aria-label="階段名稱">
       <button class="btn btn-sm btn-edit" onclick="moveStageInType('${type}',${i},-1)">↑</button>
       <button class="btn btn-sm btn-edit" onclick="moveStageInType('${type}',${i},1)">↓</button>
       <button class="btn btn-sm btn-delete" onclick="removeStageByName('${esc(s)}')">✕</button>
@@ -995,19 +1005,19 @@ function openSettings(){
       <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('工作階段')">新增</button>
     </div>
     <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🏷 AB 測試 Tag 選項</h4>
-    <ul class="settings-list" id="settings-tags">${AB_TAGS.map((t,i)=>`<li class="settings-item"><input type="text" value="${esc(t)}" data-field="tag" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <ul class="settings-list" id="settings-tags">${AB_TAGS.map((t,i)=>`<li class="settings-item"><input type="text" value="${esc(t)}" data-field="tag" aria-label="TAG" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="text" id="new-tag-name" placeholder="新 Tag" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-tags').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-tag-name').value+'\\' data-field=\\'tag\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-tag-name').value=''">新增</button>
     </div>
     <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🌍 AB 測試市場選項</h4>
-    <ul class="settings-list" id="settings-markets">${AB_MARKETS.map((m,i)=>`<li class="settings-item"><input type="text" value="${esc(m)}" data-field="market" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <ul class="settings-list" id="settings-markets">${AB_MARKETS.map((m,i)=>`<li class="settings-item"><input type="text" value="${esc(m)}" data-field="market" aria-label="市場" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="text" id="new-market-name" placeholder="新市場" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-markets').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-market-name').value+'\\' data-field=\\'market\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-market-name').value=''">新增</button>
     </div>
     <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🚀 上線檢查清單項目</h4>
-    <ul class="settings-list" id="settings-launch">${LAUNCH_CHECKLIST.map(it=>`<li class="settings-item"><input type="text" value="${esc(it)}" data-field="launch" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <ul class="settings-list" id="settings-launch">${LAUNCH_CHECKLIST.map(it=>`<li class="settings-item"><input type="text" value="${esc(it)}" data-field="launch" aria-label="上線清單項目" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="text" id="new-launch-name" placeholder="新檢查項目" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="addSettingItem('settings-launch','launch')">新增</button>
@@ -1016,7 +1026,7 @@ function openSettings(){
 }
 function addSettingItem(listId,field){
   const inp=document.getElementById('new-'+field+'-name');const v=(inp.value||'').trim();if(!v)return;
-  document.getElementById(listId).insertAdjacentHTML('beforeend',`<li class="settings-item"><input type="text" value="${esc(v)}" data-field="${field}" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`);
+  document.getElementById(listId).insertAdjacentHTML('beforeend',`<li class="settings-item"><input type="text" value="${esc(v)}" data-field="${field}" aria-label="${field}" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`);
   inp.value='';
 }
 function addStageTyped(type){
@@ -1129,7 +1139,7 @@ function renderABTable(){
   const games=getFilteredAB();
   if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的遊戲</p>';return}
   const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
-  let html=`<table class="ab-table"><thead><tr><th>遊戲名稱</th><th>Tag</th><th>市場</th><th>上線日</th><th>狀態</th><th>版本</th><th>連結</th>${canEdit()?'<th>操作</th>':''}</tr></thead><tbody>`;
+  let html=`<table class="ab-table"><thead><tr><th scope="col">遊戲名稱</th><th scope="col">Tag</th><th scope="col">市場</th><th scope="col">上線日</th><th scope="col">狀態</th><th scope="col">版本</th><th scope="col">連結</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead><tbody>`;
   games.forEach((g,gi)=>{
     html+=`<tr><td style="font-weight:600">${esc(g.gameName)}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
       <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>`;
