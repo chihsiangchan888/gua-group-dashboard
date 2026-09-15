@@ -392,6 +392,13 @@ async function submitMachStatus(name){
   await apiPost({action:'setMachineStatus',machineName:name,status:status,progress:progress});
 }
 
+// === Load-failure state (never substitute demo data for a failed read) ===
+let dataLoadFailed=false, abLoadFailed=false, sideDataFailed=false;
+function loadFailHtml(title){return '<div style="text-align:center;padding:22px 12px;color:#4a5160;font-size:13px">'
+  +'<div style="font-size:14px;font-weight:600;color:#b3211f;margin-bottom:6px">\u26a0 '+title+'</div>'
+  +'<div>後端暫時沒有回應。為避免顯示與實際不符的資料，這裡不會顯示任何內容。</div>'
+  +'<button type="button" class="btn btn-primary" style="margin-top:10px" onclick="location.reload()">重新載入</button></div>'}
+
 // === Load ===
 async function loadData(){
   const loading=document.getElementById('loading'),err=document.getElementById('error-banner'),src=document.getElementById('source-note');
@@ -415,10 +422,15 @@ async function loadData(){
         src.textContent='Google Sheet（即時）';finish();return;
       }
     }
+    // Apps Script did not answer — fall back to reading the sheet directly.
+    // That route returns the stage rows only, so issues / links / machine status are NOT available.
+    sideDataFailed=true;
     let text;try{const r=await fetch(gvizUrl('csv'));if(r.ok)text=await r.text()}catch(e){}
     if(text)rawData=parseCsv(text);else{const r=await fetch(gvizUrl('json'));rawData=parseGvizJson(await r.text())}
-    src.textContent='Google Sheet（即時）';finish();
-  }catch(e){err.textContent='讀取失敗：'+(e.message||e);err.style.display='block';rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;linksList=LINKS_DEMO;src.textContent='Demo';finish()}
+    src.textContent='Google Sheet（僅時程）';
+    err.textContent='後端未回應，已改用試算表直讀：只有機台時程是最新的，議題／常用連結／機台狀態未載入。請重新整理再試。';err.style.display='block';
+    finish();
+  }catch(e){err.textContent='讀取失敗：'+(e.message||e)+'　資料未載入，請重新整理。';err.style.display='block';rawData=[];machStatusMap={};issuesList=[];linksList=[];dataLoadFailed=true;src.textContent='讀取失敗';finish()}
 }
 function gvizUrl(f){return`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${f}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
 function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||'',type:c[9]||'工作階段'})}return res}
@@ -516,12 +528,12 @@ function renderKPI(){
     cal:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>',
     ban:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>'
   };
-  const cell=(ic,label,val,accent,bg,urgent)=>`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val"${urgent&&val>0?' style="color:'+accent+'"':''}>${val}</div><div class="kpi-label">${label}</div></div></div>`;
+  const cell=(ic,label,val,accent,bg,urgent)=>dataLoadFailed?`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val">—</div><div class="kpi-label">${label}</div></div></div>`:`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val"${urgent&&val>0?' style="color:'+accent+'"':''}>${val}</div><div class="kpi-label">${label}</div></div></div>`;
   document.getElementById('kpis').innerHTML=
     cell(svg.alert,'逾期里程碑',overdue,'#e5484d','#fdecec',true)+
     cell(svg.clock,'本週到期',due7,'#d98908','#fdf3e2',false)+
     cell(svg.cal,'本月上線',launchM,'#5b5bd6','#ecedfb',false)+
-    cell(svg.ban,'阻塞議題',blockers,'#e5484d','#fdecec',true);
+    cell(svg.ban,'阻塞議題',sideDataFailed?'—':blockers,'#e5484d','#fdecec',true);
 }
 
 function renderTable(){
@@ -575,7 +587,7 @@ function renderTable(){
           ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`}).join('')}</tbody>
       </table></div>`;
   });
-  document.getElementById('table-area').innerHTML=html||'<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的機台</p>';
+  document.getElementById('table-area').innerHTML=html||(dataLoadFailed?loadFailHtml('機台資料讀取失敗'):'<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的機台</p>');
 }
 
 // === Gantt ===
@@ -810,7 +822,7 @@ function renderIssues(){
     return true;
   });
   entries.sort((a,b)=>{const ao=a.it.status==='已解決'?1:0,bo=b.it.status==='已解決'?1:0;if(ao!==bo)return ao-bo;return (sevRank[a.it.severity]==null?1:sevRank[a.it.severity])-(sevRank[b.it.severity]==null?1:sevRank[b.it.severity])});
-  if(entries.length===0){area.innerHTML='<p style="color:#68707f;text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
+  if(entries.length===0){area.innerHTML=(dataLoadFailed||sideDataFailed)?loadFailHtml('議題資料讀取失敗'):'<p style="color:#68707f;text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
   area.innerHTML=entries.map(e=>{
     const i=e.it,c=issSevColor(i.severity);
     const logN=(i.log&&i.log.length)?i.log.length:0;
@@ -886,7 +898,7 @@ async function delIssue(idx){
 // === 常用連結 ===
 function renderLinks(){
   const area=document.getElementById('links-area');if(!area)return;
-  if(!linksList.length){area.innerHTML='<span style="color:#68707f;font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>';return}
+  if(!linksList.length){area.innerHTML=(dataLoadFailed||sideDataFailed)?'<span style="color:#b3211f;font-size:12px;font-weight:600">\u26a0 常用連結讀取失敗，請重新整理</span>':('<span style="color:#68707f;font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>');return}
   area.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px">'+linksList.map(l=>{
     let url=(l.url||'').trim();if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
     return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;gap:2px;text-decoration:none;background:#f7f7fb;border:1px solid #eee;border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px">
@@ -1085,25 +1097,24 @@ const AB_DEMO_DATA=[
 let abData=[];
 
 async function loadABData(){
-  if(canEdit()){
-    try{
-      const r=await(await fetch(CONFIG.APPS_SCRIPT_URL+'?action=readAB',{redirect:'follow'})).json();
-      if(r.success&&r.data&&r.data.length>0){
-        // Group flat rows by game name
-        const map=new Map();
-        r.data.forEach(row=>{
-          if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',link:row.link||'',versions:[]})}
-          const g=map.get(row.game);
-          if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,running:!!row.running,row:row.row})}
-          if(row.launchDate&&!g.launchDate)g.launchDate=normDate(row.launchDate);
-          if(row.link&&!g.link)g.link=row.link;
-        });
-        map.forEach(g=>{if(g.versions.some(v=>v.winner))g.status='已定版'});
-        abData=[...map.values()];return;
-      }
-    }catch(e){}
-  }
-  abData=AB_DEMO_DATA;
+  abLoadFailed=false;
+  // demo data only when the dashboard is deliberately run without a sheet
+  if(!CONFIG.SHEET_ID||!CONFIG.APPS_SCRIPT_URL){abData=AB_DEMO_DATA;return}
+  try{
+    const resp=await fetch(CONFIG.APPS_SCRIPT_URL+'?action=readAB&nocache='+Math.random(),{redirect:'follow'});
+    const r=await resp.json();
+    if(!r||!r.success)throw new Error('readAB 回應失敗');
+    const map=new Map();
+    (r.data||[]).filter(row=>row&&row.game).forEach(row=>{
+      if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',link:row.link||'',versions:[]})}
+      const g=map.get(row.game);
+      if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,running:!!row.running,row:row.row})}
+      if(row.launchDate&&!g.launchDate)g.launchDate=normDate(row.launchDate);
+      if(row.link&&!g.link)g.link=row.link;
+    });
+    map.forEach(g=>{if(g.versions.some(v=>v.winner))g.status='已定版'});
+    abData=[...map.values()];
+  }catch(e){abData=[];abLoadFailed=true}
 }
 
 function getFilteredAB(){
@@ -1126,7 +1137,10 @@ function populateABMonths(){
   if(cur&&months.indexOf(cur)>=0)sel.value=cur;
 }
 
-function renderAB(){populateABMonths();renderABKPI();renderABTable();renderABTimeline()}
+function renderAB(){
+  if(abLoadFailed){document.getElementById('ab-kpis').innerHTML='';document.getElementById('ab-timeline').innerHTML='';document.getElementById('ab-table-area').innerHTML=loadFailHtml('AB 測試資料讀取失敗');return}
+  populateABMonths();renderABKPI();renderABTable();renderABTimeline()
+}
 
 function renderABKPI(){
   const total=abData.length;
