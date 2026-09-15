@@ -392,8 +392,16 @@ async function submitMachStatus(name){
   await apiPost({action:'setMachineStatus',machineName:name,status:status,progress:progress});
 }
 
+// fetch with a hard timeout — a hanging endpoint must fail loudly, not spin forever
+function fetchT(url,opts,ms){
+  const ac=(typeof AbortController!=='undefined')?new AbortController():null;
+  const t=setTimeout(()=>{if(ac)ac.abort()},ms||30000);
+  return fetch(url,Object.assign({},opts||{},ac?{signal:ac.signal}:{}))
+    .finally(()=>clearTimeout(t));
+}
+
 // === Load-failure state (never substitute demo data for a failed read) ===
-let dataLoadFailed=false, abLoadFailed=false, sideDataFailed=false;
+let dataLoadFailed=false, abLoadFailed=false, sideDataFailed=false, slowHintTimer=null;
 function loadFailHtml(title){return '<div style="text-align:center;padding:22px 12px;color:#4a5160;font-size:13px">'
   +'<div style="font-size:14px;font-weight:600;color:#b3211f;margin-bottom:6px">\u26a0 '+title+'</div>'
   +'<div>後端暫時沒有回應。為避免顯示與實際不符的資料，這裡不會顯示任何內容。</div>'
@@ -402,13 +410,15 @@ function loadFailHtml(title){return '<div style="text-align:center;padding:22px 
 // === Load ===
 async function loadData(){
   const loading=document.getElementById('loading'),err=document.getElementById('error-banner'),src=document.getElementById('source-note');
+  // the backend can legitimately take ~20s; say so instead of looking frozen
+  slowHintTimer=setTimeout(()=>{if(loading&&getComputedStyle(loading).display!=='none'&&!document.getElementById('slow-hint'))loading.insertAdjacentHTML('beforeend','<div id="slow-hint" style="margin-top:10px;font-size:12px;color:#4a5160">後端回應較慢，仍在等待…</div>')},8000);
   if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;linksList=LINKS_DEMO;src.textContent='Demo';finish();return}
   try{
     if(canEdit()){
       // Retry up to 2 times — Google Apps Script sometimes returns HTML on first call
       let r=null;
       for(let _try=0;_try<2;_try++){
-        try{const resp=await fetch(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'});const txt=await resp.text();r=JSON.parse(txt);break}catch(e){if(_try===0)await new Promise(ok=>setTimeout(ok,1000))}
+        try{const resp=await fetchT(CONFIG.APPS_SCRIPT_URL,{redirect:'follow'},30000);const txt=await resp.text();r=JSON.parse(txt);break}catch(e){if(_try===0)await new Promise(ok=>setTimeout(ok,1000))}
       }
       if(r&&r.success){
         if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
@@ -425,8 +435,8 @@ async function loadData(){
     // Apps Script did not answer — fall back to reading the sheet directly.
     // That route returns the stage rows only, so issues / links / machine status are NOT available.
     sideDataFailed=true;
-    let text;try{const r=await fetch(gvizUrl('csv'));if(r.ok)text=await r.text()}catch(e){}
-    if(text)rawData=parseCsv(text);else{const r=await fetch(gvizUrl('json'));rawData=parseGvizJson(await r.text())}
+    let text;try{const r=await fetchT(gvizUrl('csv'),null,30000);if(r.ok)text=await r.text()}catch(e){}
+    if(text)rawData=parseCsv(text);else{const r=await fetchT(gvizUrl('json'),null,30000);rawData=parseGvizJson(await r.text())}
     src.textContent='Google Sheet（僅時程）';
     err.textContent='後端未回應，已改用試算表直讀：只有機台時程是最新的，議題／常用連結／機台狀態未載入。請重新整理再試。';err.style.display='block';
     finish();
@@ -438,6 +448,7 @@ function csvLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){cons
 function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);const j=JSON.parse(m?m[1]:text);return j.table.rows.map((row,i)=>{const c=row.c||[];const v=idx=>{if(!c[idx]||c[idx].v==null)return '';const val=c[idx].v;if(typeof val==='string'&&val.startsWith('Date(')){const p=val.match(/Date\((\d+),(\d+),(\d+)\)/);if(p)return p[1]+'-'+String(Number(p[2])+1).padStart(2,'0')+'-'+p[3].padStart(2,'0')}return String(val)};return{row:i+2,machine:v(0),stage:v(1),planStart:normDate(v(2)),planEnd:normDate(v(3)),actualStart:normDate(v(4)),actualEnd:normDate(v(5)),owner:v(6),note:v(7),priority:v(8),type:v(9)||'工作階段'}})}
 
 function finish(){
+  clearTimeout(slowHintTimer);
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='';
   if(canEdit())document.querySelectorAll('.edit-only').forEach(el=>el.style.display='');
@@ -1101,7 +1112,7 @@ async function loadABData(){
   // demo data only when the dashboard is deliberately run without a sheet
   if(!CONFIG.SHEET_ID||!CONFIG.APPS_SCRIPT_URL){abData=AB_DEMO_DATA;return}
   try{
-    const resp=await fetch(CONFIG.APPS_SCRIPT_URL+'?action=readAB&nocache='+Math.random(),{redirect:'follow'});
+    const resp=await fetchT(CONFIG.APPS_SCRIPT_URL+'?action=readAB&nocache='+Math.random(),{redirect:'follow'},30000);
     const r=await resp.json();
     if(!r||!r.success)throw new Error('readAB 回應失敗');
     const map=new Map();
