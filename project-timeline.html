@@ -872,6 +872,14 @@ async function submitEditStage(row,machine,owner,priority){const data={machine,s
 async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
 async function delMachine(name){if(!confirm('確定刪除「'+name+'」的所有階段？'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
 // === 議題追蹤（獨立清單，不綁機台）===
+function issStaleDays(i){const base=i.updated||i.created;return base?diffDays(base,TODAY):null}
+// urgency: 阻塞 is always red; otherwise the dot is driven by how long the issue has sat
+function issDotColor(sev,days){
+  if(sev==='阻塞'||(days!=null&&days>30))return '#b3211f';
+  if(days!=null&&days>14)return '#9a6206';
+  return '#68707f';
+}
+function issStaleColor(days){return days>30?'#b3211f':days>14?'#9a6206':'#4a5160'}
 function issSevColor(s){return s==='阻塞'?'#ef4444':s==='一般'?'#eab308':'#9ca3af'}
 function issStColor(s){return s==='已解決'?'#9ca3af':s==='處理中'?'#3b82f6':'#eab308'}
 async function saveIssues(){await apiPost({action:'setIssues',issues:issuesList})}
@@ -888,13 +896,16 @@ function renderIssues(){
   entries.sort((a,b)=>{const ao=a.it.status==='已解決'?1:0,bo=b.it.status==='已解決'?1:0;if(ao!==bo)return ao-bo;return (sevRank[a.it.severity]==null?1:sevRank[a.it.severity])-(sevRank[b.it.severity]==null?1:sevRank[b.it.severity])});
   if(entries.length===0){area.innerHTML=(dataLoadFailed||sideDataFailed)?loadFailHtml('議題資料讀取失敗'):'<p style="color:#68707f;text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
   area.innerHTML=entries.map(e=>{
-    const i=e.it,c=issSevColor(i.severity);
+    const i=e.it;
     const logN=(i.log&&i.log.length)?i.log.length:0;
+    const stale=i.status==='已解決'?null:issStaleDays(i);
+    const c=issDotColor(i.severity,stale);
+    const staleHtml=(stale!=null)?` · <span style="color:${issStaleColor(stale)};font-weight:600">停滯 ${stale} 天</span>`:'';
     return `<button type="button" class="as-btn" style="display:flex;width:100%;text-align:left;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid #f2f2f2;cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" onclick="openIssueDetail(${e.idx})" title="點擊看詳情">
-      <span style="width:9px;height:9px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0" title="${esc(i.severity)}"></span>
+      <span role="img" style="width:9px;height:9px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0" title="嚴重度：${esc(i.severity)}${stale!=null?' · 停滯 '+stale+' 天':''}" aria-label="嚴重度：${esc(i.severity)}${stale!=null?' · 停滯 '+stale+' 天':''}"></span>
       <span style="display:block;flex:1;min-width:0">
         <span style="display:block;font-size:13px;font-weight:500;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</span>
-        <span style="display:block;font-size:11px;color:#4a5160;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${i.updated?' · '+fmtDate(i.updated):''}</span>
+        <span style="display:block;font-size:11px;color:#4a5160;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${staleHtml}${i.updated?' · '+fmtDate(i.updated):''}</span>
       </span>
       <span class="badge" style="${badgeStyle(issStColor(i.status))};flex-shrink:0;white-space:nowrap;font-size:10px;padding:2px 7px">${esc(i.status)}</span>
     </button>`;
