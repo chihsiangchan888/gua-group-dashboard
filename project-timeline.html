@@ -91,7 +91,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .gantt-toggle .btn-sm{background:#f1f1f1;color:#666}
 .gantt-toggle .btn-sm.active{background:#4f46e5;color:#fff}
 .g-bar{position:absolute;top:8px;height:12px;border-radius:6px;opacity:.25}
-.g-dot{position:absolute;top:6px;width:14px;height:14px;border-radius:50%;border:2px solid #fff;cursor:pointer;transform:translateX(-7px);z-index:5}
+.gantt-row.ms-row{min-height:38px}
+.ms-row .gantt-row-tl{height:38px}
+.ms-row .g-bar{top:17px;height:4px;border-radius:2px}
+.g-dot{position:absolute;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid #fff;cursor:pointer;transform:translateX(-7px);z-index:5;box-shadow:0 0 0 1px rgba(16,24,40,.15)}
+.g-dot .ms-label{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;color:#4a5160;white-space:nowrap;pointer-events:none;background:#fff;padding:0 3px;border-radius:3px}
 .g-dot-green{background:#22c55e}.g-dot-yellow{background:#eab308}.g-dot-red{background:#ef4444}
 .g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:20}
 .g-dot:hover .g-tooltip{opacity:1}
@@ -666,16 +670,39 @@ function renderGanttMilestone(machines,weeks,total){
     // Find overall span from milestone dates only
     let minD=null,maxD=null;
     milestonesWithDate.forEach(s=>{[s.planStart,s.planEnd,s.actualStart,s.actualEnd].forEach(d=>{if(d){if(!minD||d<minD)minD=d;if(!maxD||d>maxD)maxD=d}})});
-    html+=`<div class="gantt-row"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl">`;
+    // Only show milestone-type items.
+    // P2-5: two milestones inside roughly one dot-width of each other would draw on top of
+    // one another, so alternate them between an upper and a lower lane.
+    const tlPx=Math.max(weeks.length*60,1);
+    const minGapPct=16/tlPx*100;
+    const items=milestonesWithDate.map(s=>{
+      const dt=s.planEnd||s.actualEnd||s.planStart;
+      return dt?{s:s,dt:dt,pos:datePos(weeks,dt)*100}:null;
+    }).filter(Boolean).sort((a,b)=>a.pos-b.pos);
+    // first lane with clearance; open a new one when none is free (up to MAX_LANES)
+    const MAX_LANES=3,lastByLane=[-Infinity];
+    items.forEach(it=>{
+      let lane=lastByLane.findIndex(p=>it.pos-p>=minGapPct);
+      if(lane<0){
+        if(lastByLane.length<MAX_LANES){lane=lastByLane.length;lastByLane.push(-Infinity)}
+        else lane=lastByLane.indexOf(Math.min.apply(null,lastByLane));
+      }
+      it.lane=lane;lastByLane[lane]=it.pos;
+    });
+    const laneCount=items.reduce((m,it)=>Math.max(m,it.lane+1),1);
+    const rowH=Math.max(38,8+laneCount*16);
+    html+=`<div class="gantt-row ms-row" style="min-height:${rowH}px"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl" style="height:${rowH}px">`;
     weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
     if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div>`}
-    // Only show milestone-type items
-    milestonesWithDate.forEach(s=>{
-      const dt=s.planEnd||s.actualEnd||s.planStart;
-      if(!dt)return;
-      const pos=datePos(weeks,dt)*100;
-      const st=stageStatus(s);
-      html+=`<div class="g-dot g-dot-${st}" style="left:${pos}%"><div class="g-tooltip">${esc(s.stage)} ${fmtDate(dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
+    const nm=nextMilestone(stages);
+    items.forEach((it,idx)=>{
+      const st=stageStatus(it.s);
+      const nxt=items[idx+1];
+      // label only the next milestone, and only when the following dot is far enough away
+      const room=!nxt||(nxt.pos-it.pos)*tlPx/100>64;
+      const isNext=nm&&nm.stage===it.s.stage&&!it.s.actualEnd;
+      const label=(isNext&&room)?`<div class="ms-label">${esc(it.s.stage)}</div>`:'';
+      html+=`<div class="g-dot g-dot-${st}" style="left:${it.pos}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
     });
     html+=`</div></div>`;
   });
