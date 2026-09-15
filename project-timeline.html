@@ -113,15 +113,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-version{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;cursor:pointer;border:2px solid transparent}
 .ab-version:hover{opacity:.8}
 .ab-version.winner{border-color:#fbbf24;box-shadow:0 0 0 2px rgba(251,191,36,.3)}
-.ab-timeline-row{display:flex;align-items:center;min-height:36px;border-bottom:1px solid #f5f5f5;padding:4px 0}
+.ab-timeline-row{display:flex;align-items:center;min-height:46px;border-bottom:1px solid #f5f5f5;padding:4px 0}
 .ab-timeline-row:hover{background:#fafafa}
 .ab-timeline-lbl{width:160px;min-width:160px;font-size:12px;font-weight:600;color:#1a1a2e;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ab-timeline-bar{flex:1;position:relative;height:28px}
-.ab-dot{position:absolute;top:6px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2);z-index:5}
-.ab-dot.winner{width:20px;height:20px;top:4px;transform:translateX(-10px);box-shadow:0 0 0 3px rgba(251,191,36,.4),0 2px 4px rgba(0,0,0,.2)}
+.ab-timeline-bar{flex:1;position:relative;height:38px}
+.ab-dot{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid #fff;box-shadow:0 0 0 2px #fff,0 1px 3px rgba(0,0,0,.2);z-index:5}
+.ab-dot.lane1{top:19px}
+.ab-dot.winner{width:20px;height:20px;top:1px;transform:translateX(-10px);box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
+.ab-dot.winner.lane1{top:17px}
+.ab-gap{display:block;font-size:9px;font-weight:600;color:#9a6206;line-height:1.3;margin-top:1px}
 .ab-dot-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:3px 6px;border-radius:4px;font-size:9px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
 .ab-dot:hover .ab-dot-tip{opacity:1}
-.ab-connect{position:absolute;top:14px;height:2px;background:#ddd;z-index:1}
+.ab-connect{position:absolute;top:18px;height:2px;background:#ddd;z-index:1}
 .ab-status-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600}
 .ab-status-打磨中{background:#fbefd6;color:#754d00}
 .ab-status-已定版{background:#d1fae5;color:#047857}
@@ -1180,16 +1183,22 @@ function renderABTimeline(){
   html+=`</div></div>`;
 
   games.forEach(g=>{
-    html+=`<div class="ab-timeline-row"><div class="ab-timeline-lbl" title="${esc(g.gameName)}">${esc(g.gameName)}</div><div class="ab-timeline-bar">`;
+    // P1-4: warn when version letters skip (e.g. A, D, E) — a version was deleted or mis-numbered
+    const codes=g.versions.map(v=>(v.label||'').trim().toUpperCase()).filter(l=>/^[A-Z]$/.test(l)).map(l=>l.charCodeAt(0)).sort((a,b)=>a-b);
+    const missing=[];if(codes.length){for(let cc=codes[0];cc<=codes[codes.length-1];cc++){if(!codes.includes(cc))missing.push(String.fromCharCode(cc))}}
+    const gapHtml=missing.length?`<span class="ab-gap" title="版本字母不連續，缺 ${missing.join('、')}：可能刪過版本或輸入跳號">⚠ 缺 ${missing.join(',')}</span>`:'';
+    html+=`<div class="ab-timeline-row"><div class="ab-timeline-lbl" title="${esc(g.gameName)}${missing.length?'（版本字母不連續，缺 '+missing.join('、')+'）':''}">${esc(g.gameName)}${gapHtml}</div><div class="ab-timeline-bar">`;
     // Connection line
     const dates=g.versions.filter(v=>v.date).map(v=>v.date).sort();
     if(dates.length>1){const l=pos(dates[0]),r=pos(dates[dates.length-1]);html+=`<div class="ab-connect" style="left:${l}%;width:${r-l}%"></div>`}
     // Dots
-    g.versions.forEach((v,vi)=>{
-      if(!v.date)return;
-      const p=pos(v.date);
+    // P1-4: dots closer than 3% of the axis alternate between two lanes so same-day versions stay visible
+    const placed=g.versions.map((v,vi)=>({v,vi,p:v.date?pos(v.date):null})).filter(x=>x.p!==null).sort((a,b)=>a.p-b.p);
+    let lastP=-Infinity,lastLane=0;
+    placed.forEach(x=>{x.lane=(x.p-lastP<3)?(lastLane===0?1:0):0;lastP=x.p;lastLane=x.lane});
+    placed.forEach(({v,vi,p,lane})=>{
       const c=colors[vi%colors.length];
-      html+=`<div class="ab-dot${v.winner?' winner':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}</div>${v.label}</div>`;
+      html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}</div>${v.label}</div>`;
     });
     html+=`</div></div>`;
   });
