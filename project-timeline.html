@@ -121,7 +121,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-timeline-row{display:flex;align-items:center;min-height:46px;border-bottom:1px solid #f5f5f5;padding:4px 0}
 .ab-timeline-row:hover{background:#fafafa}
 .ab-timeline-lbl{width:160px;min-width:160px;font-size:12px;font-weight:600;color:#1a1a2e;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ab-timeline{--ab-lbl-w:160px;--ab-note-w:92px}
 .ab-timeline-bar{flex:1;position:relative;height:38px}
+.ab-note{width:var(--ab-note-w);min-width:var(--ab-note-w);max-width:var(--ab-note-w);flex:0 0 var(--ab-note-w);box-sizing:border-box;text-align:right;padding:0 8px 0 4px;font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-dot.post{background:#fff!important;color:#4a5160;border:2px dashed #9aa3b2;box-shadow:none}
 .ab-dot{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid #fff;box-shadow:0 0 0 2px #fff,0 1px 3px rgba(0,0,0,.2);z-index:5}
 .ab-dot.lane1{top:19px}
 .ab-dot.winner{width:20px;height:20px;top:1px;transform:translateX(-10px);box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
@@ -157,8 +160,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 :where(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid #4f46e5;outline-offset:2px}
 .machine-header:focus-within{background:#f3f0ff}
 @container (max-width:740px){.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
-@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
-@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px}.kpi-ico{width:36px;height:36px;font-size:18px;border-radius:10px}.kpi-label{font-size:11px}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{flex:0 0 40px;font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(7),.ab-table td:nth-child(7){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
+@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}#ab-timeline{--ab-lbl-w:80px;--ab-note-w:74px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-note{font-size:9.5px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
+@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px}.kpi-ico{width:36px;height:36px;font-size:18px;border-radius:10px}.kpi-label{font-size:11px}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{flex:0 0 40px;font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}#ab-timeline{--ab-lbl-w:60px;--ab-note-w:60px}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-note{font-size:9px;padding:0 4px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(8),.ab-table td:nth-child(8){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
 </style>
 </head>
 <body>
@@ -1216,15 +1219,40 @@ function renderAB(){
   populateABMonths();renderABKPI();renderABTable();renderABTimeline()
 }
 
+// --- P2-7: polishing time ---
+function abWinner(g){return (g.versions||[]).find(v=>v.winner&&v.date)||null}
+// days from launch to the winning version; still-polishing games count up to today
+function abPolishDays(g){
+  if(!g||!g.launchDate)return null;
+  const w=abWinner(g);
+  const end=w?w.date:TODAY;
+  return end?diffDays(g.launchDate,end):null;
+}
+// average over finalised games only — that is the yardstick a running game is measured against
+function abAvgPolish(){
+  const done=(abData||[]).filter(g=>abWinner(g)).map(abPolishDays).filter(d=>d!=null);
+  return done.length?Math.round(done.reduce((s,d)=>s+d,0)/done.length):null;
+}
+function abPolishHtml(g){
+  const d=abPolishDays(g);
+  if(d==null)return '<span style="color:#68707f">—</span>';
+  const done=!!abWinner(g),avg=abAvgPolish();
+  const over=!done&&avg!=null&&d>avg;
+  return '<span style="white-space:nowrap;font-weight:600;color:'+(done?'#15803d':over?'#b3211f':'#4a5160')+'"'
+    +(over?' title="已超過已定版平均 '+avg+' 天"':'')+'>'+(done?'':'已 ')+d+' 天'+(over?' ⚠':'')+'</span>';
+}
+
 function renderABKPI(){
   const total=abData.length;
   const tuning=abData.filter(g=>g.status==='打磨中').length;
   const finalized=abData.filter(g=>g.status==='已定版').length;
   const avgVersions=total?Math.round(abData.reduce((s,g)=>s+g.versions.length,0)/total*10)/10:0;
+  const avgPolish=abAvgPolish();
   document.getElementById('ab-kpis').innerHTML=`
     <div class="kpi"><div class="kpi-label">總遊戲數</div><div class="kpi-val">${total}</div></div>
     <div class="kpi"><div class="kpi-label">打磨中</div><div class="kpi-val">${tuning}</div></div>
     <div class="kpi"><div class="kpi-label">已定版</div><div class="kpi-val">${finalized}</div></div>
+    <div class="kpi"><div class="kpi-label">平均打磨天數</div><div class="kpi-val">${avgPolish==null?'—':avgPolish}</div></div>
     <div class="kpi"><div class="kpi-label">平均版本數</div><div class="kpi-val">${avgVersions}</div></div>`;
 }
 
@@ -1232,10 +1260,10 @@ function renderABTable(){
   const games=getFilteredAB();
   if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的遊戲</p>';return}
   const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
-  let html=`<table class="ab-table"><thead><tr><th scope="col">遊戲名稱</th><th scope="col">Tag</th><th scope="col">市場</th><th scope="col">上線日</th><th scope="col">狀態</th><th scope="col">版本</th><th scope="col">連結</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead><tbody>`;
+  let html=`<table class="ab-table"><thead><tr><th scope="col">遊戲名稱</th><th scope="col">Tag</th><th scope="col">市場</th><th scope="col">上線日</th><th scope="col">狀態</th><th scope="col">打磨天數</th><th scope="col">版本</th><th scope="col">連結</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead><tbody>`;
   games.forEach((g,gi)=>{
     html+=`<tr><td style="font-weight:600">${esc(g.gameName)}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
-      <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>`;
+      <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>${abPolishHtml(g)}</td><td>`;
     g.versions.forEach((v,vi)=>{
       const running=!!v.running;
       const style=running?'background:#fbefd6;color:#754d00;border:1px solid #eab308':'background:#fff;color:#555;border:1px solid #ddd';
@@ -1268,9 +1296,9 @@ function renderABTimeline(){
   const weeks=[];let wk=new Date(startMs);wk.setDate(wk.getDate()-((wk.getDay()+6)%7));
   while(wk.getTime()<=endMs){weeks.push(new Date(wk));wk=new Date(wk.getTime()+7*86400000)}
 
-  let html=`<div style="display:flex;border-bottom:2px solid #eee"><div style="width:160px;min-width:160px;padding:6px 10px;font-size:11px;color:#4a5160">遊戲</div><div style="display:flex;flex:1">`;
-  weeks.forEach(w=>{html+=`<div style="flex:1;text-align:center;padding:4px 2px;font-size:9px;color:#68707f;border-left:1px solid #f0f0f0">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
-  html+=`</div></div>`;
+  let html=`<div style="display:flex;border-bottom:2px solid #eee"><div style="width:var(--ab-lbl-w);min-width:var(--ab-lbl-w);padding:6px 10px;font-size:11px;color:#4a5160">遊戲</div><div style="display:flex;flex:1;min-width:0">`;
+  weeks.forEach(w=>{html+=`<div style="flex:1;min-width:0;overflow:hidden;text-align:center;padding:4px 2px;font-size:9px;color:#68707f;border-left:1px solid #f0f0f0">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
+  html+=`</div><div class="ab-note"></div></div>`;
 
   games.forEach(g=>{
     // P1-4: warn when version letters skip (e.g. A, D, E) — a version was deleted or mis-numbered
@@ -1281,6 +1309,7 @@ function renderABTimeline(){
     // Connection line
     const dates=g.versions.filter(v=>v.date).map(v=>v.date).sort();
     if(dates.length>1){const l=pos(dates[0]),r=pos(dates[dates.length-1]);html+=`<div class="ab-connect" style="left:${l}%;width:${r-l}%"></div>`}
+    const wv=abWinner(g),wDate=wv?wv.date:null;
     // Dots
     // P1-4: dots closer than 3% of the axis alternate between two lanes so same-day versions stay visible
     const placed=g.versions.map((v,vi)=>({v,vi,p:v.date?pos(v.date):null})).filter(x=>x.p!==null).sort((a,b)=>a.p-b.p);
@@ -1288,14 +1317,16 @@ function renderABTimeline(){
     placed.forEach(x=>{x.lane=(x.p-lastP<3)?(lastLane===0?1:0):0;lastP=x.p;lastLane=x.lane});
     placed.forEach(({v,vi,p,lane})=>{
       const c=colors[vi%colors.length];
-      html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}</div>${v.label}</div>`;
+      const post=wDate&&v.date>wDate;
+      html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}${post?' post':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}${post?' ·定版後':''}</div>${v.label}</div>`;
     });
-    html+=`</div></div>`;
+    const pd=abPolishDays(g),pOver=!wv&&abAvgPolish()!=null&&pd!=null&&pd>abAvgPolish();
+    html+=`</div><div class="ab-note" style="color:${wv?'#15803d':pOver?'#b3211f':'#4a5160'}">${pd==null?'':(wv?'定版 '+pd+' 天':'打磨中 '+pd+' 天'+(pOver?' ⚠':''))}</div></div>`;
   });
 
   // Today line
   const todayPos=pos(TODAY);
-  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(160px + (100% - 160px)*${todayPos}/100);width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none"><div class="today-label">Today</div></div>`}
+  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(var(--ab-lbl-w) + (100% - var(--ab-lbl-w) - var(--ab-note-w))*${todayPos}/100);width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none"><div class="today-label">Today</div></div>`}
   document.getElementById('ab-timeline').innerHTML=`<div style="position:relative">${html}</div>`;
 }
 
