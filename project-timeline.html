@@ -128,7 +128,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 #ab-timeline{--ab-lbl-w:160px;--ab-note-w:92px}
 .ab-timeline-bar{flex:1;position:relative;height:38px}
 .ab-note{width:var(--ab-note-w);min-width:var(--ab-note-w);max-width:var(--ab-note-w);flex:0 0 var(--ab-note-w);box-sizing:border-box;text-align:right;padding:0 8px 0 4px;font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ab-dot.post{background:#fff!important;color:#4a5160;border:2px dashed #9aa3b2;box-shadow:none}
+.ab-dot.cmp{outline:2px dashed #b45309;outline-offset:2px}
 .ab-dot{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid #fff;box-shadow:0 0 0 2px #fff,0 1px 3px rgba(0,0,0,.2);z-index:5}
 .ab-dot.lane1{top:19px}
 .ab-dot.winner{width:20px;height:20px;top:1px;transform:translateX(-10px);box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
@@ -234,7 +234,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="legend">
       <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:#6366f1"></div>版本上線點</div>
       <div class="legend-item"><div style="width:18px;height:18px;border-radius:50%;background:#6366f1;border:3px solid #fbbf24"></div>勝出版本</div>
-      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:#fff;border:2px dashed #9aa3b2"></div>定版後才出的版本</div>
+      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:#6366f1;outline:2px dashed #b45309;outline-offset:2px;margin:2px"></div>本次比較的版本</div>
       <div class="legend-item"><div class="legend-today"></div>今天</div>
     </div>
   </div>
@@ -1325,7 +1325,7 @@ function renderABTimeline(){
     // Connection line
     const dates=g.versions.filter(v=>v.date).map(v=>v.date).sort();
     if(dates.length>1){const l=pos(dates[0]),r=pos(dates[dates.length-1]);html+=`<div class="ab-connect" style="left:${l}%;width:${r-l}%"></div>`}
-    const wv=abWinner(g),wDate=wv?wv.date:null;
+    const wv=abWinner(g);
     // Dots
     // P1-4: dots closer than 3% of the axis alternate between two lanes so same-day versions stay visible
     const placed=g.versions.map((v,vi)=>({v,vi,p:v.date?pos(v.date):null})).filter(x=>x.p!==null).sort((a,b)=>a.p-b.p);
@@ -1333,8 +1333,7 @@ function renderABTimeline(){
     placed.forEach(x=>{x.lane=(x.p-lastP<3)?(lastLane===0?1:0):0;lastP=x.p;lastLane=x.lane});
     placed.forEach(({v,vi,p,lane})=>{
       const c=colors[vi%colors.length];
-      const post=wDate&&v.date>wDate;
-      html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}${post?' post':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}${post?' ·定版後':''}</div>${v.label}</div>`;
+      html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}${v.running?' cmp':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}${v.running?' ·本次比較':''}</div>${v.label}</div>`;
     });
     const pd=abPolishDays(g),pOver=!wv&&abAvgPolish()!=null&&pd!=null&&pd>abAvgPolish();
     html+=`</div><div class="ab-note" style="color:${wv?'#15803d':pOver?'#b3211f':'#4a5160'}">${pd==null?'':(wv?'定版 '+pd+' 天':'打磨中 '+pd+' 天'+(pOver?' ⚠':''))}</div></div>`;
