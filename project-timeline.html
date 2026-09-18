@@ -133,7 +133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-dot.lane1{top:19px}
 .ab-dot.winner{width:20px;height:20px;top:1px;transform:translateX(-10px);box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
 .ab-dot.winner.lane1{top:17px}
-.ab-gap{display:block;font-size:9px;font-weight:600;color:#9a6206;line-height:1.3;margin-top:1px}
+.ab-gap{display:block;font-size:9px;font-weight:600;color:#9a6206;line-height:1.3;margin-top:1px;white-space:normal;max-width:150px}
 .ab-dot-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:3px 6px;border-radius:4px;font-size:9px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
 .ab-dot:hover .ab-dot-tip{opacity:1}
 .ab-connect{position:absolute;top:18px;height:2px;background:#ddd;z-index:1}
@@ -1225,6 +1225,16 @@ function renderAB(){
 }
 
 // --- P2-7: polishing time ---
+// a comparison round is two versions; anything else is very likely a missed 「測」 mark
+function abPairWarn(g){
+  const n=(g.versions||[]).filter(v=>v.running).length;
+  const hasWinner=!!abWinner(g);
+  if(n===2)return null;
+  if(n===0)return hasWinner?'找不到本次比較的兩個版本':null;
+  if(n===1)return '本次比較只標了 1 個版本，應為 2 個';
+  return '本次比較標了 '+n+' 個版本，應為 2 個';
+}
+
 function abWinner(g){return (g.versions||[]).find(v=>v.winner&&v.date)||null}
 // days from launch to the winning version; still-polishing games count up to today
 function abPolishDays(g){
@@ -1267,7 +1277,8 @@ function renderABTable(){
   const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
   let html=`<table class="ab-table"><thead><tr><th scope="col">遊戲名稱</th><th scope="col">Tag</th><th scope="col">市場</th><th scope="col">上線日</th><th scope="col">狀態</th><th scope="col">打磨天數</th><th scope="col">版本</th><th scope="col">連結</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead><tbody>`;
   games.forEach((g,gi)=>{
-    html+=`<tr><td style="font-weight:600">${esc(g.gameName)}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
+    const pairWarn=abPairWarn(g);
+    html+=`<tr><td style="font-weight:600">${esc(g.gameName)}${pairWarn?`<span class="ab-gap" title="${esc(pairWarn)}">⚠ ${esc(pairWarn)}</span>`:''}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
       <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>${abPolishHtml(g)}</td><td>`;
     g.versions.forEach((v,vi)=>{
       const running=!!v.running;
