@@ -109,7 +109,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .tab-nav{display:flex;gap:4px;justify-content:center;margin-bottom:20px}
 .tab-btn{padding:10px 24px;border:1px solid #ddd;border-radius:8px 8px 0 0;background:#f8f9fa;font-size:14px;font-weight:600;cursor:pointer;color:#666;border-bottom:none;transition:all .2s}
 .tab-btn.active{background:#fff;color:#4f46e5;border-color:#4f46e5;border-bottom:2px solid #fff;margin-bottom:-1px}
-.tab-content{display:none}.tab-content.active{display:block}
+.tab-content{display:none}.tab-content.active{display:block}.tab-content[hidden]{display:none}
 .ab-table{width:100%;border-collapse:collapse;font-size:13px}
 .ab-table th{text-align:left;padding:8px 10px;border-bottom:2px solid #eee;color:#4a5160;font-size:11px;text-transform:uppercase}
 .ab-table td{padding:8px 10px;border-bottom:1px solid #f5f5f5}
@@ -177,11 +177,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div class="error-banner" id="error-banner"></div>
 <div class="loading" id="loading">正在載入資料</div>
 <div id="app" style="display:none">
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('timeline')">專案時程</button>
-    <button class="tab-btn" onclick="switchTab('abtest')">AB 測試追蹤</button>
+  <div class="tab-nav" role="tablist" aria-label="儀表板分頁">
+    <button type="button" class="tab-btn active" role="tab" id="tabbtn-timeline" aria-controls="tab-timeline" aria-selected="true" onclick="switchTab('timeline')">專案時程</button>
+    <button type="button" class="tab-btn" role="tab" id="tabbtn-abtest" aria-controls="tab-abtest" aria-selected="false" tabindex="-1" onclick="switchTab('abtest')">AB 測試追蹤</button>
   </div>
-  <div class="tab-content active" id="tab-timeline">
+  <div class="tab-content active" id="tab-timeline" role="tabpanel" aria-labelledby="tabbtn-timeline" tabindex="0">
   <div class="grid" id="kpis"></div>
   <div class="section" style="margin-top:16px;padding:12px 16px">
     <div class="section-hdr" style="margin-bottom:8px"><h2 style="font-size:14px">🔗 常用連結</h2><button class="btn btn-primary btn-sm edit-only" onclick="openLinksEdit()" style="display:none">編輯</button></div>
@@ -217,7 +217,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
   </div>
 </div><!-- end tab-timeline -->
-<div class="tab-content" id="tab-abtest">
+<div class="tab-content" id="tab-abtest" role="tabpanel" aria-labelledby="tabbtn-abtest" tabindex="0" hidden>
   <div class="grid" id="ab-kpis"></div>
   <div class="section">
     <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" onclick="openAddABGame()" style="display:none">+ 新增遊戲</button></div>
@@ -1163,13 +1163,40 @@ async function saveSettings(){
 }
 
 // === Tabs ===
-function switchTab(tab){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(tab==='timeline'?0:1)));
-  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-  document.getElementById('tab-'+tab).classList.add('active');
+function switchTab(tab,focusTab){
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const on=b.id==='tabbtn-'+tab;
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-selected',on?'true':'false');
+    // only the selected tab stays in the Tab order; arrow keys move between them
+    b.tabIndex=on?0:-1;
+    if(on&&focusTab)b.focus();
+  });
+  document.querySelectorAll('.tab-content').forEach(c=>{
+    const on=c.id==='tab-'+tab;
+    c.classList.toggle('active',on);
+    c.hidden=!on; // hidden removes the panel from the accessibility tree, not just from view
+  });
   lsSet('activeTab',tab);
   if(tab==='abtest')renderAB();
 }
+// left/right (and Home/End) move between tabs, as a tablist is expected to
+function _tabKeys(e){
+  const dir={ArrowLeft:-1,ArrowRight:1,Home:'first',End:'last'};
+  if(!(e.key in dir))return;
+  const btns=[...document.querySelectorAll('.tab-nav [role="tab"]')];
+  if(!btns.length)return;
+  const cur=btns.findIndex(b=>b.getAttribute('aria-selected')==='true');
+  const step=dir[e.key];
+  let next;
+  if(step==='first')next=0;
+  else if(step==='last')next=btns.length-1;
+  else next=((cur<0?0:cur)+step+btns.length)%btns.length;
+  e.preventDefault();
+  switchTab(btns[next].id.replace('tabbtn-',''),true);
+}
+function _tabInit(){const nav=document.querySelector('.tab-nav[role="tablist"]');if(nav)nav.addEventListener('keydown',_tabKeys)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_tabInit);else _tabInit();
 
 // === AB Test Data ===
 const AB_DEMO_DATA=[
