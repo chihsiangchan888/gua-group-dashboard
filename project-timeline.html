@@ -512,6 +512,10 @@ function finish(){
   document.getElementById('ab-filter-search').oninput=renderAB;
 }
 
+// a machine has one owner (submitOwner writes it to every stage row); when rows disagree,
+// take the most common non-empty value so a single stray row cannot flip the display
+function machineOwner(stages){const cnt={};stages.forEach(s=>{if(s.owner)cnt[s.owner]=(cnt[s.owner]||0)+1});let best='',n=0;Object.keys(cnt).forEach(o=>{if(cnt[o]>n){best=o;n=cnt[o]}});return best}
+function ownerMixed(stages){return new Set(stages.map(s=>s.owner).filter(Boolean)).size>1}
 function populateFilters(){
   const sel=document.getElementById('filter-owner');
   const cur=sel.value;
@@ -532,7 +536,7 @@ function getFilteredMachines(){
     const ms=getMachineStatus(stages);
     if(status==='active'&&ms==='done')return;
     if(status==='done'&&ms!=='done')return;
-    if(owner&&!stages.some(s=>s.owner===owner))return;
+    if(owner&&machineOwner(stages)!==owner)return;
     if(search&&!name.toLowerCase().includes(search))return;
     filtered.push([name,stages]);
   });
@@ -600,7 +604,8 @@ function renderTable(){
   const machines=getFilteredMachines();let html='';
   let _machIdx=0;
   machines.forEach((stages,name)=>{
-    const owner=stages[0]?.owner||'';
+    const owner=machineOwner(stages);
+    const mixed=ownerMixed(stages);
     const priority=stages[0]?.priority||'中';
     const pct=getWeightedProgress(stages);
     const currentStage=stages.find(s=>s.type==='工作階段'&&s.actualStart&&!s.actualEnd);
@@ -624,7 +629,7 @@ function renderTable(){
         <span role="img" aria-label="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
         <button type="button" class="as-btn machine-name" aria-expanded="false" aria-controls="${id}" onclick="toggleMachine('${id}')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</button>
         <button type="button" class="as-btn badge priority-${priority}" aria-label="優先級 ${priority}，點擊切換" style="cursor:pointer;transition:transform .15s;justify-self:start" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</button>
-        <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:#666':'color:#68707f;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="點擊設定負責人" aria-label="負責人：${owner?esc(owner):'未指派'}，點擊設定">${owner?esc(owner):'未指派'}</button>
+        <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:#666':'color:#68707f;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="${mixed?'⚠ 各階段的負責人不一致，設定一次即可統一。':'點擊設定負責人'}" aria-label="負責人：${owner?esc(owner):'未指派'}${mixed?'（各階段不一致）':''}，點擊設定">${owner?esc(owner):'未指派'}${mixed?' ⚠':''}</button>
         <button type="button" class="as-btn badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度" aria-label="目前狀態：${esc(statusText)}，點擊更新">${esc(statusText)}</button>
         ${nm?`<span class="badge badge-${nm.st}" style="justify-self:start;white-space:nowrap" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
         <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5160"><button type="button" class="as-btn" style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" aria-label="進度 ${prog}%，點擊更新">${prog}%</button><div class="progress-bar" role="progressbar" aria-valuenow="${prog}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(name)} 進度" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
