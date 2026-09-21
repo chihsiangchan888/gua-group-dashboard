@@ -534,7 +534,16 @@ function getFilteredMachines(){
     if(search&&!name.toLowerCase().includes(search))return;
     filtered.push([name,stages]);
   });
-  filtered.sort((a,b)=>{return(firstMilestoneDate(a[1])||'9999')>(firstMilestoneDate(b[1])||'9999')?1:-1});
+  // sort by how soon the next unfinished milestone is due: overdue first, then nearest;
+  // machines with nothing left to hit (or no dated milestone) sink to the bottom
+  const urgency=st=>{const nm=nextMilestone(st);return nm&&nm.date?nm.date:null};
+  filtered.sort((a,b)=>{
+    const ua=urgency(a[1]),ub=urgency(b[1]);
+    if(ua&&ub)return ua<ub?-1:ua>ub?1:a[0].localeCompare(b[0],'zh-Hant');
+    if(ua)return -1;
+    if(ub)return 1;
+    return a[0].localeCompare(b[0],'zh-Hant');
+  });
   const result=new Map();
   filtered.forEach(([n,s])=>result.set(n,s));
   return result;
