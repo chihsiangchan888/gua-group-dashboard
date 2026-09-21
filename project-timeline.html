@@ -146,9 +146,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .toast.show{opacity:1;transform:translateY(0)}
 .toast-ok{border-left:4px solid #22c55e}
 .toast-err{border-left:4px solid #ef4444}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;justify-content:center;align-items:center}
-.modal-bg.active{display:flex}
-.modal{background:#fff;border-radius:12px;padding:24px;width:90%;max-width:480px;box-shadow:0 16px 48px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;overflow-x:visible}
+.modal::backdrop{background:rgba(0,0,0,.35)}
+.modal-sm{max-width:380px}
+.modal-err{background:#fde5e4;color:#b3211f;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12.5px;font-weight:600}
+.modal{background:#fff;border:0;margin:auto;border-radius:12px;padding:24px;width:90%;max-width:480px;box-shadow:0 16px 48px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;overflow-x:visible}
 .modal h3{font-size:16px;margin-bottom:16px;color:#1a1a2e}
 .fg{margin-bottom:12px}
 .fg label{display:block;font-size:12px;color:#666;margin-bottom:3px}
@@ -241,7 +242,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </div><!-- end tab-abtest -->
 </div>
 <div class="footer">由 呱集團 AI Fleet 自動產生</div>
-<div class="modal-bg" id="modal-bg"><div class="modal" id="modal-content"></div></div>
+<dialog class="modal" id="modal-bg"><div id="modal-content"></div></dialog>
+<dialog class="modal modal-sm" id="confirm-dlg" aria-labelledby="confirm-title"></dialog>
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
@@ -804,8 +806,83 @@ let _fgSeq=0;
 function a11yLabels(root){if(!root)return;root.querySelectorAll('.fg').forEach(fg=>{const lab=fg.querySelector(':scope>label');const ctl=fg.querySelector('input,select,textarea');if(!lab||!ctl||lab.htmlFor)return;if(!ctl.id)ctl.id='fg-auto-'+(++_fgSeq);lab.htmlFor=ctl.id})}
 function _a11yInit(){const ta=document.getElementById('table-area');if(!ta)return;ta.addEventListener('click',e=>{const h=e.target.closest('.machine-header');if(!h||!h.dataset.toggle)return;if(e.target.closest('button,a,input,select,label,textarea'))return;toggleMachine(h.dataset.toggle)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_a11yInit);else _a11yInit();
-function openModal(html){document.getElementById('modal-content').innerHTML=html;a11yLabels(document.getElementById('modal-content'));document.getElementById('modal-bg').classList.add('active')}
-function closeModal(){document.getElementById('modal-bg').classList.remove('active')}
+// --- P2-3: native dialog ---
+function _dlg(){return document.getElementById('modal-bg')}
+// validation used to call alert(); a toast would sit under the dialog's top layer, so the
+// message goes inline at the top of the dialog instead
+function modalError(msg){
+  const c=document.getElementById('modal-content');
+  if(!c){toast(msg,'err');return}
+  let e=c.querySelector('.modal-err');
+  if(!e){e=document.createElement('div');e.className='modal-err';e.setAttribute('role','alert');c.insertBefore(e,c.firstChild)}
+  e.textContent='⚠ '+msg;
+  e.scrollIntoView({block:'nearest'});
+}
+// a promise-based replacement for confirm(); its own dialog so it can stack on top of an open one
+function confirmDialog(msg,okText){
+  return new Promise(resolve=>{
+    const d=document.getElementById('confirm-dlg');
+    d.innerHTML='<h3 id="confirm-title" style="margin-bottom:8px">確認</h3>'
+      +'<p style="font-size:13px;color:#4a5160;line-height:1.6">'+esc(msg)+'</p>'
+      +'<div class="modal-btns"><button type="button" class="btn btn-cancel" data-act="cancel">取消</button>'
+      +'<button type="button" class="btn btn-delete" data-act="ok">'+esc(okText||'確定刪除')+'</button></div>';
+    let done=false;
+    // resolve from the handlers themselves — the close event is not dependable everywhere,
+    // and a confirm that never resolves would leave a delete silently hanging
+    const finish=v=>{
+      if(done)return; done=true;
+      d.removeEventListener('close',onClose);d.removeEventListener('cancel',onCancel);
+      d.removeEventListener('keydown',onKey);d.removeEventListener('click',onClick);
+      if(d.open)d.close(v?'ok':'cancel');
+      resolve(v);
+    };
+    const onClose=()=>finish(d.returnValue==='ok');
+    const onCancel=()=>finish(false);
+    const onKey=e=>{if(e.key==='Escape')finish(false)};
+    const onClick=e=>{
+      if(e.target!==d)return;
+      const r=d.getBoundingClientRect();
+      const inside=r.top<=e.clientY&&e.clientY<=r.bottom&&r.left<=e.clientX&&e.clientX<=r.right;
+      if(!inside)finish(false);
+    };
+    d.addEventListener('close',onClose);d.addEventListener('cancel',onCancel);
+    d.addEventListener('keydown',onKey);d.addEventListener('click',onClick);
+    d.querySelector('[data-act="ok"]').onclick=()=>finish(true);
+    d.querySelector('[data-act="cancel"]').onclick=()=>finish(false);
+    d.returnValue='';
+    if(!d.open)d.showModal();
+    d.querySelector('[data-act="cancel"]').focus();
+  });
+}
+// clicking the backdrop closes; the rect test keeps clicks on the dialog's own padding inside
+function _dlgBackdrop(d){
+  d.addEventListener('click',e=>{
+    if(e.target!==d)return;
+    const r=d.getBoundingClientRect();
+    const inside=r.top<=e.clientY&&e.clientY<=r.bottom&&r.left<=e.clientX&&e.clientX<=r.right;
+    if(!inside)d.close();
+  });
+}
+function _dlgInit(){
+  const d=document.getElementById('modal-bg');
+  if(!d)return;
+  _dlgBackdrop(d);
+  // native dialogs close on Esc, but do not rely on it: some engines do not fire the
+  // close event, and a modal you cannot dismiss is worse than a redundant listener
+  d.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_dlgInit);else _dlgInit();
+
+function openModal(html){
+  const d=_dlg(),c=document.getElementById('modal-content');
+  c.innerHTML=html;
+  a11yLabels(c);
+  // name the dialog after its own heading so screen readers announce what it is
+  const h=c.querySelector('h3,h2');
+  if(h){if(!h.id)h.id='modal-title';d.setAttribute('aria-labelledby',h.id)}else d.removeAttribute('aria-labelledby');
+  if(!d.open)d.showModal();
+}
+function closeModal(){const d=_dlg();if(d.open)d.close()}
 
 function openAddMachine(){
   openModal(`<h3>新增機台</h3>
@@ -814,7 +891,7 @@ function openAddMachine(){
     <div class="fg"><label>優先級</label><select id="m-priority"><option>低</option><option selected>中</option><option>高</option></select></div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddMachine()">確認</button></div>`);
 }
-async function submitAddMachine(){const name=document.getElementById('m-name').value,owner=document.getElementById('m-owner').value,priority=document.getElementById('m-priority').value;if(!name){alert('請輸入名稱');return}closeModal();await apiPost({action:'addMachine',name,owner,priority});await loadData()}
+async function submitAddMachine(){const name=document.getElementById('m-name').value,owner=document.getElementById('m-owner').value,priority=document.getElementById('m-priority').value;if(!name){modalError('請輸入名稱');return}closeModal();await apiPost({action:'addMachine',name,owner,priority});await loadData()}
 
 function openAddStage(machine,owner){
   window._addStageCtx={machine:machine,owner:owner};
@@ -859,7 +936,7 @@ async function submitAddStage(){
   if(t==='里程碑'){
     var nodes=[].slice.call(document.querySelectorAll('#ms-nodes .ms-node'));
     var items=nodes.map(function(n){return{name:n.querySelector('.ms-name').value.trim(),date:n.querySelector('.ms-date').value}}).filter(function(x){return x.name});
-    if(items.length===0){alert('請至少輸入一個里程碑名稱');return}
+    if(items.length===0){modalError('請至少輸入一個里程碑名稱');return}
     closeModal();
     for(var i=0;i<items.length;i++){
       await apiPost({action:'addStage',data:{machine:machine,stage:items[i].name,planStart:'',planEnd:items[i].date,actualStart:'',actualEnd:'',owner:owner,note:'',priority:'',type:'里程碑'}});
@@ -886,8 +963,8 @@ function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority,type){
 }
 async function submitEditStage(row,machine,owner,priority){const data={machine,stage:document.getElementById('e-stage').value,planStart:document.getElementById('e-ps').value,planEnd:document.getElementById('e-pe').value,actualStart:document.getElementById('e-as').value,actualEnd:document.getElementById('e-ae').value,owner,note:document.getElementById('e-note').value,priority,type:document.getElementById('e-type').value};closeModal();await apiPost({action:'update',row,data});await loadData()}
 
-async function delStage(row){if(!confirm('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
-async function delMachine(name){if(!confirm('確定刪除「'+name+'」的所有階段？'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
+async function delStage(row){if(!await confirmDialog('確定刪除此階段？'))return;await apiPost({action:'delete',row});await loadData()}
+async function delMachine(name){if(!await confirmDialog('確定刪除「'+name+'」的所有階段？這會一併刪掉它底下的每一個階段。'))return;await apiPost({action:'deleteMachine',machineName:name});await loadData()}
 // === 議題追蹤（獨立清單，不綁機台）===
 function issStaleDays(i){const base=i.updated||i.created;return base?diffDays(base,TODAY):null}
 // urgency: 阻塞 is always red; otherwise the dot is driven by how long the issue has sat
@@ -941,7 +1018,7 @@ function openIssueNew(){
 }
 async function submitIssueNew(){
   const title=document.getElementById('ni-title').value.trim();
-  if(!title){alert('請輸入議題標題');return}
+  if(!title){modalError('請輸入議題標題');return}
   issuesList.push({title:title,severity:document.getElementById('ni-sev').value,status:document.getElementById('ni-status').value,owner:document.getElementById('ni-owner').value.trim(),created:TODAY,updated:TODAY,desc:document.getElementById('ni-desc').value.trim(),log:[]});
   closeModal();renderIssues();
   await saveIssues();
@@ -982,7 +1059,7 @@ async function submitIssueDetail(idx){
   await saveIssues();
 }
 async function delIssue(idx){
-  if(!confirm('確定刪除此議題？'))return;
+  if(!await confirmDialog('確定刪除此議題？'))return;
   issuesList.splice(idx,1);
   closeModal();renderIssues();
   await saveIssues();
@@ -1045,7 +1122,7 @@ function updateLaunchBtn(){
 }
 async function submitLaunch(name){
   const all=[].slice.call(document.querySelectorAll('#launch-checks .lc-item'));
-  if(!(all.length&&all.every(c=>c.checked))){alert('請完成所有檢查項目');return}
+  if(!(all.length&&all.every(c=>c.checked))){modalError('請完成所有檢查項目');return}
   const date=document.getElementById('lc-date').value||TODAY;
   const market=document.getElementById('lc-market').value.trim();
   const tag=document.getElementById('lc-tag').value.trim();
@@ -1141,7 +1218,7 @@ function addSettingItem(listId,field){
 function addStageTyped(type){
   const prefix=type==='里程碑'?'ms':'ws';
   const n=document.getElementById('new-'+prefix+'-name').value.trim(),c=document.getElementById('new-'+prefix+'-color').value;
-  if(!n){alert('請輸入名稱');return}
+  if(!n){modalError('請輸入名稱');return}
   STAGES.push(n);STAGE_COLORS[n]=c;STAGE_TYPES[n]=type;openSettings();
 }
 function removeStageByName(name){const i=STAGES.indexOf(name);if(i>=0)STAGES.splice(i,1);openSettings()}
@@ -1396,7 +1473,7 @@ async function submitAddABGame(){
   const g={gameName:document.getElementById('ab-name').value,gameTag:document.getElementById('ab-tag').value,targetMarket:document.getElementById('ab-market').value,launchDate:document.getElementById('ab-launch').value,link:document.getElementById('ab-link').value,status:'打磨中',versions:[]};
   const d=document.getElementById('ab-v1-date').value;
   if(d)g.versions.push({label:'A',date:d,winner:false});
-  if(!g.gameName){alert('請輸入遊戲名稱');return}
+  if(!g.gameName){modalError('請輸入遊戲名稱');return}
   abData.push(g);closeModal();renderAB();await apiPost({action:'addABGame',data:{game:g.gameName,tag:g.gameTag,market:g.targetMarket,launchDate:g.launchDate,versionDate:d||''}});
 }
 function openAddABVersion(gi){
@@ -1462,7 +1539,7 @@ async function submitEditABGame(gi){
 }
 async function delABGame(gi){
   const g=getFilteredAB()[gi];
-  if(!confirm('確定刪除「'+g.gameName+'」？'))return;
+  if(!await confirmDialog('確定刪除「'+g.gameName+'」？這會刪掉它的所有版本。'))return;
   const idx=abData.indexOf(g);if(idx>=0)abData.splice(idx,1);
   renderAB();await apiPost({action:'deleteABGame',game:g.gameName});
 }
