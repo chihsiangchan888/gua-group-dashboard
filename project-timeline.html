@@ -207,8 +207,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </head>
 <body>
 <div class="header">
-  <button type="button" class="btn-theme" id="btn-theme" onclick="cycleTheme()"></button>
-  <button class="btn-gear edit-only" onclick="openSettings()" style="display:none" title="設定">⚙</button>
+  <button type="button" class="btn-theme" id="btn-theme" data-action="cycleTheme"></button>
+  <button class="btn-gear edit-only" data-action="openSettings" style="display:none" title="設定">⚙</button>
   <h1>機率部門專案時程管理儀表板</h1>
   <p><span id="gen-time"></span> | 呱集團 機率部門 | <span id="source-note"></span></p>
 </div>
@@ -216,18 +216,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div class="loading" id="loading">正在載入資料</div>
 <div id="app" style="display:none">
   <div class="tab-nav" role="tablist" aria-label="儀表板分頁">
-    <button type="button" class="tab-btn active" role="tab" id="tabbtn-timeline" aria-controls="tab-timeline" aria-selected="true" onclick="switchTab('timeline')">專案時程</button>
-    <button type="button" class="tab-btn" role="tab" id="tabbtn-abtest" aria-controls="tab-abtest" aria-selected="false" tabindex="-1" onclick="switchTab('abtest')">AB 測試追蹤</button>
+    <button type="button" class="tab-btn active" role="tab" id="tabbtn-timeline" aria-controls="tab-timeline" aria-selected="true" data-action="switchTab" data-tab="timeline">專案時程</button>
+    <button type="button" class="tab-btn" role="tab" id="tabbtn-abtest" aria-controls="tab-abtest" aria-selected="false" tabindex="-1" data-action="switchTab" data-tab="abtest">AB 測試追蹤</button>
   </div>
   <div class="tab-content active" id="tab-timeline" role="tabpanel" aria-labelledby="tabbtn-timeline" tabindex="0">
   <div class="grid" id="kpis"></div>
   <div class="section" style="margin-top:16px;padding:12px 16px">
-    <div class="section-hdr" style="margin-bottom:8px"><h2 style="font-size:14px">🔗 常用連結</h2><button class="btn btn-primary btn-sm edit-only" onclick="openLinksEdit()" style="display:none">編輯</button></div>
+    <div class="section-hdr" style="margin-bottom:8px"><h2 style="font-size:14px">🔗 常用連結</h2><button class="btn btn-primary btn-sm edit-only" data-action="openLinksEdit" style="display:none">編輯</button></div>
     <div id="links-area"></div>
   </div>
   <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:20px">
     <div class="section mach-panel" style="flex:2 1 620px;min-width:0;margin-top:0">
-      <div class="section-hdr"><h2>機台追蹤</h2><button class="btn btn-primary edit-only" onclick="openAddMachine()" style="display:none">+ 新增機台</button></div>
+      <div class="section-hdr"><h2>機台追蹤</h2><button class="btn btn-primary edit-only" data-action="openAddMachine" style="display:none">+ 新增機台</button></div>
       <div class="toolbar">
         <select id="filter-status" aria-label="篩選機台狀態"><option value="active">進行中</option><option value="done">已完成</option><option value="all">全部</option></select>
         <select id="filter-owner" aria-label="篩選負責人"><option value="">全部負責人</option></select>
@@ -236,7 +236,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div id="table-area" style="overflow-x:auto"></div>
     </div>
     <div class="section" style="flex:1 1 300px;min-width:0;margin-top:0">
-      <div class="section-hdr"><h2>議題追蹤</h2><button class="btn btn-primary edit-only" onclick="openIssueNew()" style="display:none">+ 新增議題</button></div>
+      <div class="section-hdr"><h2>議題追蹤</h2><button class="btn btn-primary edit-only" data-action="openIssueNew" style="display:none">+ 新增議題</button></div>
       <div class="toolbar">
         <select id="issue-filter" aria-label="篩選議題狀態"><option value="open">未解決</option><option value="blocker">只看阻塞</option><option value="all">全部</option></select>
       </div>
@@ -244,7 +244,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
   </div>
   <div class="section">
-    <div class="section-hdr"><h2>甘特圖（週粒度）</h2><div class="gantt-toggle"><button class="btn btn-sm" id="btn-milestone" onclick="setGanttView('milestone')">里程碑</button><button class="btn btn-sm" id="btn-detail" onclick="setGanttView('detail')">詳細</button></div></div>
+    <div class="section-hdr"><h2>甘特圖（週粒度）</h2><div class="gantt-toggle"><button class="btn btn-sm" id="btn-milestone" data-action="setGanttView" data-view="milestone">里程碑</button><button class="btn btn-sm" id="btn-detail" data-action="setGanttView" data-view="detail">詳細</button></div></div>
     <div class="gantt-wrap"><div class="gantt" id="gantt"></div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-plan"></div>計畫區間</div>
@@ -258,7 +258,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div class="tab-content" id="tab-abtest" role="tabpanel" aria-labelledby="tabbtn-abtest" tabindex="0" hidden>
   <div class="grid" id="ab-kpis"></div>
   <div class="section">
-    <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" onclick="openAddABGame()" style="display:none">+ 新增遊戲</button></div>
+    <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" data-action="openAddABGame" style="display:none">+ 新增遊戲</button></div>
     <div class="toolbar">
       <select id="ab-filter-status" aria-label="篩選 AB 測試狀態"><option value="all">全部</option><option value="打磨中">打磨中</option><option value="已定版">已定版</option></select>
       <select id="ab-filter-month" aria-label="篩選上線月份"><option value="">全部上線月份</option></select>
@@ -347,7 +347,7 @@ function normDate(s){
   return '';
 }
 function fmtDate(s){if(!s)return '—';var m=s.match(/(\d{4})-(\d{2})-(\d{2})/);return m?m[2]+'/'+m[3]:'—'}
-function esc(s){return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 
 /* ---- P1-1: WCAG-safe badge colours. Keep the stage hue; force text dark (OKLCH L~.45) and background pale (L~.955). ---- */
 function _hexRgb(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');if(!/^[0-9a-f]{6}$/i.test(h))h='9ca3af';return [0,2,4].map(i=>parseInt(h.substr(i,2),16)/255)}
@@ -469,7 +469,7 @@ function openMachStatus(name){
     <div class="fg"><label>目前狀態（自由描述，例：開發中—金框動畫）</label><input id="mst-status" value="${esc(info.status||'')}" placeholder="這台現在到哪了？"></div>
     <div class="fg"><label>進度 %</label><input type="number" id="mst-prog" min="0" max="100" value="${prog}"></div>
     <p style="font-size:11px;color:var(--ink-2);margin-top:-4px">儲存後「最後更新日」自動設為今天。進度留空則沿用階段自動計算（目前 ${computed}%）。</p>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitMachStatus('${esc(name)}')">儲存</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitMachStatus" data-name="${esc(name)}">儲存</button></div>`);
 }
 async function submitMachStatus(name){
   const status=document.getElementById('mst-status').value.trim();
@@ -521,7 +521,7 @@ let dataLoadFailed=false, abLoadFailed=false, sideDataFailed=false, slowHintTime
 function loadFailHtml(title){return '<div style="text-align:center;padding:22px 12px;color:var(--ink-2);font-size:13px">'
   +'<div style="font-size:14px;font-weight:600;color:var(--crit-ink);margin-bottom:6px">\u26a0 '+title+'</div>'
   +'<div>後端暫時沒有回應。為避免顯示與實際不符的資料，這裡不會顯示任何內容。</div>'
-  +'<button type="button" class="btn btn-primary" style="margin-top:10px" onclick="location.reload()">重新載入</button></div>'}
+  +'<button type="button" class="btn btn-primary" style="margin-top:10px" data-action="reload">重新載入</button></div>'}
 
 // === Load ===
 async function loadData(){
@@ -701,29 +701,29 @@ function renderTable(){
     html+=`<div class="machine-group">
       <div class="machine-header" data-toggle="${id}">
         <span role="img" aria-label="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
-        <button type="button" class="as-btn machine-name" aria-expanded="false" aria-controls="${id}" onclick="toggleMachine('${id}')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</button>
-        <button type="button" class="as-btn badge priority-${priority}" aria-label="優先級 ${priority}，點擊切換" style="cursor:pointer;transition:transform .15s;justify-self:start" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</button>
-        <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:var(--ink-muted)':'color:var(--ink-3);font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="${mixed?'⚠ 各階段的負責人不一致，設定一次即可統一。':'點擊設定負責人'}" aria-label="負責人：${owner?esc(owner):'未指派'}${mixed?'（各階段不一致）':''}，點擊設定">${owner?esc(owner):'未指派'}${mixed?' ⚠':''}</button>
-        <button type="button" class="as-btn badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度" aria-label="目前狀態：${esc(statusText)}，點擊更新">${esc(statusText)}</button>
+        <button type="button" class="as-btn machine-name" aria-expanded="false" aria-controls="${id}" data-action="toggleMachine" data-id="${id}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</button>
+        <button type="button" class="as-btn badge priority-${esc(priority)}" aria-label="優先級 ${esc(priority)}，點擊切換" style="cursor:pointer;transition:transform .15s;justify-self:start" data-action="cyclePriority" data-name="${esc(name)}">${esc(priority)}</button>
+        <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:var(--ink-muted)':'color:var(--ink-3);font-style:italic'}" data-action="editOwner" data-name="${esc(name)}" data-owner="${esc(owner)}" title="${mixed?'⚠ 各階段的負責人不一致，設定一次即可統一。':'點擊設定負責人'}" aria-label="負責人：${owner?esc(owner):'未指派'}${mixed?'（各階段不一致）':''}，點擊設定">${owner?esc(owner):'未指派'}${mixed?' ⚠':''}</button>
+        <button type="button" class="as-btn badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" data-action="openMachStatus" data-name="${esc(name)}" title="點擊更新目前狀態／進度" aria-label="目前狀態：${esc(statusText)}，點擊更新">${esc(statusText)}</button>
         ${nm?`<span class="badge badge-${nm.st}" style="justify-self:start;white-space:nowrap" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
-        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)"><button type="button" class="as-btn" style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" aria-label="進度 ${prog}%，點擊更新">${prog}%</button><div class="progress-bar" role="progressbar" aria-valuenow="${prog}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(name)} 進度" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)"><button type="button" class="as-btn" style="cursor:pointer;min-width:30px" data-action="openMachStatus" data-name="${esc(name)}" aria-label="進度 ${prog}%，點擊更新">${prog}%</button><div class="progress-bar" role="progressbar" aria-valuenow="${prog}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(name)} 進度" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
         <span style="font-size:10px;text-align:right;color:${upd?(stale?'var(--warn-text)':'var(--ink-3)'):'var(--ink-3)'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
         ${canEdit()?`<div class="machine-actions" style="justify-self:start">
-          <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
-          <button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+階段</button>
-          ${launched?'':`<button class="btn btn-sm" style="background:var(--good-bg);color:var(--good-ink)" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
-          <button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${esc(name)}')">✕</button>
+          <button class="btn btn-sm btn-edit" data-action="openMachStatus" data-name="${esc(name)}" title="更新目前狀態與進度">狀態</button>
+          <button class="btn btn-sm btn-add-stage" data-action="openAddStage" data-name="${esc(name)}" data-owner="${esc(owner)}">+階段</button>
+          ${launched?'':`<button class="btn btn-sm" style="background:var(--good-bg);color:var(--good-ink)" data-action="openLaunch" data-name="${esc(name)}">✅ 確定上線</button>`}
+          <button class="btn btn-sm btn-delete" data-action="delMachine" data-name="${esc(name)}">✕</button>
         </div>`:'<span></span>'}
       </div>
       <table class="stage-table" id="${id}">
         <thead><tr>${canEdit()?'<th scope="col"></th>':''}<th scope="col">階段</th><th scope="col">狀態</th><th scope="col">計畫開始</th><th scope="col">計畫結束</th><th scope="col">實際開始</th><th scope="col">實際結束</th><th scope="col">備註</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead>
         <tbody>${stages.map(s=>{const st=stageStatus(s);const done=!!s.actualEnd;return`<tr style="${done?'opacity:.55':''}">
-          ${canEdit()?`<td><input type="checkbox" aria-label="標記「${esc(s.stage)}」完成" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--good-mark)"></td>`:''} 
+          ${canEdit()?`<td><input type="checkbox" aria-label="標記「${esc(s.stage)}」完成" ${done?'checked':''} data-change="toggleStageDone" data-row="${s.row||0}" data-machine="${esc(name)}" data-stage="${esc(s.stage)}" style="width:16px;height:16px;cursor:pointer;accent-color:var(--good-mark)"></td>`:''} 
           <td>${s.type==='里程碑'?'📌 ':''}<span class="badge" style="${badgeStyle(STAGE_COLORS[s.stage]||'#9ca3af')}">${esc(s.stage)}</span></td>
           <td><span class="badge badge-${st}">${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</span></td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
           <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${esc(s.note)}</td>
-          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`}).join('')}</tbody>
+          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" data-action="openEditStage" data-row="${s.row||0}" data-machine="${esc(name)}" data-stage="${esc(s.stage)}">✎</button> <button class="btn btn-sm btn-delete" data-action="delStage" data-row="${s.row||0}">✕</button></td>`:''}</tr>`}).join('')}</tbody>
       </table></div>`;
   });
   document.getElementById('table-area').innerHTML=html||(dataLoadFailed?loadFailHtml('機台資料讀取失敗'):'<p style="color:var(--ink-2);text-align:center;padding:20px">無符合條件的機台</p>');
@@ -885,6 +885,80 @@ let _fgSeq=0;
 function a11yLabels(root){if(!root)return;root.querySelectorAll('.fg').forEach(fg=>{const lab=fg.querySelector(':scope>label');const ctl=fg.querySelector('input,select,textarea');if(!lab||!ctl||lab.htmlFor)return;if(!ctl.id)ctl.id='fg-auto-'+(++_fgSeq);lab.htmlFor=ctl.id})}
 function _a11yInit(){const ta=document.getElementById('table-area');if(!ta)return;ta.addEventListener('click',e=>{const h=e.target.closest('.machine-header');if(!h||!h.dataset.toggle)return;if(e.target.closest('button,a,input,select,label,textarea'))return;toggleMachine(h.dataset.toggle)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_a11yInit);else _a11yInit();
+// --- P3-2: 事件委派 ---
+// 所有可點元素只帶 data-action（change 事件帶 data-change）與 data-* 參數，不再把資料拼進 JS 字串。
+// 寫入類動作（delete／update）的函式本身不變，仍是一次一發、不重試。
+function _stageByEl(el){
+  const d=el.dataset;
+  return rawData.find(s=>String(s.row||0)===d.row&&s.machine===d.machine&&s.stage===d.stage)
+    ||rawData.find(s=>s.machine===d.machine&&s.stage===d.stage)||null;
+}
+const ACTIONS={
+  cycleTheme:()=>cycleTheme(),
+  openSettings:()=>openSettings(),
+  switchTab:el=>switchTab(el.dataset.tab),
+  openLinksEdit:()=>openLinksEdit(),
+  openAddMachine:()=>openAddMachine(),
+  openIssueNew:()=>openIssueNew(),
+  openAddABGame:()=>openAddABGame(),
+  setGanttView:el=>setGanttView(el.dataset.view),
+  reload:()=>location.reload(),
+  toggleMachine:el=>toggleMachine(el.dataset.id),
+  cyclePriority:el=>cyclePriority(el.dataset.name,(el.textContent||'').trim(),el),
+  editOwner:el=>editOwner(el.dataset.name,el.dataset.owner),
+  openMachStatus:el=>openMachStatus(el.dataset.name),
+  openAddStage:el=>openAddStage(el.dataset.name,el.dataset.owner),
+  openLaunch:el=>openLaunch(el.dataset.name),
+  delMachine:el=>delMachine(el.dataset.name),
+  toggleStageDone:el=>{const s=_stageByEl(el);if(!s){el.checked=!el.checked;toast('找不到這個階段，請重新整理','err');return}toggleStageDone(el,s.row||0,s.machine,s.stage,s.planStart,s.planEnd,s.actualStart,s.owner,s.note,s.priority,s.type)},
+  openEditStage:el=>{const s=_stageByEl(el);if(!s){toast('找不到這個階段，請重新整理','err');return}openEditStage(s.row||0,s.machine,s.stage,s.planStart,s.planEnd,s.actualStart,s.actualEnd,s.owner,s.note,s.priority,s.type)},
+  delStage:el=>delStage(+el.dataset.row),
+  closeModal:()=>closeModal(),
+  submitMachStatus:el=>submitMachStatus(el.dataset.name),
+  submitAddMachine:()=>submitAddMachine(),
+  submitAddStage:()=>submitAddStage(),
+  renderAddStageBody:()=>renderAddStageBody(),
+  addMsNode:()=>addMsNode(),
+  eTypeChange:el=>{document.getElementById('e-stage').innerHTML=stagesOfType(el.value).map(s=>'<option>'+esc(s)+'</option>').join('')},
+  submitEditStage:el=>submitEditStage(+el.dataset.row,el.dataset.machine,el.dataset.owner,el.dataset.priority),
+  openIssueDetail:el=>openIssueDetail(+el.dataset.idx),
+  submitIssueNew:()=>submitIssueNew(),
+  delIssue:el=>delIssue(+el.dataset.idx),
+  submitIssueDetail:el=>submitIssueDetail(+el.dataset.idx),
+  addLinkRow:()=>addLinkRow(),
+  submitLinks:()=>submitLinks(),
+  updateLaunchBtn:()=>updateLaunchBtn(),
+  submitLaunch:el=>submitLaunch(el.dataset.name),
+  owSelChange:el=>{document.getElementById('ow-new').style.display=el.value==='__new__'?'block':'none'},
+  submitOwner:el=>submitOwner(el.dataset.machine),
+  moveStage:el=>moveStageInType(el.dataset.type,+el.dataset.i,+el.dataset.dir),
+  removeStageByName:el=>removeStageByName(el.dataset.name),
+  addStageTyped:el=>addStageTyped(el.dataset.type),
+  addSettingItem:el=>addSettingItem(el.dataset.list,el.dataset.field),
+  saveSettings:()=>saveSettings(),
+  openAddABVersion:el=>openAddABVersion(+el.dataset.gi),
+  openEditABGame:el=>openEditABGame(+el.dataset.gi),
+  delABGame:el=>delABGame(+el.dataset.gi),
+  submitAddABGame:()=>submitAddABGame(),
+  submitAddABVersion:el=>submitAddABVersion(+el.dataset.gi),
+  submitEditABGame:el=>submitEditABGame(+el.dataset.gi),
+  abWinnerOnly:el=>{if(el.checked)document.querySelectorAll('.abv-winner').forEach(c=>{if(c!==el)c.checked=false})},
+  removeRow:el=>el.parentElement.remove(),
+};
+function _dispatch(attr){
+  return e=>{
+    const el=e.target.closest('['+attr+']');
+    if(!el)return;
+    const fn=ACTIONS[el.getAttribute(attr)];
+    if(fn)fn(el,e);
+  };
+}
+function _actInit(){
+  document.addEventListener('click',_dispatch('data-action'));
+  document.addEventListener('change',_dispatch('data-change'));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_actInit);else _actInit();
+
 // --- P2-3: native dialog ---
 function _dlg(){return document.getElementById('modal-bg')}
 // validation used to call alert(); a toast would sit under the dialog's top layer, so the
@@ -968,16 +1042,16 @@ function openAddMachine(){
     <div class="fg"><label>機台名稱</label><input id="m-name"></div>
     <div class="fg"><label>負責人</label><input id="m-owner"></div>
     <div class="fg"><label>優先級</label><select id="m-priority"><option>低</option><option selected>中</option><option>高</option></select></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddMachine()">確認</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitAddMachine">確認</button></div>`);
 }
 async function submitAddMachine(){const name=document.getElementById('m-name').value,owner=document.getElementById('m-owner').value,priority=document.getElementById('m-priority').value;if(!name){modalError('請輸入名稱');return}closeModal();await apiPost({action:'addMachine',name,owner,priority});await loadData()}
 
 function openAddStage(machine,owner){
   window._addStageCtx={machine:machine,owner:owner};
   openModal(`<h3>新增階段 — ${esc(machine)}</h3>
-    <div class="fg"><label>類型</label><select id="s-type" onchange="renderAddStageBody()"><option value="工作階段">工作階段</option><option value="里程碑">里程碑</option></select></div>
+    <div class="fg"><label>類型</label><select id="s-type" data-change="renderAddStageBody"><option value="工作階段">工作階段</option><option value="里程碑">里程碑</option></select></div>
     <div id="s-body"></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddStage()">確認</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitAddStage">確認</button></div>`);
   renderAddStageBody();
 }
 function renderAddStageBody(){
@@ -989,7 +1063,7 @@ function renderAddStageBody(){
     body.innerHTML=`<datalist id="ms-names">${opts}</datalist>
       <label style="display:block;font-size:12px;color:var(--ink-muted);margin-bottom:3px">里程碑節點（名稱可下拉或自行輸入，日期為 Deadline）</label>
       <div id="ms-nodes"></div>
-      <button type="button" class="btn btn-sm btn-add-stage" onclick="addMsNode()" style="margin-top:2px">＋ 再加一個節點</button>`;
+      <button type="button" class="btn btn-sm btn-add-stage" data-action="addMsNode" style="margin-top:2px">＋ 再加一個節點</button>`;
     addMsNode();
   }else{
     var wopts=stagesOfType('工作階段').map(function(s){return`<option>${esc(s)}</option>`}).join('');
@@ -1005,8 +1079,8 @@ function addMsNode(name,date){
   div.className='ms-node';
   div.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:8px';
   div.innerHTML=`<input class="ms-name" list="ms-names" placeholder="里程碑名稱" value="${esc(name||'')}" style="flex:1;padding:7px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px">
-    <input class="ms-date" type="date" value="${date||''}" style="padding:7px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px">
-    <button type="button" class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>`;
+    <input class="ms-date" type="date" value="${esc(date||'')}" style="padding:7px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px">
+    <button type="button" class="btn btn-sm btn-delete" data-action="removeRow">✕</button>`;
   wrap.appendChild(div);
 }
 async function submitAddStage(){
@@ -1031,14 +1105,14 @@ function openEditStage(row,machine,stage,ps,pe,as,ae,owner,note,priority,type){
   window._editStageCtx={row,machine,stage,ps,pe,as,ae,owner,note,priority,type};
   function buildOpts(selType,current){return stagesOfType(selType).map(s=>`<option${s===current?' selected':''}>${esc(s)}</option>`).join('')}
   openModal(`<h3>編輯階段</h3>
-    <div class="fg"><label>類型</label><select id="e-type" onchange="var o=stagesOfType(this.value).map(function(s){return'<option>'+s+'</option>'}).join('');document.getElementById('e-stage').innerHTML=o"><option value="工作階段"${type!=='里程碑'?' selected':''}>工作階段</option><option value="里程碑"${type==='里程碑'?' selected':''}>里程碑</option></select></div>
+    <div class="fg"><label>類型</label><select id="e-type" data-change="eTypeChange"><option value="工作階段"${type!=='里程碑'?' selected':''}>工作階段</option><option value="里程碑"${type==='里程碑'?' selected':''}>里程碑</option></select></div>
     <div class="fg"><label>階段名稱</label><select id="e-stage">${buildOpts(type||'工作階段',stage)}</select></div>
-    <div class="fg"><label>計畫開始日</label><input type="date" id="e-ps" value="${ps}"></div>
-    <div class="fg"><label>計畫結束日</label><input type="date" id="e-pe" value="${pe}"></div>
-    <div class="fg"><label>實際開始日</label><input type="date" id="e-as" value="${as}"></div>
-    <div class="fg"><label>實際結束日</label><input type="date" id="e-ae" value="${ae}"></div>
+    <div class="fg"><label>計畫開始日</label><input type="date" id="e-ps" value="${esc(ps)}"></div>
+    <div class="fg"><label>計畫結束日</label><input type="date" id="e-pe" value="${esc(pe)}"></div>
+    <div class="fg"><label>實際開始日</label><input type="date" id="e-as" value="${esc(as)}"></div>
+    <div class="fg"><label>實際結束日</label><input type="date" id="e-ae" value="${esc(ae)}"></div>
     <div class="fg"><label>備註</label><textarea id="e-note">${esc(note)}</textarea></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitEditStage(${row},'${esc(machine)}','${esc(owner)}','${esc(priority)}')">確認</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitEditStage" data-row="${row}" data-machine="${esc(machine)}" data-owner="${esc(owner)}" data-priority="${esc(priority)}">確認</button></div>`);
 }
 async function submitEditStage(row,machine,owner,priority){const data={machine,stage:document.getElementById('e-stage').value,planStart:document.getElementById('e-ps').value,planEnd:document.getElementById('e-pe').value,actualStart:document.getElementById('e-as').value,actualEnd:document.getElementById('e-ae').value,owner,note:document.getElementById('e-note').value,priority,type:document.getElementById('e-type').value};closeModal();await apiPost({action:'update',row,data});await loadData()}
 
@@ -1074,7 +1148,7 @@ function renderIssues(){
     const stale=i.status==='已解決'?null:issStaleDays(i);
     const c=issDotColor(i.severity,stale);
     const staleHtml=(stale!=null)?` · <span style="color:${issStaleColor(stale)};font-weight:600">停滯 ${stale} 天</span>`:'';
-    return `<button type="button" class="as-btn" style="display:flex;width:100%;text-align:left;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line-card);cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" onclick="openIssueDetail(${e.idx})" title="點擊看詳情">
+    return `<button type="button" class="as-btn" style="display:flex;width:100%;text-align:left;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line-card);cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" data-action="openIssueDetail" data-idx="${e.idx}" title="點擊看詳情">
       <span role="img" style="width:9px;height:9px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0" title="嚴重度：${esc(i.severity)}${stale!=null?' · 停滯 '+stale+' 天':''}" aria-label="嚴重度：${esc(i.severity)}${stale!=null?' · 停滯 '+stale+' 天':''}"></span>
       <span style="display:block;flex:1;min-width:0">
         <span style="display:block;font-size:13px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</span>
@@ -1093,7 +1167,7 @@ function openIssueNew(){
     </div>
     <div class="fg"><label>負責人</label><input id="ni-owner"></div>
     <div class="fg"><label>描述（背景／內容）</label><textarea id="ni-desc" style="height:60px"></textarea></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitIssueNew()">建立</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitIssueNew">建立</button></div>`);
 }
 async function submitIssueNew(){
   const title=document.getElementById('ni-title').value.trim();
@@ -1122,7 +1196,7 @@ function openIssueDetail(idx){
       <input id="id-newlog" placeholder="新增一筆進度（存檔後記今天）" style="flex:1;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
     </div>
     <p style="font-size:11px;color:var(--ink-3);margin-top:6px">建立 ${fmtDate(i.created)}${i.updated?'　·　更新 '+fmtDate(i.updated):''}</p>
-    <div class="modal-btns"><button class="btn btn-delete btn-sm" style="margin-right:auto" onclick="delIssue(${idx})">刪除</button><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitIssueDetail(${idx})">儲存</button></div>`);
+    <div class="modal-btns"><button class="btn btn-delete btn-sm" style="margin-right:auto" data-action="delIssue" data-idx="${idx}">刪除</button><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitIssueDetail" data-idx="${idx}">儲存</button></div>`);
 }
 async function submitIssueDetail(idx){
   const i=issuesList[idx];if(!i)return;
@@ -1159,8 +1233,8 @@ function openLinksEdit(){
   openModal(`<h3>編輯常用連結</h3>
     <p style="font-size:11px;color:var(--ink-2);margin-bottom:8px">名稱｜網址｜說明。網址可省略 https://。</p>
     <div id="links-list">${linksList.map(linkRow).join('')}</div>
-    <button type="button" class="btn btn-sm btn-add-stage" onclick="addLinkRow()" style="margin-top:4px">＋ 新增連結</button>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitLinks()">儲存</button></div>`);
+    <button type="button" class="btn btn-sm btn-add-stage" data-action="addLinkRow" style="margin-top:4px">＋ 新增連結</button>
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitLinks">儲存</button></div>`);
 }
 function linkRow(l){
   l=l||{};
@@ -1168,7 +1242,7 @@ function linkRow(l){
     <input class="lk-name" value="${esc(l.name||'')}" placeholder="名稱" style="width:96px;flex-shrink:0;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
     <input class="lk-url" value="${esc(l.url||'')}" placeholder="https://..." style="flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
     <input class="lk-desc" value="${esc(l.desc||'')}" placeholder="說明" style="width:110px;flex-shrink:0;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
-    <button type="button" class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>
+    <button type="button" class="btn btn-sm btn-delete" data-action="removeRow">✕</button>
   </div>`;
 }
 function addLinkRow(){document.getElementById('links-list').insertAdjacentHTML('beforeend',linkRow({}))}
@@ -1185,12 +1259,12 @@ function openLaunch(name){
   openModal(`<h3>確定上線 — ${esc(name)}</h3>
     <p style="font-size:12px;color:var(--ink-muted);margin-bottom:8px">完成以下檢查後才能上線；上線後此機台會移出「進行中」，並自動加入 AB 測試追蹤。</p>
     <ul style="list-style:none;margin-bottom:12px" id="launch-checks">
-      ${LAUNCH_CHECKLIST.map(it=>`<li style="padding:5px 0"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" class="lc-item" onchange="updateLaunchBtn()" style="width:16px;height:16px;accent-color:var(--good-mark)">${esc(it)}</label></li>`).join('')}
+      ${LAUNCH_CHECKLIST.map(it=>`<li style="padding:5px 0"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" class="lc-item" data-change="updateLaunchBtn" style="width:16px;height:16px;accent-color:var(--good-mark)">${esc(it)}</label></li>`).join('')}
     </ul>
     <div class="fg"><label>上線日期</label><input type="date" id="lc-date" value="${TODAY}"></div>
     <div class="fg"><label>目標市場</label><input id="lc-market" list="lc-markets" placeholder="TADA / JILI"><datalist id="lc-markets">${mktOpts}</datalist></div>
     <div class="fg"><label>遊戲 Tag</label><input id="lc-tag" list="lc-tags" placeholder="pay any / penny"><datalist id="lc-tags">${tagOpts}</datalist></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" id="lc-confirm" onclick="submitLaunch('${esc(name)}')" disabled style="opacity:.5">✅ 確定上線</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" id="lc-confirm" data-action="submitLaunch" data-name="${esc(name)}" disabled style="opacity:.5">✅ 確定上線</button></div>`);
   updateLaunchBtn();
 }
 function updateLaunchBtn(){
@@ -1221,14 +1295,14 @@ function editOwner(machine,current){
   const opts=owners.map(o=>`<option value="${esc(o)}"${o===current?' selected':''}>${esc(o)}</option>`).join('');
   openModal(`<h3>設定負責人 — ${esc(machine)}</h3>
     <div class="fg"><label>負責人</label>
-      <select id="ow-sel" onchange="document.getElementById('ow-new').style.display=this.value==='__new__'?'block':'none'">
+      <select id="ow-sel" data-change="owSelChange">
         <option value=""${current?'':' selected'}>（未指派）</option>
         ${opts}
         <option value="__new__">＋ 新增負責人…</option>
       </select>
     </div>
     <div class="fg" id="ow-new" style="display:none"><label>新負責人名稱</label><input id="ow-newname" placeholder="輸入新名稱"></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitOwner('${esc(machine)}')">確認</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitOwner" data-machine="${esc(machine)}">確認</button></div>`);
 }
 async function submitOwner(machine){
   const sel=document.getElementById('ow-sel').value;
@@ -1249,9 +1323,9 @@ function openSettings(){
     return items.map((s,i)=>{const gi=STAGES.indexOf(s);return`<li class="settings-item" data-gi="${gi}" data-type="${type}">
       <input type="color" value="${STAGE_COLORS[s]||'#9ca3af'}" data-field="color" aria-label="階段顏色">
       <input type="text" value="${esc(s)}" data-field="name" aria-label="階段名稱">
-      <button class="btn btn-sm btn-edit" onclick="moveStageInType('${type}',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-edit" onclick="moveStageInType('${type}',${i},1)">↓</button>
-      <button class="btn btn-sm btn-delete" onclick="removeStageByName('${esc(s)}')">✕</button>
+      <button class="btn btn-sm btn-edit" data-action="moveStage" data-type="${esc(type)}" data-i="${i}" data-dir="-1">↑</button>
+      <button class="btn btn-sm btn-edit" data-action="moveStage" data-type="${esc(type)}" data-i="${i}" data-dir="1">↓</button>
+      <button class="btn btn-sm btn-delete" data-action="removeStageByName" data-name="${esc(s)}">✕</button>
     </li>`}).join('');
   }
   openModal(`<h3>階段設定</h3>
@@ -1260,38 +1334,38 @@ function openSettings(){
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="color" id="new-ms-color" value="#f97316" style="width:32px;height:28px;border:none;border-radius:4px">
       <input type="text" id="new-ms-name" placeholder="新里程碑名稱" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
-      <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('里程碑')">新增</button>
+      <button class="btn btn-sm btn-add-stage" data-action="addStageTyped" data-type="里程碑">新增</button>
     </div>
     <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">⚙ 工作階段項目</h4>
     <ul class="settings-list" id="settings-ws">${renderList(wsItems,'工作階段')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="color" id="new-ws-color" value="#6366f1" style="width:32px;height:28px;border:none;border-radius:4px">
       <input type="text" id="new-ws-name" placeholder="新工作階段名稱" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
-      <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('工作階段')">新增</button>
+      <button class="btn btn-sm btn-add-stage" data-action="addStageTyped" data-type="工作階段">新增</button>
     </div>
     <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">🏷 AB 測試 Tag 選項</h4>
-    <ul class="settings-list" id="settings-tags">${AB_TAGS.map((t,i)=>`<li class="settings-item"><input type="text" value="${esc(t)}" data-field="tag" aria-label="TAG" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <ul class="settings-list" id="settings-tags">${AB_TAGS.map((t,i)=>`<li class="settings-item"><input type="text" value="${esc(t)}" data-field="tag" aria-label="TAG" style="flex:1"><button class="btn btn-sm btn-delete" data-action="removeRow">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="text" id="new-tag-name" placeholder="新 Tag" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
-      <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-tags').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-tag-name').value+'\\' data-field=\\'tag\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-tag-name').value=''">新增</button>
+      <button class="btn btn-sm btn-add-stage" data-action="addSettingItem" data-list="settings-tags" data-field="tag">新增</button>
     </div>
     <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">🌍 AB 測試市場選項</h4>
-    <ul class="settings-list" id="settings-markets">${AB_MARKETS.map((m,i)=>`<li class="settings-item"><input type="text" value="${esc(m)}" data-field="market" aria-label="市場" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <ul class="settings-list" id="settings-markets">${AB_MARKETS.map((m,i)=>`<li class="settings-item"><input type="text" value="${esc(m)}" data-field="market" aria-label="市場" style="flex:1"><button class="btn btn-sm btn-delete" data-action="removeRow">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="text" id="new-market-name" placeholder="新市場" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
-      <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-markets').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-market-name').value+'\\' data-field=\\'market\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-market-name').value=''">新增</button>
+      <button class="btn btn-sm btn-add-stage" data-action="addSettingItem" data-list="settings-markets" data-field="market">新增</button>
     </div>
     <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">🚀 上線檢查清單項目</h4>
-    <ul class="settings-list" id="settings-launch">${LAUNCH_CHECKLIST.map(it=>`<li class="settings-item"><input type="text" value="${esc(it)}" data-field="launch" aria-label="上線清單項目" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
+    <ul class="settings-list" id="settings-launch">${LAUNCH_CHECKLIST.map(it=>`<li class="settings-item"><input type="text" value="${esc(it)}" data-field="launch" aria-label="上線清單項目" style="flex:1"><button class="btn btn-sm btn-delete" data-action="removeRow">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="text" id="new-launch-name" placeholder="新檢查項目" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
-      <button class="btn btn-sm btn-add-stage" onclick="addSettingItem('settings-launch','launch')">新增</button>
+      <button class="btn btn-sm btn-add-stage" data-action="addSettingItem" data-list="settings-launch" data-field="launch">新增</button>
     </div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveSettings()">儲存</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="saveSettings">儲存</button></div>`);
 }
 function addSettingItem(listId,field){
   const inp=document.getElementById('new-'+field+'-name');const v=(inp.value||'').trim();if(!v)return;
-  document.getElementById(listId).insertAdjacentHTML('beforeend',`<li class="settings-item"><input type="text" value="${esc(v)}" data-field="${field}" aria-label="${field}" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`);
+  document.getElementById(listId).insertAdjacentHTML('beforeend',`<li class="settings-item"><input type="text" value="${esc(v)}" data-field="${field}" aria-label="${field}" style="flex:1"><button class="btn btn-sm btn-delete" data-action="removeRow">✕</button></li>`);
   inp.value='';
 }
 function addStageTyped(type){
@@ -1471,7 +1545,7 @@ function renderABTable(){
   games.forEach((g,gi)=>{
     const pairWarn=abPairWarn(g);
     html+=`<tr><td style="font-weight:600">${esc(g.gameName)}${pairWarn?`<span class="ab-gap" title="${esc(pairWarn)}">⚠ ${esc(pairWarn)}</span>`:''}</td><td>${esc(g.gameTag)}</td><td>${esc(g.targetMarket)}</td><td>${fmtDate(g.launchDate)}</td>
-      <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>${abPolishHtml(g)}</td><td>`;
+      <td><span class="ab-status-badge ab-status-${esc(g.status)}">${esc(g.status)}</span></td><td>${abPolishHtml(g)}</td><td>`;
     g.versions.forEach((v,vi)=>{
       const running=!!v.running;
       const style=running?'background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-mark)':'background:var(--surface);color:var(--ink-mid);border:1px solid var(--line-strong)';
@@ -1480,7 +1554,7 @@ function renderABTable(){
     });
     html+=`</td>`;
     html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:var(--accent);text-decoration:none;font-size:14px">&#128279; 詳情</a>`:''}</td>`;
-    if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" onclick="openAddABVersion(${gi})">+版本</button> <button class="btn btn-sm btn-edit" onclick="openEditABGame(${gi})">✎</button> <button class="btn btn-sm btn-delete" onclick="delABGame(${gi})">✕</button></td>`;
+    if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" data-action="openAddABVersion" data-gi="${gi}">+版本</button> <button class="btn btn-sm btn-edit" data-action="openEditABGame" data-gi="${gi}">✎</button> <button class="btn btn-sm btn-delete" data-action="delABGame" data-gi="${gi}">✕</button></td>`;
     html+=`</tr>`;
   });
   html+=`</tbody></table>`;
@@ -1546,7 +1620,7 @@ function openAddABGame(){
     <div class="fg"><label>上線日期</label><input type="date" id="ab-launch"></div>
     <div class="fg"><label>外部連結</label><input id="ab-link" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>A 版日期</label><input type="date" id="ab-v1-date"></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddABGame()">確認</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitAddABGame">確認</button></div>`);
 }
 async function submitAddABGame(){
   const g={gameName:document.getElementById('ab-name').value,gameTag:document.getElementById('ab-tag').value,targetMarket:document.getElementById('ab-market').value,launchDate:document.getElementById('ab-launch').value,link:document.getElementById('ab-link').value,status:'打磨中',versions:[]};
@@ -1560,7 +1634,7 @@ function openAddABVersion(gi){
   openModal(`<h3>新增版本 — ${esc(g.gameName)}</h3>
     <div class="fg"><label>版本代號</label><input id="abv-label" value="${nextLabel}"></div>
     <div class="fg"><label>上線日期</label><input type="date" id="abv-date" value="${TODAY}"></div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitAddABVersion(${gi})">確認</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitAddABVersion" data-gi="${gi}">確認</button></div>`);
 }
 async function submitAddABVersion(gi){
   const g=getFilteredAB()[gi];
@@ -1574,9 +1648,9 @@ function openEditABGame(gi){
   let versionsHtml=g.versions.map((v,vi)=>`<div class="fg abv-row" style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow:visible">
     <input class="abv-lbl" style="width:36px;flex-shrink:0" value="${esc(v.label)}">
     <input class="abv-dt" type="date" value="${v.date}" style="flex:1;min-width:0">
-    <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="勝出版本（可取消）"><input type="checkbox" class="abv-winner" value="${vi}" ${v.winner?'checked':''} onchange="if(this.checked){document.querySelectorAll('.abv-winner').forEach(c=>{if(c!==this)c.checked=false})}">🏆</label>
+    <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="勝出版本（可取消）"><input type="checkbox" class="abv-winner" value="${vi}" ${v.winner?'checked':''} data-change="abWinnerOnly">🏆</label>
     <label style="font-size:11px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;width:34px;justify-content:center" title="AB 測試中（可複選）"><input type="checkbox" class="abv-run" ${v.running?'checked':''}>測</label>
-    <button class="btn btn-sm btn-delete" style="flex-shrink:0" onclick="this.parentElement.remove()">✕</button>
+    <button class="btn btn-sm btn-delete" style="flex-shrink:0" data-action="removeRow">✕</button>
   </div>`).join('');
   openModal(`<h3>編輯 — ${esc(g.gameName)}</h3>
     <div class="fg"><label>遊戲名稱</label><input id="abe-name" value="${esc(g.gameName)}"></div>
@@ -1595,7 +1669,7 @@ function openEditABGame(gi){
       <span style="width:28px;flex-shrink:0"></span>
     </div>
     <div id="abe-versions">${versionsHtml}</div>
-    <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitEditABGame(${gi})">儲存</button></div>`);
+    <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="submitEditABGame" data-gi="${gi}">儲存</button></div>`);
 }
 async function submitEditABGame(gi){
   const g=getFilteredAB()[gi];
