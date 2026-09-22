@@ -17,7 +17,7 @@
 <style>
 :root{color-scheme:light;
   --bg:#f8f9fa;--surface:#fff;--surface-2:#fafafa;--surface-3:#f1f1f1;--surface-tint:#f3f0ff;
-  --line:#eee;--line-2:#eceef2;--line-soft:#f5f5f5;--line-faint:#f0f0f0;--line-card:#f2f2f2;--line-row:#f8f8f8;--line-strong:#ddd;--month-bg:#f7f8fa;--link-bg:#f7f7fb;
+  --line:#eee;--line-2:#eceef2;--line-soft:#f5f5f5;--line-faint:#f0f0f0;--line-card:#f2f2f2;--line-row:#f8f8f8;--line-strong:#ddd;--month-bg:#f7f8fa;--month-alt:#f3f4f8;--month-alt-cell:rgba(16,24,40,.035);--link-bg:#f7f7fb;
   --ink:#1a1a2e;--ink-2:#4a5160;--ink-3:#68707f;--text:#333;--ink-muted:#666;--ink-mid:#555;--ink-soft:#667085;--kpi-val:#101828;--on-accent:#fff;--tip-bg:#1a1a2e;--tip-ink:#fff;
   --accent:#4f46e5;--accent-tint:#ecedfb;--plan:#6366f1;
   --good-ink:#047857;--good-text:#15803d;--good-bg:#d1fae5;--good-mark:#22c55e;
@@ -29,7 +29,7 @@
   --shadow-toast:0 6px 20px rgba(0,0,0,.22);--ring:rgba(16,24,40,.15);--backdrop:rgba(0,0,0,.35)}
 :root[data-theme=dark]{color-scheme:dark;
   --bg:#0d0f13;--surface:#161a21;--surface-2:#1d222b;--surface-3:#242a34;--surface-tint:#23233d;
-  --line:#262b34;--line-2:#2a3039;--line-soft:#1f242d;--line-faint:#22272f;--line-card:#20252e;--line-row:#1a1f27;--line-strong:#39404c;--month-bg:#1a1f27;--link-bg:#1b1f2b;
+  --line:#262b34;--line-2:#2a3039;--line-soft:#1f242d;--line-faint:#22272f;--line-card:#20252e;--line-row:#1a1f27;--line-strong:#39404c;--month-bg:#1a1f27;--month-alt:#1e232c;--month-alt-cell:rgba(255,255,255,.045);--link-bg:#1b1f2b;
   --ink:#f0f2f6;--ink-2:#b2bac7;--ink-3:#8d96a5;--text:#dfe4ec;--ink-muted:#9aa3b2;--ink-mid:#a9b1be;--ink-soft:#98a2b3;--kpi-val:#f5f7fa;--on-accent:#0f1117;--tip-bg:#e9ecf2;--tip-ink:#14161c;
   --accent:#8f8ffa;--accent-tint:#262a4a;--plan:#8b8df5;
   --good-ink:#5ed88a;--good-text:#6fdc95;--good-bg:#12362a;--good-mark:#34d17a;
@@ -107,7 +107,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .gantt-hdr{display:flex;border-bottom:2px solid var(--line)}
 .gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:var(--ink-2);position:sticky;left:0;z-index:16;background:var(--surface);border-right:1px solid var(--line-2)}
 .gantt-timeline{display:flex;flex:1}
-.gantt-wk{flex:0 0 60px;text-align:center;padding:4px 2px;font-size:9px;color:var(--ink-3);border-left:1px solid var(--line-faint)}
+.gantt-wk{flex:0 0 var(--wk,60px);text-align:center;padding:4px 2px;font-size:10px;color:var(--ink-3);border-left:1px solid var(--line-faint)}
 .gantt-mhdr{display:flex}
 .gantt-mhdr-lbl{width:180px;min-width:180px;position:sticky;left:0;z-index:16;background:var(--surface);border-right:1px solid var(--line-2)}
 .gantt-month{text-align:center;font-size:11px;font-weight:600;color:var(--ink-soft);padding:5px 0;border-left:1px solid var(--line-2);background:var(--month-bg)}
@@ -117,12 +117,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .gantt-row:hover .gantt-row-lbl{background:var(--surface-2)}
 .gantt-row-lbl{width:180px;min-width:180px;padding:4px 10px 4px 24px;font-size:12px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:sticky;left:0;z-index:12;background:var(--surface);border-right:1px solid var(--line-2)}
 .gantt-row-tl{display:flex;flex:1;position:relative;height:28px}
-.gantt-cell{flex:0 0 60px;border-left:1px solid var(--surface-2)}
+.gantt-cell{flex:0 0 var(--wk,60px);border-left:1px solid var(--surface-2)}
 .g-plan{position:absolute;top:4px;height:8px;border-radius:4px;opacity:.4}
 .g-actual{position:absolute;top:14px;height:10px;border-radius:4px}
 .g-milestone{position:absolute;top:6px;width:12px;height:12px;transform:rotate(45deg);border:2px solid}
-.today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--crit-mark);opacity:.7;z-index:10;pointer-events:none}
-.today-label{position:absolute;top:-16px;font-size:9px;color:var(--crit-ink);background:var(--surface);padding:0 3px;border-radius:3px;transform:translateX(-50%);white-space:nowrap}
+.today-line{position:absolute;top:17px;bottom:0;width:2px;background:var(--crit-mark);opacity:.7;z-index:10;pointer-events:none}
+.today-label{position:absolute;top:-17px;left:1px;height:15px;line-height:13px;font-size:10px;font-weight:600;color:var(--crit-ink);background:var(--crit-bg);border:1px solid var(--crit-mark);padding:0 6px;border-radius:8px;transform:translateX(-50%);white-space:nowrap}
+.gantt-today-lane{height:17px}
+.gantt-month.alt{background:var(--month-alt)}.gantt-cell.alt{background:var(--month-alt-cell)}
+.g-dot .ms-label-l{left:auto;right:16px}
+.g-edge{position:absolute;top:50%;transform:translateY(-50%);font-size:10px;color:var(--ink-3);white-space:nowrap;pointer-events:none;z-index:4}.g-edge-l{left:4px}.g-edge-r{right:4px}.g-edge-b{top:auto;bottom:0;transform:none;font-size:9px}
+.gantt-sep{width:1px;align-self:stretch;background:var(--line-strong);margin:0 4px}
 .gantt-toggle{display:flex;gap:4px}
 .gantt-toggle .btn-sm{background:var(--surface-3);color:var(--ink-muted)}
 .gantt-toggle .btn-sm.active{background:var(--accent);color:var(--on-accent)}
@@ -133,8 +138,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .g-dot{position:absolute;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid var(--surface);cursor:pointer;transform:translateX(-7px);z-index:5;box-shadow:0 0 0 1px var(--ring)}
 .g-dot .ms-label{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;color:var(--ink-2);white-space:nowrap;pointer-events:none;background:var(--surface);padding:0 3px;border-radius:3px}
 .g-dot-green{background:var(--good-mark)}.g-dot-yellow{background:var(--warn-mark)}.g-dot-red{background:var(--crit-mark)}
-.g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:20}
-.g-dot:hover .g-tooltip{opacity:1}
+.g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;display:none;z-index:20}
+.g-dot:hover .g-tooltip,.g-dot:focus-visible .g-tooltip{display:block}
 .gantt-row-tl{overflow:visible}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--ink-muted)}
 .legend-item{display:flex;align-items:center;gap:5px}
@@ -202,7 +207,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .machine-header:focus-within{background:var(--surface-tint)}
 @container (max-width:740px){#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
 @media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}#ab-timeline{--ab-lbl-w:80px;--ab-note-w:74px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-note{font-size:9.5px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
-@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px}.kpi-ico{width:36px;height:36px;font-size:18px;border-radius:10px}.kpi-label{font-size:11px}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{flex:0 0 40px;font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}#ab-timeline{--ab-lbl-w:60px;--ab-note-w:60px}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-note{font-size:9px;padding:0 4px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(8),.ab-table td:nth-child(8){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
+@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px}.kpi-ico{width:36px;height:36px;font-size:18px;border-radius:10px}.kpi-label{font-size:11px}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}#ab-timeline{--ab-lbl-w:60px;--ab-note-w:60px}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-note{font-size:9px;padding:0 4px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(8),.ab-table td:nth-child(8){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
 </style>
 </head>
 <body>
@@ -244,7 +249,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
   </div>
   <div class="section">
-    <div class="section-hdr"><h2>甘特圖（週粒度）</h2><div class="gantt-toggle"><button class="btn btn-sm" id="btn-milestone" data-action="setGanttView" data-view="milestone">里程碑</button><button class="btn btn-sm" id="btn-detail" data-action="setGanttView" data-view="detail">詳細</button></div></div>
+    <div class="section-hdr"><h2>甘特圖（週粒度）</h2><div class="gantt-toggle"><button class="btn btn-sm" id="btn-milestone" data-action="setGanttView" data-view="milestone">里程碑</button><button class="btn btn-sm" id="btn-detail" data-action="setGanttView" data-view="detail">詳細</button><span class="gantt-sep" aria-hidden="true"></span><button class="btn btn-sm" id="btn-range-focus" data-action="setGanttRange" data-range="focus" title="今天前 3 週到後 10 週">近期</button><button class="btn btn-sm" id="btn-range-all" data-action="setGanttRange" data-range="all" title="所有資料的時間範圍">全部</button></div></div>
     <div class="gantt-wrap"><div class="gantt" id="gantt"></div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-plan"></div>計畫區間</div>
@@ -732,22 +737,33 @@ function renderTable(){
 // === Gantt ===
 let ganttView=lsGet('ganttView')||'milestone';
 function setGanttView(v){ganttView=v;lsSet('ganttView',v);renderGantt()}
+// P3-3: 近期＝今天前 3 週～後 10 週；全部＝所有資料的範圍
+let GANTT_WK=60; // 每週的像素寬，近期模式會放大到填滿可用寬度
+let ganttRange=lsGet('ganttRange')==='all'?'all':'focus';
+function setGanttRange(v){ganttRange=v==='all'?'all':'focus';lsSet('ganttRange',ganttRange);renderGantt()}
 
 function renderGantt(){
   document.getElementById('btn-milestone').className='btn btn-sm'+(ganttView==='milestone'?' active':'');
   document.getElementById('btn-detail').className='btn btn-sm'+(ganttView==='detail'?' active':'');
+  document.getElementById('btn-range-focus').className='btn btn-sm'+(ganttRange==='focus'?' active':'');
+  document.getElementById('btn-range-all').className='btn btn-sm'+(ganttRange==='all'?' active':'');
   const machines=getFilteredMachines();
   const weeks=getWeeks(),total=weeks.length;
+  // 週寬：至少 60px（手機 40px），近期模式週數少時放大填滿容器，刻度與資料點共用同一個寬度
+  const gEl=document.getElementById('gantt');
+  const lblW=innerWidth<=480?70:innerWidth<=768?120:180,minWk=innerWidth<=480?40:60;
+  GANTT_WK=Math.max(minWk,Math.floor(((gEl.parentElement.clientWidth||0)-lblW)/total));
+  gEl.style.setProperty('--wk',GANTT_WK+'px');
   let mh='<div class="gantt-mhdr"><div class="gantt-mhdr-lbl"></div>';
   let wi=0;
   while(wi<weeks.length){
     const ym=weeks[wi].getFullYear()+'-'+weeks[wi].getMonth();
     let cnt=0; while(wi+cnt<weeks.length && (weeks[wi+cnt].getFullYear()+'-'+weeks[wi+cnt].getMonth())===ym) cnt++;
-    mh+=`<div class="gantt-month" style="flex:0 0 ${cnt*60}px;width:${cnt*60}px">${weeks[wi].getFullYear()}/${String(weeks[wi].getMonth()+1).padStart(2,'0')}</div>`;
+    mh+=`<div class="gantt-month${weeks[wi].getMonth()%2?' alt':''}" style="flex:0 0 ${cnt*GANTT_WK}px;width:${cnt*GANTT_WK}px">${weeks[wi].getFullYear()}/${String(weeks[wi].getMonth()+1).padStart(2,'0')}</div>`;
     wi+=cnt;
   }
   mh+='</div>';
-  let html=mh+`<div class="gantt-hdr"><div class="gantt-lbl">機台${ganttView==='detail'?' / 階段':''}</div><div class="gantt-timeline">`;
+  let html='<div class="gantt-today-lane"></div>'+mh+`<div class="gantt-hdr"><div class="gantt-lbl">機台${ganttView==='detail'?' / 階段':''}</div><div class="gantt-timeline">`;
   weeks.forEach(w=>{html+=`<div class="gantt-wk">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div></div>`;
 
@@ -771,12 +787,14 @@ function renderGanttMilestone(machines,weeks,total){
     // Only show milestone-type items.
     // P2-5: two milestones inside roughly one dot-width of each other would draw on top of
     // one another, so alternate them between an upper and a lower lane.
-    const tlPx=Math.max(weeks.length*60,1);
+    const tlPx=Math.max(weeks.length*GANTT_WK,1);
     const minGapPct=16/tlPx*100;
-    const items=milestonesWithDate.map(s=>{
+    const allItems=milestonesWithDate.map(s=>{
       const dt=s.planEnd||s.actualEnd||s.planStart;
-      return dt?{s:s,dt:dt,pos:datePos(weeks,dt)*100}:null;
+      return dt?{s:s,dt:dt,pos:datePosRaw(weeks,dt)*100}:null;
     }).filter(Boolean).sort((a,b)=>a.pos-b.pos);
+    // P3-3: 範圍外的點不畫在邊界上（會誤讀成那一週的事件），改在列的兩端提示
+    const items=allItems.filter(it=>it.pos>=0&&it.pos<=100),past=allItems.filter(it=>it.pos<0),future=allItems.filter(it=>it.pos>100);
     // first lane with clearance; open a new one when none is free (up to MAX_LANES)
     const MAX_LANES=3,lastByLane=[-Infinity];
     items.forEach(it=>{
@@ -790,8 +808,8 @@ function renderGanttMilestone(machines,weeks,total){
     const laneCount=items.reduce((m,it)=>Math.max(m,it.lane+1),1);
     const rowH=Math.max(38,8+laneCount*16);
     html+=`<div class="gantt-row ms-row" style="min-height:${rowH}px"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl" style="height:${rowH}px">`;
-    weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
-    if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:var(--plan)"></div>`}
+    html+=ganttCells(weeks);
+    if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;if(!(l===r&&(l===0||l===100)))html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:var(--plan)"></div>`}
     const nm=nextMilestone(stages);
     items.forEach((it,idx)=>{
       const st=stageStatus(it.s);
@@ -799,9 +817,11 @@ function renderGanttMilestone(machines,weeks,total){
       // label only the next milestone, and only when the following dot is far enough away
       const room=!nxt||(nxt.pos-it.pos)*tlPx/100>64;
       const isNext=nm&&nm.stage===it.s.stage&&!it.s.actualEnd;
-      const label=(isNext&&room)?`<div class="ms-label">${esc(it.s.stage)}</div>`:'';
-      html+=`<div class="g-dot g-dot-${st}" style="left:${it.pos}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
+      const label=(isNext&&room)?`<div class="ms-label${it.pos>88?' ms-label-l':''}">${esc(it.s.stage)}</div>`:'';
+      html+=`<div class="g-dot g-dot-${st}" style="left:${Math.min(it.pos,99.4)}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
     });
+    if(past.length){const p=past[past.length-1];html+=`<div class="g-edge g-edge-l" title="${past.length} 個里程碑在範圍之前，最近的是 ${esc(p.s.stage)} ${fmtDate(p.dt)}">◂ ${past.length}${items.length?'':' · '+esc(p.s.stage)+' '+fmtDate(p.dt)}</div>`}
+    if(future.length){const f=future[0],lastPos=items.length?items[items.length-1].pos:-1,tight=lastPos>70;html+=`<div class="g-edge g-edge-r${lastPos>93?' g-edge-b':''}" title="${future.length} 個里程碑在範圍之後，下一個是 ${esc(f.s.stage)} ${fmtDate(f.dt)}">${tight?'':esc(f.s.stage)+' '+fmtDate(f.dt)+' '}▸ ${future.length}</div>`}
     html+=`</div></div>`;
   });
   return html;
@@ -813,11 +833,11 @@ function renderGanttDetail(machines,weeks,total){
     html+=`<div class="gantt-group-label">${esc(name)}</div>`;
     stages.forEach(s=>{
       html+=`<div class="gantt-row"><div class="gantt-row-lbl" title="${esc(s.stage)}">${esc(s.stage)}</div><div class="gantt-row-tl">`;
-      weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
+      html+=ganttCells(weeks);
       const color=STAGE_COLORS[s.stage]||'#6366f1';
-      if(s.planStart&&s.planEnd){const l=datePos(weeks,s.planStart)*100,r=datePos(weeks,s.planEnd)*100;html+=`<div class="g-plan" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:${color}"></div>`}
-      else if(s.planEnd&&!s.planStart){const p=datePos(weeks,s.planEnd)*100;html+=`<div class="g-milestone" style="left:calc(${p}% - 6px);border-color:${color}"></div>`}
-      if(s.actualStart){const l=datePos(weeks,s.actualStart)*100,r=(s.actualEnd?datePos(weeks,s.actualEnd):datePos(weeks,TODAY))*100;html+=`<div class="g-actual" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:${color}"></div>`}
+      if(s.planStart&&s.planEnd){const l=datePos(weeks,s.planStart)*100,r=datePos(weeks,s.planEnd)*100;if(!(l===r&&(l===0||l===100)))html+=`<div class="g-plan" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:${color}"></div>`}
+      else if(s.planEnd&&!s.planStart){const p=datePosRaw(weeks,s.planEnd)*100;if(p>=0&&p<=100)html+=`<div class="g-milestone" style="left:calc(${Math.min(p,99.2)}% - 6px);border-color:${color}"></div>`}
+      if(s.actualStart){const l=datePos(weeks,s.actualStart)*100,r=(s.actualEnd?datePos(weeks,s.actualEnd):datePos(weeks,TODAY))*100;if(!(l===r&&(l===0||l===100)))html+=`<div class="g-actual" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:${color}"></div>`}
       html+=`</div></div>`;
     });
   });
@@ -834,18 +854,26 @@ function addTodayLine(weeks){
   if(!tlEl)return;
   const line=document.createElement('div');
   line.className='today-line';
-  line.style.left=(180+tlEl.offsetWidth*todayPos/100)+'px';
-  line.innerHTML='<div class="today-label">Today</div>';
+  line.style.left=(tlEl.offsetLeft+tlEl.offsetWidth*todayPos/100)+'px';
+  line.innerHTML='<div class="today-label">今天</div>';
   ganttEl.appendChild(line);
 }
 
 function getWeeks(){
+  if(ganttRange==='focus'){
+    const t=new Date(TODAY+'T00:00:00').getTime();
+    const s=mondayOf(new Date(t-86400000*21)),e=new Date(t+86400000*70),weeks=[];
+    const c=new Date(s);while(c<=e){weeks.push(new Date(c));c.setDate(c.getDate()+7)}return weeks;
+  }
   let min=Infinity,max=-Infinity;
   rawData.forEach(r=>{[r.planStart,r.planEnd,r.actualStart,r.actualEnd].forEach(d=>{if(d){const t=new Date(d+'T00:00:00').getTime();if(t<min)min=t;if(t>max)max=t}})});
   if(min===Infinity){min=Date.now();max=Date.now()+86400000*90}
   const s=mondayOf(new Date(min-86400000*7)),e=new Date(max+86400000*14),weeks=[];
   const c=new Date(s);while(c<=e){weeks.push(new Date(c));c.setDate(c.getDate()+7)}return weeks;
 }
+// unclamped position: callers decide what to do with points outside the range
+function datePosRaw(weeks,dateStr){const total=weeks.length;const d=new Date(dateStr.slice(0,10)+'T00:00:00');const start=weeks[0].getTime();const end=weeks[total-1].getTime()+7*86400000;return (d.getTime()-start)/(end-start)}
+function ganttCells(weeks){return weeks.map(w=>'<div class="gantt-cell'+(w.getMonth()%2?' alt':'')+'"></div>').join('')}
 function mondayOf(d){const r=new Date(d.getFullYear(),d.getMonth(),d.getDate());const day=r.getDay();r.setDate(r.getDate()-((day+6)%7));return r}
 function datePos(weeks,dateStr){
   const total=weeks.length;
@@ -902,6 +930,7 @@ const ACTIONS={
   openIssueNew:()=>openIssueNew(),
   openAddABGame:()=>openAddABGame(),
   setGanttView:el=>setGanttView(el.dataset.view),
+  setGanttRange:el=>setGanttRange(el.dataset.range),
   reload:()=>location.reload(),
   toggleMachine:el=>toggleMachine(el.dataset.id),
   cyclePriority:el=>cyclePriority(el.dataset.name,(el.textContent||'').trim(),el),
@@ -1578,7 +1607,7 @@ function renderABTimeline(){
   const weeks=[];let wk=new Date(startMs);wk.setDate(wk.getDate()-((wk.getDay()+6)%7));
   while(wk.getTime()<=endMs){weeks.push(new Date(wk));wk=new Date(wk.getTime()+7*86400000)}
 
-  let html=`<div style="display:flex;border-bottom:2px solid var(--line)"><div style="width:var(--ab-lbl-w);min-width:var(--ab-lbl-w);padding:6px 10px;font-size:11px;color:var(--ink-2)">遊戲</div><div style="display:flex;flex:1;min-width:0">`;
+  let html=`<div class="gantt-today-lane"></div><div style="display:flex;border-bottom:2px solid var(--line)"><div style="width:var(--ab-lbl-w);min-width:var(--ab-lbl-w);padding:6px 10px;font-size:11px;color:var(--ink-2)">遊戲</div><div style="display:flex;flex:1;min-width:0">`;
   weeks.forEach(w=>{html+=`<div style="flex:1;min-width:0;overflow:hidden;text-align:center;padding:4px 2px;font-size:9px;color:var(--ink-3);border-left:1px solid var(--line-faint)">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div><div class="ab-note"></div></div>`;
 
@@ -1607,7 +1636,7 @@ function renderABTimeline(){
 
   // Today line
   const todayPos=pos(TODAY);
-  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(var(--ab-lbl-w) + (100% - var(--ab-lbl-w) - var(--ab-note-w))*${todayPos}/100);width:2px;background:var(--crit-mark);opacity:.7;z-index:10;pointer-events:none"><div class="today-label">Today</div></div>`}
+  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:17px;bottom:0;left:calc(var(--ab-lbl-w) + (100% - var(--ab-lbl-w) - var(--ab-note-w))*${todayPos}/100);width:2px;background:var(--crit-mark);opacity:.7;z-index:10;pointer-events:none"><div class="today-label">今天</div></div>`}
   document.getElementById('ab-timeline').innerHTML=`<div style="position:relative">${html}</div>`;
 }
 
