@@ -14,156 +14,169 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>機率部門專案時程管理儀表板</title>
 <style>
+:root{color-scheme:light;
+  --bg:#f8f9fa;--surface:#fff;--surface-2:#fafafa;--surface-3:#f1f1f1;--surface-tint:#f3f0ff;
+  --line:#eee;--line-2:#eceef2;--line-soft:#f5f5f5;--line-faint:#f0f0f0;--line-card:#f2f2f2;--line-row:#f8f8f8;--line-strong:#ddd;--month-bg:#f7f8fa;--link-bg:#f7f7fb;
+  --ink:#1a1a2e;--ink-2:#4a5160;--ink-3:#68707f;--text:#333;--ink-muted:#666;--ink-mid:#555;--ink-soft:#667085;--kpi-val:#101828;--on-accent:#fff;--tip-bg:#1a1a2e;--tip-ink:#fff;
+  --accent:#4f46e5;--accent-tint:#ecedfb;--plan:#6366f1;
+  --good-ink:#047857;--good-text:#15803d;--good-bg:#d1fae5;--good-mark:#22c55e;
+  --warn-ink:#754d00;--warn-bg:#fbefd6;--warn-mark:#eab308;--warn-text:#9a6206;--warn-ring:#b45309;
+  --crit-ink:#b3211f;--crit-bg:#fde5e4;--crit-mark:#ef4444;--crit-line:#fecaca;
+  --info-ink:#0369a1;--info-bg:#e0f2fe;--err-text:#dc2626;--err-bg:#fef2f2;--kpi-crit:#e5484d;--kpi-crit-bg:#fdecec;--kpi-warn:#d98908;--kpi-warn-bg:#fdf3e2;--kpi-accent:#5b5bd6;
+  --shadow-sm:0 1px 3px rgba(16,24,40,.05);--shadow-hover:0 8px 22px rgba(16,24,40,.09);
+  --shadow-md:0 2px 8px rgba(0,0,0,.05);--shadow-lg:0 16px 48px rgba(0,0,0,.15);
+  --shadow-toast:0 6px 20px rgba(0,0,0,.22);--ring:rgba(16,24,40,.15);--backdrop:rgba(0,0,0,.35)}
+
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8f9fa;color:#333;padding:24px;line-height:1.5}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding:24px;line-height:1.5}
 .header{text-align:center;margin-bottom:28px;position:relative}
-.header h1{font-size:24px;color:#1a1a2e;font-weight:700}
-.header p{font-size:12px;color:#4a5160;margin-top:4px}
-.btn-gear{position:absolute;top:0;right:0;background:none;border:1px solid #ddd;border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer;color:#666}
-.btn-gear:hover{background:#f3f0ff;border-color:#6366f1;color:#6366f1}
-.error-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:16px;color:#dc2626;font-size:13px;display:none}
-.loading{text-align:center;padding:40px;color:#4a5160}
-.loading::after{content:'';display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
+.header h1{font-size:24px;color:var(--ink);font-weight:700}
+.header p{font-size:12px;color:var(--ink-2);margin-top:4px}
+.btn-gear{position:absolute;top:0;right:0;background:none;border:1px solid var(--line-strong);border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer;color:var(--ink-muted)}
+.btn-gear:hover{background:var(--surface-tint);border-color:var(--plan);color:var(--plan)}
+.error-banner{background:var(--err-bg);border:1px solid var(--crit-line);border-radius:8px;padding:12px 16px;margin-bottom:16px;color:var(--err-text);font-size:13px;display:none}
+.loading{text-align:center;padding:40px;color:var(--ink-2)}
+.loading::after{content:'';display:inline-block;width:14px;height:14px;border:2px solid var(--line-strong);border-top-color:var(--plan);border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.kpi{background:#fff;border:1px solid #eceef2;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(16,24,40,.05);transition:transform .15s ease,box-shadow .15s ease}
-.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(16,24,40,.09)}
+.kpi{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm);transition:transform .15s ease,box-shadow .15s ease}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
 .kpi-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .kpi-body{display:flex;flex-direction:column;gap:3px;min-width:0}
-.kpi-label{font-size:12px;color:#667085;font-weight:500;white-space:nowrap}
-.kpi-val{font-size:28px;font-weight:700;line-height:1;color:#101828}
-.section{background:#fff;border-radius:10px;padding:20px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.kpi-label{font-size:12px;color:var(--ink-soft);font-weight:500;white-space:nowrap}
+.kpi-val{font-size:28px;font-weight:700;line-height:1;color:var(--kpi-val)}
+.section{background:var(--surface);border-radius:10px;padding:20px;margin-top:20px;box-shadow:var(--shadow-md)}
 .section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
-.section-hdr h2{font-size:16px;color:#1a1a2e;font-weight:600}
+.section-hdr h2{font-size:16px;color:var(--ink);font-weight:600}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-.toolbar select,.toolbar input{padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#fff}
+.toolbar select,.toolbar input{padding:6px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px;background:var(--surface)}
 .toolbar input{width:160px}
 .as-btn{appearance:none;background:none;border:0;padding:0;margin:0;font:inherit;line-height:inherit;color:inherit;text-align:left;cursor:pointer}
 .btn{padding:7px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer}
 .btn:hover{opacity:.85}
-.btn-primary{background:#4f46e5;color:#fff}
+.btn-primary{background:var(--accent);color:var(--on-accent)}
 .btn-sm{padding:3px 8px;font-size:11px}
-.btn-edit{background:#e0f2fe;color:#0369a1}
-.btn-delete{background:#fde5e4;color:#b3211f}
-.btn-add-stage{background:#d1fae5;color:#047857}
+.btn-edit{background:var(--info-bg);color:var(--info-ink)}
+.btn-delete{background:var(--crit-bg);color:var(--crit-ink)}
+.btn-add-stage{background:var(--good-bg);color:var(--good-ink)}
 .mach-panel{container-type:inline-size}
-.machine-group{border:1px solid #eee;border-radius:8px;margin-bottom:12px;overflow:clip}
-.machine-header{display:grid;grid-template-columns:14px minmax(56px,1fr) minmax(30px,46px) minmax(40px,64px) minmax(60px,100px) minmax(80px,118px) minmax(90px,132px) minmax(48px,76px) minmax(max-content,208px);align-items:center;gap:10px;padding:12px 16px;background:#fafafa;cursor:pointer;user-select:none}
-.machine-header:hover{background:#f3f0ff}
-.machine-name{font-weight:600;font-size:14px;color:#1a1a2e}
-.machine-meta{font-size:12px;color:#4a5160;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.machine-group{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;overflow:clip}
+.machine-header{display:grid;grid-template-columns:14px minmax(56px,1fr) minmax(30px,46px) minmax(40px,64px) minmax(60px,100px) minmax(80px,118px) minmax(90px,132px) minmax(48px,76px) minmax(max-content,208px);align-items:center;gap:10px;padding:12px 16px;background:var(--surface-2);cursor:pointer;user-select:none}
+.machine-header:hover{background:var(--surface-tint)}
+.machine-name{font-weight:600;font-size:14px;color:var(--ink)}
+.machine-meta{font-size:12px;color:var(--ink-2);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .machine-actions{display:flex;gap:6px}
-.progress-bar{width:80px;height:6px;background:#eee;border-radius:3px;overflow:hidden}
+.progress-bar{width:80px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .progress-fill{height:100%;border-radius:3px}
 .stage-table{width:100%;border-collapse:collapse;display:none}
 .stage-table.open{display:table}
-.stage-table th{text-align:left;padding:8px 12px;border-bottom:1px solid #eee;color:#4a5160;font-size:11px;text-transform:uppercase}
-.stage-table td{padding:8px 12px;border-bottom:1px solid #f5f5f5;font-size:13px}
+.stage-table th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);color:var(--ink-2);font-size:11px;text-transform:uppercase}
+.stage-table td{padding:8px 12px;border-bottom:1px solid var(--line-soft);font-size:13px}
 .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
-.badge-green{background:#d1fae5;color:#047857}
-.badge-yellow{background:#fbefd6;color:#754d00}
-.badge-red{background:#fde5e4;color:#b3211f}
-.priority-高{background:#fde5e4;color:#b3211f}
-.priority-中{background:#fbefd6;color:#754d00}
-.priority-低{background:#f1f1f1;color:#4a5160}
+.badge-green{background:var(--good-bg);color:var(--good-ink)}
+.badge-yellow{background:var(--warn-bg);color:var(--warn-ink)}
+.badge-red{background:var(--crit-bg);color:var(--crit-ink)}
+.priority-高{background:var(--crit-bg);color:var(--crit-ink)}
+.priority-中{background:var(--warn-bg);color:var(--warn-ink)}
+.priority-低{background:var(--surface-3);color:var(--ink-2)}
 .gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .gantt{position:relative}
-.gantt-hdr{display:flex;border-bottom:2px solid #eee}
-.gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:#4a5160;position:sticky;left:0;z-index:16;background:#fff;border-right:1px solid #eceef2}
+.gantt-hdr{display:flex;border-bottom:2px solid var(--line)}
+.gantt-lbl{width:180px;min-width:180px;padding:6px 10px;font-size:11px;color:var(--ink-2);position:sticky;left:0;z-index:16;background:var(--surface);border-right:1px solid var(--line-2)}
 .gantt-timeline{display:flex;flex:1}
-.gantt-wk{flex:0 0 60px;text-align:center;padding:4px 2px;font-size:9px;color:#68707f;border-left:1px solid #f0f0f0}
+.gantt-wk{flex:0 0 60px;text-align:center;padding:4px 2px;font-size:9px;color:var(--ink-3);border-left:1px solid var(--line-faint)}
 .gantt-mhdr{display:flex}
-.gantt-mhdr-lbl{width:180px;min-width:180px;position:sticky;left:0;z-index:16;background:#fff;border-right:1px solid #eceef2}
-.gantt-month{text-align:center;font-size:11px;font-weight:600;color:#667085;padding:5px 0;border-left:1px solid #eceef2;background:#f7f8fa}
-.gantt-group-label{padding:6px 10px;font-size:12px;font-weight:600;color:#1a1a2e;background:#fafafa;border-bottom:1px solid #eee;position:sticky;left:0;z-index:12}
-.gantt-row{display:flex;border-bottom:1px solid #f8f8f8;min-height:28px;align-items:center}
-.gantt-row:hover{background:#fafafa}
-.gantt-row:hover .gantt-row-lbl{background:#fafafa}
-.gantt-row-lbl{width:180px;min-width:180px;padding:4px 10px 4px 24px;font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:sticky;left:0;z-index:12;background:#fff;border-right:1px solid #eceef2}
+.gantt-mhdr-lbl{width:180px;min-width:180px;position:sticky;left:0;z-index:16;background:var(--surface);border-right:1px solid var(--line-2)}
+.gantt-month{text-align:center;font-size:11px;font-weight:600;color:var(--ink-soft);padding:5px 0;border-left:1px solid var(--line-2);background:var(--month-bg)}
+.gantt-group-label{padding:6px 10px;font-size:12px;font-weight:600;color:var(--ink);background:var(--surface-2);border-bottom:1px solid var(--line);position:sticky;left:0;z-index:12}
+.gantt-row{display:flex;border-bottom:1px solid var(--line-row);min-height:28px;align-items:center}
+.gantt-row:hover{background:var(--surface-2)}
+.gantt-row:hover .gantt-row-lbl{background:var(--surface-2)}
+.gantt-row-lbl{width:180px;min-width:180px;padding:4px 10px 4px 24px;font-size:12px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:sticky;left:0;z-index:12;background:var(--surface);border-right:1px solid var(--line-2)}
 .gantt-row-tl{display:flex;flex:1;position:relative;height:28px}
-.gantt-cell{flex:0 0 60px;border-left:1px solid #fafafa}
+.gantt-cell{flex:0 0 60px;border-left:1px solid var(--surface-2)}
 .g-plan{position:absolute;top:4px;height:8px;border-radius:4px;opacity:.4}
 .g-actual{position:absolute;top:14px;height:10px;border-radius:4px}
 .g-milestone{position:absolute;top:6px;width:12px;height:12px;transform:rotate(45deg);border:2px solid}
-.today-line{position:absolute;top:0;bottom:0;width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none}
-.today-label{position:absolute;top:-16px;font-size:9px;color:#b3211f;background:#fff;padding:0 3px;border-radius:3px;transform:translateX(-50%);white-space:nowrap}
+.today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--crit-mark);opacity:.7;z-index:10;pointer-events:none}
+.today-label{position:absolute;top:-16px;font-size:9px;color:var(--crit-ink);background:var(--surface);padding:0 3px;border-radius:3px;transform:translateX(-50%);white-space:nowrap}
 .gantt-toggle{display:flex;gap:4px}
-.gantt-toggle .btn-sm{background:#f1f1f1;color:#666}
-.gantt-toggle .btn-sm.active{background:#4f46e5;color:#fff}
+.gantt-toggle .btn-sm{background:var(--surface-3);color:var(--ink-muted)}
+.gantt-toggle .btn-sm.active{background:var(--accent);color:var(--on-accent)}
 .g-bar{position:absolute;top:8px;height:12px;border-radius:6px;opacity:.25}
 .gantt-row.ms-row{min-height:38px}
 .ms-row .gantt-row-tl{height:38px}
 .ms-row .g-bar{top:17px;height:4px;border-radius:2px}
-.g-dot{position:absolute;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid #fff;cursor:pointer;transform:translateX(-7px);z-index:5;box-shadow:0 0 0 1px rgba(16,24,40,.15)}
-.g-dot .ms-label{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;color:#4a5160;white-space:nowrap;pointer-events:none;background:#fff;padding:0 3px;border-radius:3px}
-.g-dot-green{background:#22c55e}.g-dot-yellow{background:#eab308}.g-dot-red{background:#ef4444}
-.g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:20}
+.g-dot{position:absolute;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid var(--surface);cursor:pointer;transform:translateX(-7px);z-index:5;box-shadow:0 0 0 1px var(--ring)}
+.g-dot .ms-label{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;color:var(--ink-2);white-space:nowrap;pointer-events:none;background:var(--surface);padding:0 3px;border-radius:3px}
+.g-dot-green{background:var(--good-mark)}.g-dot-yellow{background:var(--warn-mark)}.g-dot-red{background:var(--crit-mark)}
+.g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:20}
 .g-dot:hover .g-tooltip{opacity:1}
 .gantt-row-tl{overflow:visible}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#666}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--ink-muted)}
 .legend-item{display:flex;align-items:center;gap:5px}
-.legend-plan{width:16px;height:6px;border-radius:3px;background:#6366f1;opacity:.4}
-.legend-actual{width:16px;height:8px;border-radius:3px;background:#6366f1}
-.legend-ms{width:8px;height:8px;transform:rotate(45deg);border:2px solid #6366f1;background:#fff}
-.legend-today{width:16px;height:2px;background:#ef4444}
+.legend-plan{width:16px;height:6px;border-radius:3px;background:var(--plan);opacity:.4}
+.legend-actual{width:16px;height:8px;border-radius:3px;background:var(--plan)}
+.legend-ms{width:8px;height:8px;transform:rotate(45deg);border:2px solid var(--plan);background:var(--surface)}
+.legend-today{width:16px;height:2px;background:var(--crit-mark)}
 .tab-nav{display:flex;gap:4px;justify-content:center;margin-bottom:20px}
-.tab-btn{padding:10px 24px;border:1px solid #ddd;border-radius:8px 8px 0 0;background:#f8f9fa;font-size:14px;font-weight:600;cursor:pointer;color:#666;border-bottom:none;transition:all .2s}
-.tab-btn.active{background:#fff;color:#4f46e5;border-color:#4f46e5;border-bottom:2px solid #fff;margin-bottom:-1px}
+.tab-btn{padding:10px 24px;border:1px solid var(--line-strong);border-radius:8px 8px 0 0;background:var(--bg);font-size:14px;font-weight:600;cursor:pointer;color:var(--ink-muted);border-bottom:none;transition:all .2s}
+.tab-btn.active{background:var(--surface);color:var(--accent);border-color:var(--accent);border-bottom:2px solid var(--surface);margin-bottom:-1px}
 .tab-content{display:none}.tab-content.active{display:block}.tab-content[hidden]{display:none}
 .ab-table{width:100%;border-collapse:collapse;font-size:13px}
-.ab-table th{text-align:left;padding:8px 10px;border-bottom:2px solid #eee;color:#4a5160;font-size:11px;text-transform:uppercase}
-.ab-table td{padding:8px 10px;border-bottom:1px solid #f5f5f5}
-.ab-table tr:hover{background:#fafafa}
-.ab-winner{background:#d1fae5;color:#047857;font-weight:700;border-radius:4px;padding:2px 6px}
+.ab-table th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);color:var(--ink-2);font-size:11px;text-transform:uppercase}
+.ab-table td{padding:8px 10px;border-bottom:1px solid var(--line-soft)}
+.ab-table tr:hover{background:var(--surface-2)}
+.ab-winner{background:var(--good-bg);color:var(--good-ink);font-weight:700;border-radius:4px;padding:2px 6px}
 .ab-version{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;cursor:pointer;border:2px solid transparent}
 .ab-version:hover{opacity:.8}
-.ab-version.winner{border-color:#b45309;box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(180,83,9,.5)}
-.ab-legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid #eee;font-size:11.5px;color:#4a5160}
+.ab-version.winner{border-color:var(--warn-ring);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(180,83,9,.5)}
+.ab-legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-2)}
 .ab-legend-item{display:inline-flex;align-items:center;gap:6px}
-.ab-legend-chip{cursor:default;margin:0;background:#fff;color:#555;border:2px solid #ddd}
-.ab-legend-chip.is-running{background:#fbefd6;color:#754d00;border:1px solid #eab308}
-.ab-timeline-row{display:flex;align-items:center;min-height:46px;border-bottom:1px solid #f5f5f5;padding:4px 0}
-.ab-timeline-row:hover{background:#fafafa}
-.ab-timeline-lbl{width:160px;min-width:160px;font-size:12px;font-weight:600;color:#1a1a2e;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-legend-chip{cursor:default;margin:0;background:var(--surface);color:var(--ink-mid);border:2px solid var(--line-strong)}
+.ab-legend-chip.is-running{background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-mark)}
+.ab-timeline-row{display:flex;align-items:center;min-height:46px;border-bottom:1px solid var(--line-soft);padding:4px 0}
+.ab-timeline-row:hover{background:var(--surface-2)}
+.ab-timeline-lbl{width:160px;min-width:160px;font-size:12px;font-weight:600;color:var(--ink);padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #ab-timeline{--ab-lbl-w:160px;--ab-note-w:92px}
 .ab-timeline-bar{flex:1;position:relative;height:38px}
 .ab-note{width:var(--ab-note-w);min-width:var(--ab-note-w);max-width:var(--ab-note-w);flex:0 0 var(--ab-note-w);box-sizing:border-box;text-align:right;padding:0 8px 0 4px;font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ab-dot.cmp{outline:2px dashed #b45309;outline-offset:2px}
-.ab-dot{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid #fff;box-shadow:0 0 0 2px #fff,0 1px 3px rgba(0,0,0,.2);z-index:5}
+.ab-dot.cmp{outline:2px dashed var(--warn-ring);outline-offset:2px}
+.ab-dot{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--on-accent);border:2px solid var(--surface);box-shadow:0 0 0 2px var(--surface),0 1px 3px rgba(0,0,0,.2);z-index:5}
 .ab-dot.lane1{top:19px}
-.ab-dot.winner{width:20px;height:20px;top:1px;transform:translateX(-10px);box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
+.ab-dot.winner{width:20px;height:20px;top:1px;transform:translateX(-10px);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
 .ab-dot.winner.lane1{top:17px}
-.ab-gap{display:block;font-size:9px;font-weight:600;color:#9a6206;line-height:1.3;margin-top:1px;white-space:normal;max-width:150px}
-.ab-dot-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:3px 6px;border-radius:4px;font-size:9px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.ab-gap{display:block;font-size:9px;font-weight:600;color:var(--warn-text);line-height:1.3;margin-top:1px;white-space:normal;max-width:150px}
+.ab-dot-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:3px 6px;border-radius:4px;font-size:9px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
 .ab-dot:hover .ab-dot-tip{opacity:1}
-.ab-connect{position:absolute;top:18px;height:2px;background:#ddd;z-index:1}
+.ab-connect{position:absolute;top:18px;height:2px;background:var(--line-strong);z-index:1}
 .ab-status-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600}
-.ab-status-打磨中{background:#fbefd6;color:#754d00}
-.ab-status-已定版{background:#d1fae5;color:#047857}
-.footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#68707f}
+.ab-status-打磨中{background:var(--warn-bg);color:var(--warn-ink)}
+.ab-status-已定版{background:var(--good-bg);color:var(--good-ink)}
+.footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-3)}
 .toast-wrap{position:fixed;right:16px;bottom:16px;z-index:2000;display:flex;flex-direction:column;gap:8px}
-.toast{background:#1a1a2e;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.22);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;max-width:340px}
+.toast{background:var(--tip-bg);color:var(--tip-ink);padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow-toast);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;max-width:340px}
 .toast.show{opacity:1;transform:translateY(0)}
-.toast-ok{border-left:4px solid #22c55e}
-.toast-err{border-left:4px solid #ef4444}
-.modal::backdrop{background:rgba(0,0,0,.35)}
+.toast-ok{border-left:4px solid var(--good-mark)}
+.toast-err{border-left:4px solid var(--crit-mark)}
+.modal::backdrop{background:var(--backdrop)}
 .modal-sm{max-width:380px}
-.modal-err{background:#fde5e4;color:#b3211f;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12.5px;font-weight:600}
-.modal{background:#fff;border:0;margin:auto;border-radius:12px;padding:24px;width:90%;max-width:480px;box-shadow:0 16px 48px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;overflow-x:visible}
-.modal h3{font-size:16px;margin-bottom:16px;color:#1a1a2e}
+.modal-err{background:var(--crit-bg);color:var(--crit-ink);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12.5px;font-weight:600}
+.modal{background:var(--surface);border:0;margin:auto;border-radius:12px;padding:24px;width:90%;max-width:480px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;overflow-x:visible}
+.modal h3{font-size:16px;margin-bottom:16px;color:var(--ink)}
 .fg{margin-bottom:12px}
-.fg label{display:block;font-size:12px;color:#666;margin-bottom:3px}
-.fg input,.fg select,.fg textarea{width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.fg label{display:block;font-size:12px;color:var(--ink-muted);margin-bottom:3px}
+.fg input,.fg select,.fg textarea{width:100%;padding:7px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px}
 .fg textarea{height:50px;resize:vertical}
-.fg input:focus,.fg select:focus{border-color:#4f46e5}
+.fg input:focus,.fg select:focus{border-color:var(--accent)}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-.btn-cancel{background:#f1f1f1;color:#666}
+.btn-cancel{background:var(--surface-3);color:var(--ink-muted)}
 .settings-list{list-style:none;max-height:280px;overflow-y:auto}
-.settings-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0}
-.settings-item input[type=text]{flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:13px}
+.settings-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-faint)}
+.settings-item input[type=text]{flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:13px}
 .settings-item input[type=color]{width:32px;height:28px;border:none;cursor:pointer;border-radius:4px}
-:where(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid #4f46e5;outline-offset:2px}
-.machine-header:focus-within{background:#f3f0ff}
+:where(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.machine-header:focus-within{background:var(--surface-tint)}
 @container (max-width:740px){.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
 @media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}#ab-timeline{--ab-lbl-w:80px;--ab-note-w:74px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-note{font-size:9.5px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
 @media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px}.kpi-ico{width:36px;height:36px;font-size:18px;border-radius:10px}.kpi-label{font-size:11px}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{flex:0 0 40px;font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}#ab-timeline{--ab-lbl-w:60px;--ab-note-w:60px}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-note{font-size:9px;padding:0 4px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(8),.ab-table td:nth-child(8){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}
@@ -213,7 +226,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="legend-item"><div class="legend-plan"></div>計畫區間</div>
       <div class="legend-item"><div class="legend-actual"></div>實際執行</div>
       <div class="legend-item"><div class="legend-ms"></div>Deadline</div>
-      <div class="legend-item"><div style="width:16px;height:6px;border-radius:3px;background:#6366f1;opacity:.25"></div>機台整體時間範圍</div>
+      <div class="legend-item"><div style="width:16px;height:6px;border-radius:3px;background:var(--plan);opacity:.25"></div>機台整體時間範圍</div>
       <div class="legend-item"><div class="legend-today"></div>今天</div>
     </div>
   </div>
@@ -233,9 +246,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="section-hdr"><h2>版本時間軸</h2></div>
     <div class="gantt-wrap"><div id="ab-timeline"></div></div>
     <div class="legend">
-      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:#6366f1"></div>版本上線點</div>
+      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:var(--plan)"></div>版本上線點</div>
       <div class="legend-item"><div style="width:18px;height:18px;border-radius:50%;background:#6366f1;border:3px solid #fbbf24"></div>勝出版本</div>
-      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:#6366f1;outline:2px dashed #b45309;outline-offset:2px;margin:2px"></div>本次比較的版本</div>
+      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:var(--plan);outline:2px dashed var(--warn-ring);outline-offset:2px;margin:2px"></div>本次比較的版本</div>
       <div class="legend-item"><div class="legend-today"></div>今天</div>
     </div>
   </div>
@@ -394,7 +407,7 @@ function openMachStatus(name){
   openModal(`<h3>更新機台狀態 — ${esc(name)}</h3>
     <div class="fg"><label>目前狀態（自由描述，例：開發中—金框動畫）</label><input id="mst-status" value="${esc(info.status||'')}" placeholder="這台現在到哪了？"></div>
     <div class="fg"><label>進度 %</label><input type="number" id="mst-prog" min="0" max="100" value="${prog}"></div>
-    <p style="font-size:11px;color:#4a5160;margin-top:-4px">儲存後「最後更新日」自動設為今天。進度留空則沿用階段自動計算（目前 ${computed}%）。</p>
+    <p style="font-size:11px;color:var(--ink-2);margin-top:-4px">儲存後「最後更新日」自動設為今天。進度留空則沿用階段自動計算（目前 ${computed}%）。</p>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitMachStatus('${esc(name)}')">儲存</button></div>`);
 }
 async function submitMachStatus(name){
@@ -413,7 +426,7 @@ function readHint(msg){
   const l=document.getElementById('loading');
   if(!l||getComputedStyle(l).display==='none')return;
   let h=document.getElementById('slow-hint');
-  if(!h){l.insertAdjacentHTML('beforeend','<div id="slow-hint" style="margin-top:10px;font-size:12px;color:#4a5160"></div>');h=document.getElementById('slow-hint')}
+  if(!h){l.insertAdjacentHTML('beforeend','<div id="slow-hint" style="margin-top:10px;font-size:12px;color:var(--ink-2)"></div>');h=document.getElementById('slow-hint')}
   h.textContent=msg;
 }
 async function readJson(url){
@@ -444,8 +457,8 @@ function fetchT(url,opts,ms){
 
 // === Load-failure state (never substitute demo data for a failed read) ===
 let dataLoadFailed=false, abLoadFailed=false, sideDataFailed=false, slowHintTimer=null;
-function loadFailHtml(title){return '<div style="text-align:center;padding:22px 12px;color:#4a5160;font-size:13px">'
-  +'<div style="font-size:14px;font-weight:600;color:#b3211f;margin-bottom:6px">\u26a0 '+title+'</div>'
+function loadFailHtml(title){return '<div style="text-align:center;padding:22px 12px;color:var(--ink-2);font-size:13px">'
+  +'<div style="font-size:14px;font-weight:600;color:var(--crit-ink);margin-bottom:6px">\u26a0 '+title+'</div>'
   +'<div>後端暫時沒有回應。為避免顯示與實際不符的資料，這裡不會顯示任何內容。</div>'
   +'<button type="button" class="btn btn-primary" style="margin-top:10px" onclick="location.reload()">重新載入</button></div>'}
 
@@ -453,7 +466,7 @@ function loadFailHtml(title){return '<div style="text-align:center;padding:22px 
 async function loadData(){
   const loading=document.getElementById('loading'),err=document.getElementById('error-banner'),src=document.getElementById('source-note');
   // the backend can legitimately take ~20s; say so instead of looking frozen
-  slowHintTimer=setTimeout(()=>{if(loading&&getComputedStyle(loading).display!=='none'&&!document.getElementById('slow-hint'))loading.insertAdjacentHTML('beforeend','<div id="slow-hint" style="margin-top:10px;font-size:12px;color:#4a5160">後端回應較慢，仍在等待…</div>')},8000);
+  slowHintTimer=setTimeout(()=>{if(loading&&getComputedStyle(loading).display!=='none'&&!document.getElementById('slow-hint'))loading.insertAdjacentHTML('beforeend','<div id="slow-hint" style="margin-top:10px;font-size:12px;color:var(--ink-2)">後端回應較慢，仍在等待…</div>')},8000);
   if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;linksList=LINKS_DEMO;src.textContent='Demo';finish();return}
   try{
     if(canEdit()){
@@ -594,10 +607,10 @@ function renderKPI(){
   };
   const cell=(ic,label,val,accent,bg,urgent)=>dataLoadFailed?`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val">—</div><div class="kpi-label">${label}</div></div></div>`:`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val"${urgent&&val>0?' style="color:'+accent+'"':''}>${val}</div><div class="kpi-label">${label}</div></div></div>`;
   document.getElementById('kpis').innerHTML=
-    cell(svg.alert,'逾期里程碑',overdue,'#e5484d','#fdecec',true)+
-    cell(svg.clock,'本週到期',due7,'#d98908','#fdf3e2',false)+
-    cell(svg.cal,'本月上線',launchM,'#5b5bd6','#ecedfb',false)+
-    cell(svg.ban,'阻塞議題',sideDataFailed?'—':blockers,'#e5484d','#fdecec',true);
+    cell(svg.alert,'逾期里程碑',overdue,'var(--kpi-crit)','var(--kpi-crit-bg)',true)+
+    cell(svg.clock,'本週到期',due7,'var(--kpi-warn)','var(--kpi-warn-bg)',false)+
+    cell(svg.cal,'本月上線',launchM,'var(--kpi-accent)','var(--accent-tint)',false)+
+    cell(svg.ban,'阻塞議題',sideDataFailed?'—':blockers,'var(--kpi-crit)','var(--kpi-crit-bg)',true);
 }
 
 function renderTable(){
@@ -611,13 +624,13 @@ function renderTable(){
     const currentStage=stages.find(s=>s.type==='工作階段'&&s.actualStart&&!s.actualEnd);
     const id='tbl-'+(_machIdx++)+'_'+encodeURIComponent(name).replace(/%/g,'');
     const ms=getMachineStatus(stages);
-    const pctColor=pct>=100?'#22c55e':'#6366f1';
+    const pctColor=pct>=100?'var(--good-mark)':'var(--plan)';
     const info=machStatusMap[name]||null;
     const launched=!!(info&&info.launched&&/^\d{4}-\d{2}-\d{2}$/.test(info.launched));
     const prog=(info&&info.progress!=null&&info.progress!=='')?Number(info.progress):pct;
-    const progColor=prog>=100?'#22c55e':'#6366f1';
+    const progColor=prog>=100?'var(--good-mark)':'var(--plan)';
     const statusText=launched?'✓ 已上線':((info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始')));
-    const statusStyle=launched?'background:#d1fae5;color:#047857':badgeStyle('#6366f1');
+    const statusStyle=launched?'background:var(--good-bg);color:var(--good-ink)':badgeStyle('#6366f1');
     const health=machHealth(stages);
     const hColor=health==='red'?'#ef4444':health==='yellow'?'#eab308':'#22c55e';
     const nm=nextMilestone(stages);
@@ -629,22 +642,22 @@ function renderTable(){
         <span role="img" aria-label="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
         <button type="button" class="as-btn machine-name" aria-expanded="false" aria-controls="${id}" onclick="toggleMachine('${id}')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</button>
         <button type="button" class="as-btn badge priority-${priority}" aria-label="優先級 ${priority}，點擊切換" style="cursor:pointer;transition:transform .15s;justify-self:start" onclick="event.stopPropagation();cyclePriority('${esc(name)}','${priority}',this)">${priority}</button>
-        <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:#666':'color:#68707f;font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="${mixed?'⚠ 各階段的負責人不一致，設定一次即可統一。':'點擊設定負責人'}" aria-label="負責人：${owner?esc(owner):'未指派'}${mixed?'（各階段不一致）':''}，點擊設定">${owner?esc(owner):'未指派'}${mixed?' ⚠':''}</button>
+        <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:var(--ink-muted)':'color:var(--ink-3);font-style:italic'}" onclick="event.stopPropagation();editOwner('${esc(name)}','${esc(owner)}')" title="${mixed?'⚠ 各階段的負責人不一致，設定一次即可統一。':'點擊設定負責人'}" aria-label="負責人：${owner?esc(owner):'未指派'}${mixed?'（各階段不一致）':''}，點擊設定">${owner?esc(owner):'未指派'}${mixed?' ⚠':''}</button>
         <button type="button" class="as-btn badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="點擊更新目前狀態／進度" aria-label="目前狀態：${esc(statusText)}，點擊更新">${esc(statusText)}</button>
         ${nm?`<span class="badge badge-${nm.st}" style="justify-self:start;white-space:nowrap" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
-        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5160"><button type="button" class="as-btn" style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" aria-label="進度 ${prog}%，點擊更新">${prog}%</button><div class="progress-bar" role="progressbar" aria-valuenow="${prog}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(name)} 進度" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
-        <span style="font-size:10px;text-align:right;color:${upd?(stale?'#9a6206':'#68707f'):'#68707f'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)"><button type="button" class="as-btn" style="cursor:pointer;min-width:30px" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" aria-label="進度 ${prog}%，點擊更新">${prog}%</button><div class="progress-bar" role="progressbar" aria-valuenow="${prog}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(name)} 進度" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
+        <span style="font-size:10px;text-align:right;color:${upd?(stale?'var(--warn-text)':'var(--ink-3)'):'var(--ink-3)'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
         ${canEdit()?`<div class="machine-actions" style="justify-self:start">
           <button class="btn btn-sm btn-edit" onclick="event.stopPropagation();openMachStatus('${esc(name)}')" title="更新目前狀態與進度">狀態</button>
           <button class="btn btn-sm btn-add-stage" onclick="event.stopPropagation();openAddStage('${esc(name)}','${esc(owner)}')">+階段</button>
-          ${launched?'':`<button class="btn btn-sm" style="background:#d1fae5;color:#047857" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
+          ${launched?'':`<button class="btn btn-sm" style="background:var(--good-bg);color:var(--good-ink)" onclick="event.stopPropagation();openLaunch('${esc(name)}')">✅ 確定上線</button>`}
           <button class="btn btn-sm btn-delete" onclick="event.stopPropagation();delMachine('${esc(name)}')">✕</button>
         </div>`:'<span></span>'}
       </div>
       <table class="stage-table" id="${id}">
         <thead><tr>${canEdit()?'<th scope="col"></th>':''}<th scope="col">階段</th><th scope="col">狀態</th><th scope="col">計畫開始</th><th scope="col">計畫結束</th><th scope="col">實際開始</th><th scope="col">實際結束</th><th scope="col">備註</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead>
         <tbody>${stages.map(s=>{const st=stageStatus(s);const done=!!s.actualEnd;return`<tr style="${done?'opacity:.55':''}">
-          ${canEdit()?`<td><input type="checkbox" aria-label="標記「${esc(s.stage)}」完成" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>`:''} 
+          ${canEdit()?`<td><input type="checkbox" aria-label="標記「${esc(s.stage)}」完成" ${done?'checked':''} onchange="toggleStageDone(this,${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--good-mark)"></td>`:''} 
           <td>${s.type==='里程碑'?'📌 ':''}<span class="badge" style="${badgeStyle(STAGE_COLORS[s.stage]||'#9ca3af')}">${esc(s.stage)}</span></td>
           <td><span class="badge badge-${st}">${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</span></td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
@@ -652,7 +665,7 @@ function renderTable(){
           ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" onclick="openEditStage(${s.row||0},'${esc(name)}','${esc(s.stage)}','${s.planStart}','${s.planEnd}','${s.actualStart}','${s.actualEnd}','${esc(s.owner)}','${esc(s.note)}','${esc(s.priority)}','${esc(s.type)}')">✎</button> <button class="btn btn-sm btn-delete" onclick="delStage(${s.row||0})">✕</button></td>`:''}</tr>`}).join('')}</tbody>
       </table></div>`;
   });
-  document.getElementById('table-area').innerHTML=html||(dataLoadFailed?loadFailHtml('機台資料讀取失敗'):'<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的機台</p>');
+  document.getElementById('table-area').innerHTML=html||(dataLoadFailed?loadFailHtml('機台資料讀取失敗'):'<p style="color:var(--ink-2);text-align:center;padding:20px">無符合條件的機台</p>');
 }
 
 // === Gantt ===
@@ -717,7 +730,7 @@ function renderGanttMilestone(machines,weeks,total){
     const rowH=Math.max(38,8+laneCount*16);
     html+=`<div class="gantt-row ms-row" style="min-height:${rowH}px"><div class="gantt-row-lbl" title="${esc(name)}">${esc(name)}</div><div class="gantt-row-tl" style="height:${rowH}px">`;
     weeks.forEach(()=>{html+=`<div class="gantt-cell"></div>`});
-    if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:#6366f1"></div>`}
+    if(minD&&maxD){const l=datePos(weeks,minD)*100,r=datePos(weeks,maxD)*100;html+=`<div class="g-bar" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:var(--plan)"></div>`}
     const nm=nextMilestone(stages);
     items.forEach((it,idx)=>{
       const st=stageStatus(it.s);
@@ -828,7 +841,7 @@ function confirmDialog(msg,okText){
   return new Promise(resolve=>{
     const d=document.getElementById('confirm-dlg');
     d.innerHTML='<h3 id="confirm-title" style="margin-bottom:8px">確認</h3>'
-      +'<p style="font-size:13px;color:#4a5160;line-height:1.6">'+esc(msg)+'</p>'
+      +'<p style="font-size:13px;color:var(--ink-2);line-height:1.6">'+esc(msg)+'</p>'
       +'<div class="modal-btns"><button type="button" class="btn btn-cancel" data-act="cancel">取消</button>'
       +'<button type="button" class="btn btn-delete" data-act="ok">'+esc(okText||'確定刪除')+'</button></div>';
     let done=false;
@@ -913,7 +926,7 @@ function renderAddStageBody(){
     var msNames=stagesOfType('里程碑');
     var opts=msNames.map(function(s){return`<option value="${esc(s)}">`}).join('');
     body.innerHTML=`<datalist id="ms-names">${opts}</datalist>
-      <label style="display:block;font-size:12px;color:#666;margin-bottom:3px">里程碑節點（名稱可下拉或自行輸入，日期為 Deadline）</label>
+      <label style="display:block;font-size:12px;color:var(--ink-muted);margin-bottom:3px">里程碑節點（名稱可下拉或自行輸入，日期為 Deadline）</label>
       <div id="ms-nodes"></div>
       <button type="button" class="btn btn-sm btn-add-stage" onclick="addMsNode()" style="margin-top:2px">＋ 再加一個節點</button>`;
     addMsNode();
@@ -930,8 +943,8 @@ function addMsNode(name,date){
   var div=document.createElement('div');
   div.className='ms-node';
   div.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:8px';
-  div.innerHTML=`<input class="ms-name" list="ms-names" placeholder="里程碑名稱" value="${esc(name||'')}" style="flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
-    <input class="ms-date" type="date" value="${date||''}" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+  div.innerHTML=`<input class="ms-name" list="ms-names" placeholder="里程碑名稱" value="${esc(name||'')}" style="flex:1;padding:7px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px">
+    <input class="ms-date" type="date" value="${date||''}" style="padding:7px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px">
     <button type="button" class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>`;
   wrap.appendChild(div);
 }
@@ -974,11 +987,11 @@ async function delMachine(name){if(!await confirmDialog('確定刪除「'+name+'
 function issStaleDays(i){const base=i.updated||i.created;return base?diffDays(base,TODAY):null}
 // urgency: 阻塞 is always red; otherwise the dot is driven by how long the issue has sat
 function issDotColor(sev,days){
-  if(sev==='阻塞'||(days!=null&&days>30))return '#b3211f';
-  if(days!=null&&days>14)return '#9a6206';
-  return '#68707f';
+  if(sev==='阻塞'||(days!=null&&days>30))return 'var(--crit-ink)';
+  if(days!=null&&days>14)return 'var(--warn-text)';
+  return 'var(--ink-3)';
 }
-function issStaleColor(days){return days>30?'#b3211f':days>14?'#9a6206':'#4a5160'}
+function issStaleColor(days){return days>30?'var(--crit-ink)':days>14?'var(--warn-text)':'var(--ink-2)'}
 function issSevColor(s){return s==='阻塞'?'#ef4444':s==='一般'?'#eab308':'#9ca3af'}
 function issStColor(s){return s==='已解決'?'#9ca3af':s==='處理中'?'#3b82f6':'#eab308'}
 async function saveIssues(){await apiPost({action:'setIssues',issues:issuesList})}
@@ -993,18 +1006,18 @@ function renderIssues(){
     return true;
   });
   entries.sort((a,b)=>{const ao=a.it.status==='已解決'?1:0,bo=b.it.status==='已解決'?1:0;if(ao!==bo)return ao-bo;return (sevRank[a.it.severity]==null?1:sevRank[a.it.severity])-(sevRank[b.it.severity]==null?1:sevRank[b.it.severity])});
-  if(entries.length===0){area.innerHTML=(dataLoadFailed||sideDataFailed)?loadFailHtml('議題資料讀取失敗'):'<p style="color:#68707f;text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
+  if(entries.length===0){area.innerHTML=(dataLoadFailed||sideDataFailed)?loadFailHtml('議題資料讀取失敗'):'<p style="color:var(--ink-3);text-align:center;padding:24px;font-size:13px">目前沒有議題 🎉</p>';return}
   area.innerHTML=entries.map(e=>{
     const i=e.it;
     const logN=(i.log&&i.log.length)?i.log.length:0;
     const stale=i.status==='已解決'?null:issStaleDays(i);
     const c=issDotColor(i.severity,stale);
     const staleHtml=(stale!=null)?` · <span style="color:${issStaleColor(stale)};font-weight:600">停滯 ${stale} 天</span>`:'';
-    return `<button type="button" class="as-btn" style="display:flex;width:100%;text-align:left;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid #f2f2f2;cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" onclick="openIssueDetail(${e.idx})" title="點擊看詳情">
+    return `<button type="button" class="as-btn" style="display:flex;width:100%;text-align:left;align-items:flex-start;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line-card);cursor:pointer;${i.status==='已解決'?'opacity:.5':''}" onclick="openIssueDetail(${e.idx})" title="點擊看詳情">
       <span role="img" style="width:9px;height:9px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0" title="嚴重度：${esc(i.severity)}${stale!=null?' · 停滯 '+stale+' 天':''}" aria-label="嚴重度：${esc(i.severity)}${stale!=null?' · 停滯 '+stale+' 天':''}"></span>
       <span style="display:block;flex:1;min-width:0">
-        <span style="display:block;font-size:13px;font-weight:500;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</span>
-        <span style="display:block;font-size:11px;color:#4a5160;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${staleHtml}${i.updated?' · '+fmtDate(i.updated):''}</span>
+        <span style="display:block;font-size:13px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.title)}</span>
+        <span style="display:block;font-size:11px;color:var(--ink-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner?esc(i.owner):'未指派'}${logN?' · 📝'+logN:''}${staleHtml}${i.updated?' · '+fmtDate(i.updated):''}</span>
       </span>
       <span class="badge" style="${badgeStyle(issStColor(i.status))};flex-shrink:0;white-space:nowrap;font-size:10px;padding:2px 7px">${esc(i.status)}</span>
     </button>`;
@@ -1033,7 +1046,7 @@ function openIssueDetail(idx){
   const sevOpts=['阻塞','一般','低'].map(o=>`<option${o===i.severity?' selected':''}>${o}</option>`).join('');
   const stOpts=['待處理','處理中','已解決'].map(o=>`<option${o===i.status?' selected':''}>${o}</option>`).join('');
   const log=(i.log||[]);
-  const logHtml=log.length?log.map(e=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed #eee;font-size:12px"><span style="color:#4a5160;flex-shrink:0;width:44px">${fmtDate(e.date)}</span><span style="color:#333">${esc(e.text)}</span></div>`).join(''):'<p style="font-size:12px;color:#bbb;padding:4px 0">尚無處理紀錄</p>';
+  const logHtml=log.length?log.map(e=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px"><span style="color:var(--ink-2);flex-shrink:0;width:44px">${fmtDate(e.date)}</span><span style="color:var(--ink)">${esc(e.text)}</span></div>`).join(''):'<p style="font-size:12px;color:#bbb;padding:4px 0">尚無處理紀錄</p>';
   openModal(`<h3 style="display:flex;align-items:center;gap:8px"><span style="width:11px;height:11px;border-radius:50%;background:${issSevColor(i.severity)}"></span>議題詳情</h3>
     <div class="fg"><label>標題</label><input id="id-title" value="${esc(i.title)}"></div>
     <div class="fg" style="display:flex;gap:8px">
@@ -1042,12 +1055,12 @@ function openIssueDetail(idx){
       <div style="flex:1"><label>負責人</label><input id="id-owner" value="${esc(i.owner||'')}"></div>
     </div>
     <div class="fg"><label>描述</label><textarea id="id-desc" style="height:60px">${esc(i.desc||'')}</textarea></div>
-    <div style="margin:10px 0 4px;font-size:13px;color:#666;font-weight:600">📝 處理紀錄</div>
-    <div style="max-height:160px;overflow-y:auto;background:#fafafa;border:1px solid #eee;border-radius:6px;padding:6px 10px">${logHtml}</div>
+    <div style="margin:10px 0 4px;font-size:13px;color:var(--ink-muted);font-weight:600">📝 處理紀錄</div>
+    <div style="max-height:160px;overflow-y:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:6px 10px">${logHtml}</div>
     <div style="display:flex;gap:6px;margin-top:6px">
-      <input id="id-newlog" placeholder="新增一筆進度（存檔後記今天）" style="flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
+      <input id="id-newlog" placeholder="新增一筆進度（存檔後記今天）" style="flex:1;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
     </div>
-    <p style="font-size:11px;color:#68707f;margin-top:6px">建立 ${fmtDate(i.created)}${i.updated?'　·　更新 '+fmtDate(i.updated):''}</p>
+    <p style="font-size:11px;color:var(--ink-3);margin-top:6px">建立 ${fmtDate(i.created)}${i.updated?'　·　更新 '+fmtDate(i.updated):''}</p>
     <div class="modal-btns"><button class="btn btn-delete btn-sm" style="margin-right:auto" onclick="delIssue(${idx})">刪除</button><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitIssueDetail(${idx})">儲存</button></div>`);
 }
 async function submitIssueDetail(idx){
@@ -1072,18 +1085,18 @@ async function delIssue(idx){
 // === 常用連結 ===
 function renderLinks(){
   const area=document.getElementById('links-area');if(!area)return;
-  if(!linksList.length){area.innerHTML=(dataLoadFailed||sideDataFailed)?'<span style="color:#b3211f;font-size:12px;font-weight:600">\u26a0 常用連結讀取失敗，請重新整理</span>':('<span style="color:#68707f;font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>');return}
+  if(!linksList.length){area.innerHTML=(dataLoadFailed||sideDataFailed)?'<span style="color:var(--crit-ink);font-size:12px;font-weight:600">\u26a0 常用連結讀取失敗，請重新整理</span>':('<span style="color:var(--ink-3);font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>');return}
   area.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px">'+linksList.map(l=>{
     let url=(l.url||'').trim();if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
-    return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;gap:2px;text-decoration:none;background:#f7f7fb;border:1px solid #eee;border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px">
-      <span style="font-size:13px;font-weight:600;color:#4f46e5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ${esc(l.name||l.url||'連結')}</span>
-      ${l.desc?`<span style="font-size:11px;color:#4a5160;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.desc)}</span>`:''}
+    return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;gap:2px;text-decoration:none;background:var(--link-bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px">
+      <span style="font-size:13px;font-weight:600;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ${esc(l.name||l.url||'連結')}</span>
+      ${l.desc?`<span style="font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.desc)}</span>`:''}
     </a>`;
   }).join('')+'</div>';
 }
 function openLinksEdit(){
   openModal(`<h3>編輯常用連結</h3>
-    <p style="font-size:11px;color:#4a5160;margin-bottom:8px">名稱｜網址｜說明。網址可省略 https://。</p>
+    <p style="font-size:11px;color:var(--ink-2);margin-bottom:8px">名稱｜網址｜說明。網址可省略 https://。</p>
     <div id="links-list">${linksList.map(linkRow).join('')}</div>
     <button type="button" class="btn btn-sm btn-add-stage" onclick="addLinkRow()" style="margin-top:4px">＋ 新增連結</button>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitLinks()">儲存</button></div>`);
@@ -1091,9 +1104,9 @@ function openLinksEdit(){
 function linkRow(l){
   l=l||{};
   return `<div class="link-row" style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
-    <input class="lk-name" value="${esc(l.name||'')}" placeholder="名稱" style="width:96px;flex-shrink:0;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
-    <input class="lk-url" value="${esc(l.url||'')}" placeholder="https://..." style="flex:1;min-width:0;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
-    <input class="lk-desc" value="${esc(l.desc||'')}" placeholder="說明" style="width:110px;flex-shrink:0;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px">
+    <input class="lk-name" value="${esc(l.name||'')}" placeholder="名稱" style="width:96px;flex-shrink:0;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
+    <input class="lk-url" value="${esc(l.url||'')}" placeholder="https://..." style="flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
+    <input class="lk-desc" value="${esc(l.desc||'')}" placeholder="說明" style="width:110px;flex-shrink:0;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px">
     <button type="button" class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button>
   </div>`;
 }
@@ -1109,9 +1122,9 @@ function openLaunch(name){
   const tagOpts=AB_TAGS.map(t=>`<option value="${esc(t)}">`).join('');
   const mktOpts=AB_MARKETS.map(m=>`<option value="${esc(m)}">`).join('');
   openModal(`<h3>確定上線 — ${esc(name)}</h3>
-    <p style="font-size:12px;color:#666;margin-bottom:8px">完成以下檢查後才能上線；上線後此機台會移出「進行中」，並自動加入 AB 測試追蹤。</p>
+    <p style="font-size:12px;color:var(--ink-muted);margin-bottom:8px">完成以下檢查後才能上線；上線後此機台會移出「進行中」，並自動加入 AB 測試追蹤。</p>
     <ul style="list-style:none;margin-bottom:12px" id="launch-checks">
-      ${LAUNCH_CHECKLIST.map(it=>`<li style="padding:5px 0"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" class="lc-item" onchange="updateLaunchBtn()" style="width:16px;height:16px;accent-color:#22c55e">${esc(it)}</label></li>`).join('')}
+      ${LAUNCH_CHECKLIST.map(it=>`<li style="padding:5px 0"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" class="lc-item" onchange="updateLaunchBtn()" style="width:16px;height:16px;accent-color:var(--good-mark)">${esc(it)}</label></li>`).join('')}
     </ul>
     <div class="fg"><label>上線日期</label><input type="date" id="lc-date" value="${TODAY}"></div>
     <div class="fg"><label>目標市場</label><input id="lc-market" list="lc-markets" placeholder="TADA / JILI"><datalist id="lc-markets">${mktOpts}</datalist></div>
@@ -1181,36 +1194,36 @@ function openSettings(){
     </li>`}).join('');
   }
   openModal(`<h3>階段設定</h3>
-    <h4 style="font-size:13px;color:#666;margin-bottom:8px">📌 里程碑項目</h4>
+    <h4 style="font-size:13px;color:var(--ink-muted);margin-bottom:8px">📌 里程碑項目</h4>
     <ul class="settings-list" id="settings-ms">${renderList(msItems,'里程碑')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="color" id="new-ms-color" value="#f97316" style="width:32px;height:28px;border:none;border-radius:4px">
-      <input type="text" id="new-ms-name" placeholder="新里程碑名稱" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <input type="text" id="new-ms-name" placeholder="新里程碑名稱" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('里程碑')">新增</button>
     </div>
-    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">⚙ 工作階段項目</h4>
+    <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">⚙ 工作階段項目</h4>
     <ul class="settings-list" id="settings-ws">${renderList(wsItems,'工作階段')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
       <input type="color" id="new-ws-color" value="#6366f1" style="width:32px;height:28px;border:none;border-radius:4px">
-      <input type="text" id="new-ws-name" placeholder="新工作階段名稱" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <input type="text" id="new-ws-name" placeholder="新工作階段名稱" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="addStageTyped('工作階段')">新增</button>
     </div>
-    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🏷 AB 測試 Tag 選項</h4>
+    <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">🏷 AB 測試 Tag 選項</h4>
     <ul class="settings-list" id="settings-tags">${AB_TAGS.map((t,i)=>`<li class="settings-item"><input type="text" value="${esc(t)}" data-field="tag" aria-label="TAG" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
-      <input type="text" id="new-tag-name" placeholder="新 Tag" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <input type="text" id="new-tag-name" placeholder="新 Tag" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-tags').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-tag-name').value+'\\' data-field=\\'tag\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-tag-name').value=''">新增</button>
     </div>
-    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🌍 AB 測試市場選項</h4>
+    <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">🌍 AB 測試市場選項</h4>
     <ul class="settings-list" id="settings-markets">${AB_MARKETS.map((m,i)=>`<li class="settings-item"><input type="text" value="${esc(m)}" data-field="market" aria-label="市場" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
-      <input type="text" id="new-market-name" placeholder="新市場" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <input type="text" id="new-market-name" placeholder="新市場" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="document.getElementById('settings-markets').insertAdjacentHTML('beforeend','<li class=\\'settings-item\\'><input type=\\'text\\' value=\\''+document.getElementById('new-market-name').value+'\\' data-field=\\'market\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-delete\\' onclick=\\'this.parentElement.remove()\\'>✕</button></li>');document.getElementById('new-market-name').value=''">新增</button>
     </div>
-    <h4 style="font-size:13px;color:#666;margin:16px 0 8px">🚀 上線檢查清單項目</h4>
+    <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">🚀 上線檢查清單項目</h4>
     <ul class="settings-list" id="settings-launch">${LAUNCH_CHECKLIST.map(it=>`<li class="settings-item"><input type="text" value="${esc(it)}" data-field="launch" aria-label="上線清單項目" style="flex:1"><button class="btn btn-sm btn-delete" onclick="this.parentElement.remove()">✕</button></li>`).join('')}</ul>
     <div style="margin:8px 0;display:flex;gap:8px">
-      <input type="text" id="new-launch-name" placeholder="新檢查項目" style="flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+      <input type="text" id="new-launch-name" placeholder="新檢查項目" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" onclick="addSettingItem('settings-launch','launch')">新增</button>
     </div>
     <div class="modal-btns"><button class="btn btn-cancel" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveSettings()">儲存</button></div>`);
@@ -1368,10 +1381,10 @@ function abAvgPolish(){
 }
 function abPolishHtml(g){
   const d=abPolishDays(g);
-  if(d==null)return '<span style="color:#68707f">—</span>';
+  if(d==null)return '<span style="color:var(--ink-3)">—</span>';
   const done=!!abWinner(g),avg=abAvgPolish();
   const over=!done&&avg!=null&&d>avg;
-  return '<span style="white-space:nowrap;font-weight:600;color:'+(done?'#15803d':over?'#b3211f':'#4a5160')+'"'
+  return '<span style="white-space:nowrap;font-weight:600;color:'+(done?'var(--good-text)':over?'var(--crit-ink)':'var(--ink-2)')+'"'
     +(over?' title="已超過已定版平均 '+avg+' 天"':'')+'>'+(done?'':'已 ')+d+' 天'+(over?' ⚠':'')+'</span>';
 }
 
@@ -1391,7 +1404,7 @@ function renderABKPI(){
 
 function renderABTable(){
   const games=getFilteredAB();
-  if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:#4a5160;text-align:center;padding:20px">無符合條件的遊戲</p>';return}
+  if(!games.length){document.getElementById('ab-table-area').innerHTML='<p style="color:var(--ink-2);text-align:center;padding:20px">無符合條件的遊戲</p>';return}
   const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
   let html=`<table class="ab-table"><thead><tr><th scope="col">遊戲名稱</th><th scope="col">Tag</th><th scope="col">市場</th><th scope="col">上線日</th><th scope="col">狀態</th><th scope="col">打磨天數</th><th scope="col">版本</th><th scope="col">連結</th>${canEdit()?'<th scope="col">操作</th>':''}</tr></thead><tbody>`;
   games.forEach((g,gi)=>{
@@ -1400,12 +1413,12 @@ function renderABTable(){
       <td><span class="ab-status-badge ab-status-${g.status}">${g.status}</span></td><td>${abPolishHtml(g)}</td><td>`;
     g.versions.forEach((v,vi)=>{
       const running=!!v.running;
-      const style=running?'background:#fbefd6;color:#754d00;border:1px solid #eab308':'background:#fff;color:#555;border:1px solid #ddd';
+      const style=running?'background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-mark)':'background:var(--surface);color:var(--ink-mid);border:1px solid var(--line-strong)';
       const tip=v.label+'版 '+fmtDate(v.date)+(running?' ·測試中':'')+(v.winner?' 🏆':'');
       html+=`<span class="ab-version${v.winner?' winner':''}" style="${style}" title="${esc(tip)}">${v.label} ${fmtDate(v.date)}${v.winner?' 🏆':''}</span>`;
     });
     html+=`</td>`;
-    html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:#4f46e5;text-decoration:none;font-size:14px">&#128279; 詳情</a>`:''}</td>`;
+    html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:var(--accent);text-decoration:none;font-size:14px">&#128279; 詳情</a>`:''}</td>`;
     if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" onclick="openAddABVersion(${gi})">+版本</button> <button class="btn btn-sm btn-edit" onclick="openEditABGame(${gi})">✎</button> <button class="btn btn-sm btn-delete" onclick="delABGame(${gi})">✕</button></td>`;
     html+=`</tr>`;
   });
@@ -1430,8 +1443,8 @@ function renderABTimeline(){
   const weeks=[];let wk=new Date(startMs);wk.setDate(wk.getDate()-((wk.getDay()+6)%7));
   while(wk.getTime()<=endMs){weeks.push(new Date(wk));wk=new Date(wk.getTime()+7*86400000)}
 
-  let html=`<div style="display:flex;border-bottom:2px solid #eee"><div style="width:var(--ab-lbl-w);min-width:var(--ab-lbl-w);padding:6px 10px;font-size:11px;color:#4a5160">遊戲</div><div style="display:flex;flex:1;min-width:0">`;
-  weeks.forEach(w=>{html+=`<div style="flex:1;min-width:0;overflow:hidden;text-align:center;padding:4px 2px;font-size:9px;color:#68707f;border-left:1px solid #f0f0f0">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
+  let html=`<div style="display:flex;border-bottom:2px solid var(--line)"><div style="width:var(--ab-lbl-w);min-width:var(--ab-lbl-w);padding:6px 10px;font-size:11px;color:var(--ink-2)">遊戲</div><div style="display:flex;flex:1;min-width:0">`;
+  weeks.forEach(w=>{html+=`<div style="flex:1;min-width:0;overflow:hidden;text-align:center;padding:4px 2px;font-size:9px;color:var(--ink-3);border-left:1px solid var(--line-faint)">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div><div class="ab-note"></div></div>`;
 
   games.forEach(g=>{
@@ -1454,12 +1467,12 @@ function renderABTimeline(){
       html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}${v.running?' cmp':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}${v.running?' ·本次比較':''}</div>${v.label}</div>`;
     });
     const pd=abPolishDays(g),pOver=!wv&&abAvgPolish()!=null&&pd!=null&&pd>abAvgPolish();
-    html+=`</div><div class="ab-note" style="color:${wv?'#15803d':pOver?'#b3211f':'#4a5160'}">${pd==null?'':(wv?'定版 '+pd+' 天':'打磨中 '+pd+' 天'+(pOver?' ⚠':''))}</div></div>`;
+    html+=`</div><div class="ab-note" style="color:${wv?'var(--good-text)':pOver?'var(--crit-ink)':'var(--ink-2)'}">${pd==null?'':(wv?'定版 '+pd+' 天':'打磨中 '+pd+' 天'+(pOver?' ⚠':''))}</div></div>`;
   });
 
   // Today line
   const todayPos=pos(TODAY);
-  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(var(--ab-lbl-w) + (100% - var(--ab-lbl-w) - var(--ab-note-w))*${todayPos}/100);width:2px;background:#ef4444;opacity:.7;z-index:10;pointer-events:none"><div class="today-label">Today</div></div>`}
+  if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:0;bottom:0;left:calc(var(--ab-lbl-w) + (100% - var(--ab-lbl-w) - var(--ab-note-w))*${todayPos}/100);width:2px;background:var(--crit-mark);opacity:.7;z-index:10;pointer-events:none"><div class="today-label">Today</div></div>`}
   document.getElementById('ab-timeline').innerHTML=`<div style="position:relative">${html}</div>`;
 }
 
@@ -1511,9 +1524,9 @@ function openEditABGame(gi){
     <div class="fg"><label>上線日期</label><input type="date" id="abe-launch" value="${g.launchDate}"></div>
     <div class="fg"><label>外部連結</label><input id="abe-link" value="${esc(g.link||'')}" placeholder="https://...（打磨細部資訊）"></div>
     <div class="fg"><label>狀態</label><select id="abe-status"><option${g.status==='打磨中'?' selected':''}>打磨中</option><option${g.status==='已定版'?' selected':''}>已定版</option></select></div>
-    <h4 style="font-size:13px;color:#666;margin:12px 0 4px">版本列表</h4>
-    <p style="font-size:11px;color:#4a5160;margin-bottom:8px">🏆 = 勝出版本（單選，可取消）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
-    <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#4a5160;font-weight:600;padding:0 2px 4px">
+    <h4 style="font-size:13px;color:var(--ink-muted);margin:12px 0 4px">版本列表</h4>
+    <p style="font-size:11px;color:var(--ink-2);margin-bottom:8px">🏆 = 勝出版本（單選，可取消）　｜　測 = AB 測試中（可複選，會顯示黃色）</p>
+    <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:var(--ink-2);font-weight:600;padding:0 2px 4px">
       <span style="width:36px;flex-shrink:0;text-align:center">版本</span>
       <span style="flex:1;min-width:0">日期</span>
       <span style="width:34px;flex-shrink:0;text-align:center">🏆</span>
