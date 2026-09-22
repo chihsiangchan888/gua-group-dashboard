@@ -159,6 +159,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-version{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;cursor:pointer;border:2px solid transparent}
 .ab-version:hover{opacity:.8}
 .ab-version.winner{border-color:var(--warn-ring);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(180,83,9,.5)}
+.link-card{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:44px;text-decoration:none;color:var(--accent);background:var(--link-bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px}
+.link-card:hover{background:var(--surface-tint);border-color:var(--plan)}
+.link-title{display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;font-weight:600;color:inherit}
+.link-title>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-desc{font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-intra{flex-shrink:0;font-size:10px;font-weight:700;line-height:15px;padding:0 5px;border-radius:6px;background:var(--warn-bg);color:var(--warn-ink)}
 .ab-legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-2)}
 .ab-legend-item{display:inline-flex;align-items:center;gap:6px}
 .ab-legend-chip{cursor:default;margin:0;background:var(--surface);color:var(--ink-mid);border:2px solid var(--line-strong)}
@@ -1247,14 +1253,25 @@ async function delIssue(idx){
   await saveIssues();
 }
 // === 常用連結 ===
+// private IPv4 ranges, localhost, bare host names and .local/.lan/.internal are only reachable inside the office
+function isIntranetUrl(url){
+  let h='';try{h=new URL(url).hostname.toLowerCase()}catch(e){return false}
+  if(!h)return false;
+  if(/^(10.|192.168.|127.|169.254.)/.test(h))return true;
+  if(/^172.(1[6-9]|2d|3[01])./.test(h))return true;
+  if(h==='localhost'||/.(local|lan|internal|intra|corp)$/.test(h))return true;
+  return !h.includes('.');
+}
 function renderLinks(){
   const area=document.getElementById('links-area');if(!area)return;
   if(!linksList.length){area.innerHTML=(dataLoadFailed||sideDataFailed)?'<span style="color:var(--crit-ink);font-size:12px;font-weight:600">\u26a0 常用連結讀取失敗，請重新整理</span>':('<span style="color:var(--ink-3);font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>');return}
   area.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px">'+linksList.map(l=>{
     let url=(l.url||'').trim();if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
-    return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;gap:2px;text-decoration:none;background:var(--link-bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px">
-      <span style="font-size:13px;font-weight:600;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ${esc(l.name||l.url||'連結')}</span>
-      ${l.desc?`<span style="font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.desc)}</span>`:''}
+    const intra=isIntranetUrl(url);
+    const name=l.name||l.url||'連結';
+    return `<a class="link-card" href="${esc(url)}" target="_blank" rel="noopener noreferrer"${intra?' title="內部網路連結，只有在辦公室網路才開得起來"':''}>
+      <span class="link-title"><span>🔗 ${esc(name)}</span>${intra?'<span class="link-intra" aria-label="內部網路">內網</span>':''}</span>
+      ${l.desc?`<span class="link-desc">${esc(l.desc)}</span>`:''}
     </a>`;
   }).join('')+'</div>';
 }
