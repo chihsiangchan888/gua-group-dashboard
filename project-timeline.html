@@ -267,6 +267,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </div>
 </div><!-- end tab-timeline -->
 <div class="tab-content" id="tab-abtest" role="tabpanel" aria-labelledby="tabbtn-abtest" tabindex="0" hidden>
+  <div class="error-banner" id="ab-stale"></div>
   <div class="grid" id="ab-kpis"></div>
   <div class="section">
     <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" data-action="openAddABGame" style="display:none">+ 新增遊戲</button></div>
@@ -534,28 +535,48 @@ function loadFailHtml(title){return '<div style="text-align:center;padding:22px 
   +'<div>後端暫時沒有回應。為避免顯示與實際不符的資料，這裡不會顯示任何內容。</div>'
   +'<button type="button" class="btn btn-primary" style="margin-top:10px" data-action="reload">重新載入</button></div>'}
 
+// === 快取：先顯示上次成功讀到的資料，背景再更新 ===
+const CACHE_KEY='tl:cache:'+CONFIG.SHEET_ID, AB_CACHE_KEY='tl:abcache:'+CONFIG.SHEET_ID;
+let _bootDone=false,_abBootDone=false,cacheShownAt=null,abCacheShownAt=null;
+function cacheGet(k){try{const v=JSON.parse(lsGet(k)||'null');return v&&v.t&&v.r?v:null}catch(e){return null}}
+function cacheSet(k,r){try{lsSet(k,JSON.stringify({t:Date.now(),r}))}catch(e){}}
+function cacheStamp(t){const d=new Date(t),p=n=>String(n).padStart(2,'0');return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
+// everything the main read feeds into page state, shared by the cached and the live path
+function applyRead(r){
+  if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
+  if(r.abTags&&Array.isArray(r.abTags)&&r.abTags.length>0)AB_TAGS=r.abTags;
+  if(r.abMarkets&&Array.isArray(r.abMarkets)&&r.abMarkets.length>0)AB_MARKETS=r.abMarkets;
+  if(r.launchChecklist&&Array.isArray(r.launchChecklist)&&r.launchChecklist.length>0)LAUNCH_CHECKLIST=r.launchChecklist;
+  rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
+  machStatusMap=r.statuses||{};
+  issuesList=Array.isArray(r.issues)?r.issues:[];
+  linksList=Array.isArray(r.links)?r.links:[];
+  dataLoadFailed=false;sideDataFailed=false;
+}
+
 // === Load ===
 async function loadData(){
   const loading=document.getElementById('loading'),err=document.getElementById('error-banner'),src=document.getElementById('source-note');
   // the backend can legitimately take ~20s; say so instead of looking frozen
   slowHintTimer=setTimeout(()=>{if(loading&&getComputedStyle(loading).display!=='none'&&!document.getElementById('slow-hint'))loading.insertAdjacentHTML('beforeend','<div id="slow-hint" style="margin-top:10px;font-size:12px;color:var(--ink-2)">後端回應較慢，仍在等待…</div>')},8000);
   if(!CONFIG.SHEET_ID){rawData=DEMO_DATA;machStatusMap=MACH_STATUS_DEMO;issuesList=ISSUES_DEMO;linksList=LINKS_DEMO;src.textContent='Demo';finish();return}
+  // first load only: paint the last good read right away, then refresh in the background
+  let usedCache=false;
+  if(!_bootDone&&canEdit()){
+    const c=cacheGet(CACHE_KEY);
+    if(c){applyRead(c.r);cacheShownAt=c.t;usedCache=true;src.textContent='Google Sheet（'+cacheStamp(c.t)+' 快取，更新中…）';finish()}
+  }
   try{
     if(canEdit()){
       // Retry up to 2 times — Google Apps Script sometimes returns HTML on first call
       let r=null;
       try{r=await readJson(CONFIG.APPS_SCRIPT_URL)}catch(e){r=null}
       if(r&&r.success){
-        if(r.stages&&Array.isArray(r.stages)&&r.stages.length>0){STAGES=r.stages.map(s=>s.name);STAGE_COLORS={};STAGE_TYPES={};r.stages.forEach(s=>{STAGE_COLORS[s.name]=s.color||'#9ca3af';STAGE_TYPES[s.name]=s.type||'工作階段'})}
-        if(r.abTags&&Array.isArray(r.abTags)&&r.abTags.length>0)AB_TAGS=r.abTags;
-        if(r.abMarkets&&Array.isArray(r.abMarkets)&&r.abMarkets.length>0)AB_MARKETS=r.abMarkets;
-        if(r.launchChecklist&&Array.isArray(r.launchChecklist)&&r.launchChecklist.length>0)LAUNCH_CHECKLIST=r.launchChecklist;
-        rawData=(r.data||[]).map(d=>({row:d.row||0,machine:d.machine||'',stage:d.stage||'',planStart:normDate(d.planStart),planEnd:normDate(d.planEnd),actualStart:normDate(d.actualStart),actualEnd:normDate(d.actualEnd),owner:d.owner||'',note:d.note||'',priority:d.priority||'',type:d.type||'工作階段'}));
-        machStatusMap=r.statuses||{};
-        issuesList=Array.isArray(r.issues)?r.issues:[];
-        linksList=Array.isArray(r.links)?r.links:[];
-        src.textContent='Google Sheet（即時）';finish();return;
+        applyRead(r);cacheSet(CACHE_KEY,r);cacheShownAt=null;
+        src.textContent='Google Sheet（即時）';err.style.display='none';finish();return;
       }
+      // live read failed but the cache is already on screen: keep it, say so, and stop here
+      if(usedCache){clearTimeout(slowHintTimer);src.textContent='Google Sheet（'+cacheStamp(cacheShownAt)+' 快取）';err.textContent='\u26a0 後端未回應，目前顯示的是 '+cacheStamp(cacheShownAt)+' 抓到的資料，可能不是最新。';err.style.display='block';return}
     }
     // Apps Script did not answer — fall back to reading the sheet directly.
     // That route returns the stage rows only, so issues / links / machine status are NOT available.
@@ -565,7 +586,10 @@ async function loadData(){
     src.textContent='Google Sheet（僅時程）';
     err.textContent='後端未回應，已改用試算表直讀：只有機台時程是最新的，議題／常用連結／機台狀態未載入。請重新整理再試。';err.style.display='block';
     finish();
-  }catch(e){err.textContent='讀取失敗：'+(e.message||e)+'　資料未載入，請重新整理。';err.style.display='block';rawData=[];machStatusMap={};issuesList=[];linksList=[];dataLoadFailed=true;src.textContent='讀取失敗';finish()}
+  }catch(e){
+    if(usedCache){clearTimeout(slowHintTimer);src.textContent='Google Sheet（'+cacheStamp(cacheShownAt)+' 快取）';err.textContent='\u26a0 後端未回應，目前顯示的是 '+cacheStamp(cacheShownAt)+' 抓到的資料，可能不是最新。';err.style.display='block';return}
+    err.textContent='讀取失敗：'+(e.message||e)+'　資料未載入，請重新整理。';err.style.display='block';rawData=[];machStatusMap={};issuesList=[];linksList=[];dataLoadFailed=true;src.textContent='讀取失敗';finish()
+  }
 }
 function gvizUrl(f){return`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:${f}&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`}
 function parseCsv(text){const lines=text.split('\n').filter(l=>l.trim());const res=[];for(let i=1;i<lines.length;i++){const c=csvLine(lines[i]);if(c.length>=2)res.push({row:i+1,machine:c[0],stage:c[1],planStart:normDate(c[2]),planEnd:normDate(c[3]),actualStart:normDate(c[4]),actualEnd:normDate(c[5]),owner:c[6]||'',note:c[7]||'',priority:c[8]||'',type:c[9]||'工作階段'})}return res}
@@ -574,6 +598,7 @@ function parseGvizJson(text){const m=text.match(/google\.visualization\.Query\.s
 
 function finish(){
   clearTimeout(slowHintTimer);
+  _bootDone=true;
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='';
   if(canEdit())document.querySelectorAll('.edit-only').forEach(el=>el.style.display='');
@@ -1491,24 +1516,39 @@ const AB_DEMO_DATA=[
 ];
 let abData=[];
 
-async function loadABData(){
+function abFromRows(r){
+  const map=new Map();
+  (r.data||[]).filter(row=>row&&row.game).forEach(row=>{
+    if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',link:row.link||'',versions:[]})}
+    const g=map.get(row.game);
+    if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,running:!!row.running,row:row.row})}
+    if(row.launchDate&&!g.launchDate)g.launchDate=normDate(row.launchDate);
+    if(row.link&&!g.link)g.link=row.link;
+  });
+  map.forEach(g=>{if(g.versions.some(v=>v.winner))g.status='已定版'});
+  return [...map.values()];
+}
+// finish() runs once for the cached paint and once for the live data; share one in-flight read
+let _abInflight=null,abUpdating=false;
+function loadABData(){if(!_abInflight){abUpdating=true;_abInflight=_loadABData().finally(()=>{_abInflight=null;abUpdating=false})}return _abInflight}
+async function _loadABData(){
   abLoadFailed=false;
   // demo data only when the dashboard is deliberately run without a sheet
   if(!CONFIG.SHEET_ID||!CONFIG.APPS_SCRIPT_URL){abData=AB_DEMO_DATA;return}
+  let usedCache=false;
+  if(!_abBootDone){
+    const c=cacheGet(AB_CACHE_KEY);
+    if(c){abData=abFromRows(c.r);abCacheShownAt=c.t;usedCache=true;try{populateABMonths();renderAB()}catch(e){}}
+  }
+  _abBootDone=true;
   try{
     const r=await readJson(CONFIG.APPS_SCRIPT_URL+'?action=readAB&nocache='+Math.random());
     if(!r||!r.success)throw new Error('readAB 回應失敗');
-    const map=new Map();
-    (r.data||[]).filter(row=>row&&row.game).forEach(row=>{
-      if(!map.has(row.game)){map.set(row.game,{gameName:row.game,gameTag:row.tag||'',targetMarket:row.market||'',launchDate:normDate(row.launchDate)||'',status:'打磨中',link:row.link||'',versions:[]})}
-      const g=map.get(row.game);
-      if(row.version){g.versions.push({label:row.version,date:normDate(row.versionDate)||'',winner:!!row.winner,running:!!row.running,row:row.row})}
-      if(row.launchDate&&!g.launchDate)g.launchDate=normDate(row.launchDate);
-      if(row.link&&!g.link)g.link=row.link;
-    });
-    map.forEach(g=>{if(g.versions.some(v=>v.winner))g.status='已定版'});
-    abData=[...map.values()];
-  }catch(e){abData=[];abLoadFailed=true}
+    abData=abFromRows(r);cacheSet(AB_CACHE_KEY,r);abCacheShownAt=null;
+  }catch(e){
+    if(!usedCache){abData=[];abLoadFailed=true}
+    // with a cache on screen, keep it; renderAB() shows the age
+  }
 }
 
 function getFilteredAB(){
@@ -1532,6 +1572,8 @@ function populateABMonths(){
 }
 
 function renderAB(){
+  const stale=document.getElementById('ab-stale');
+  if(stale){stale.style.display=abCacheShownAt?'block':'none';if(abCacheShownAt)stale.textContent=(abUpdating?'AB 資料為 '+cacheStamp(abCacheShownAt)+' 的快取，更新中…':'\u26a0 後端未回應，AB 資料為 '+cacheStamp(abCacheShownAt)+' 的快取，可能不是最新。')}
   if(abLoadFailed){document.getElementById('ab-kpis').innerHTML='';document.getElementById('ab-timeline').innerHTML='';document.getElementById('ab-table-area').innerHTML=loadFailHtml('AB 測試資料讀取失敗');return}
   populateABMonths();renderABKPI();renderABTable();renderABTimeline()
 }
