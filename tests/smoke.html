@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>儀表板煙霧測試</title>
+<style>
+  :root{color-scheme:light dark}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;padding:16px 20px;background:#f8f9fa;color:#1a1a2e;line-height:1.5}
+  @media (prefers-color-scheme:dark){body{background:#0d0f13;color:#f0f2f6}}
+  h1{font-size:18px;margin:0 0 4px}
+  p.lead{font-size:13px;opacity:.75;margin:0 0 12px}
+  .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  button{font:inherit;font-size:13px;padding:6px 14px;border-radius:6px;border:1px solid #999;background:#fff;color:#1a1a2e;cursor:pointer}
+  button.primary{background:#4f46e5;color:#fff;border-color:#4f46e5}
+  button:disabled{opacity:.5;cursor:default}
+  input{font:inherit;font-size:13px;padding:5px 8px;border:1px solid #999;border-radius:6px;min-width:260px}
+  table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;color:#1a1a2e;border-radius:8px;overflow:hidden}
+  th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #eee;vertical-align:top}
+  th{background:#eef0f4;font-weight:600}
+  td.st{width:60px;font-weight:700}
+  .pass{color:#15803d}.fail{color:#b3211f}.skip{color:#9a6206}.run{color:#4f46e5}
+  .summary{font-size:14px;font-weight:600;margin:10px 0}
+  iframe{width:1280px;height:820px;border:1px solid #ccc;border-radius:8px;background:#fff;display:block;margin-top:16px}
+  details{margin-top:12px;font-size:12px}
+  pre{white-space:pre-wrap;word-break:break-all;font-size:11px;background:#fff;color:#1a1a2e;padding:8px;border-radius:6px}
+</style>
+</head>
+<body>
+<h1>儀表板煙霧測試</h1>
+<p class="lead">把 project-timeline.html 載進下方框架，跑一遍改版時用過的檢查：對比度、欄位對齊、甘特圖、彈窗、分頁、事件委派。<b>全程只讀不寫</b>，不會碰試算表。測完會把主題、甘特圖範圍等偏好還原。</p>
+<div class="bar">
+  <label>頁面：<input id="src" value="../project-timeline.html"></label>
+  <button class="primary" id="run">開始測試</button>
+  <button id="copy" disabled>複製結果 JSON</button>
+  <span id="status"></span>
+</div>
+<div class="summary" id="summary"></div>
+<table id="results"><thead><tr><th>#</th><th>檢查</th><th class="st">結果</th><th>說明</th></tr></thead><tbody></tbody></table>
+<details><summary>原始結果</summary><pre id="raw"></pre></details>
+<iframe id="frame" title="受測頁面"></iframe>
+
+<script>
+// 本頁只有一個目的：把改版期間即席寫在瀏覽器裡的檢查收成可重跑的一份。
+// 每個檢查都是 async 函式，回傳 {pass, detail}；丟例外視為 fail。
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let W=null,D=null; // 受測視窗與 document
+const results=[];
+
+function row(i,name,status,detail){
+  const tb=$('results').querySelector('tbody');
+  let tr=tb.querySelector('[data-i="'+i+'"]');
+  if(!tr){tr=document.createElement('tr');tr.dataset.i=i;tr.innerHTML='<td></td><td></td><td class="st"></td><td></td>';tb.appendChild(tr)}
+  tr.children[0].textContent=i;tr.children[1].textContent=name;
+  tr.children[2].textContent={pass:'通過',fail:'失敗',skip:'略過',run:'…'}[status];tr.children[2].className='st '+status;
+  tr.children[3].textContent=detail||'';
+}
+
+// ---- WCAG 對比度（附錄 A 的邏輯）----
+function lum(c){const mm=(c||'').match(/[\d.]+/g);if(!mm)return null;const m=mm.map(Number);if(m.length>3&&m[3]===0)return null;const f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(m[0])+.7152*f(m[1])+.0722*f(m[2])}
+function contrastFails(){
+  const cs=el=>W.getComputedStyle(el);
+  const bgOf=el=>{while(el){const b=cs(el).backgroundColor;if(lum(b)!==null)return b;el=el.parentElement}return cs(D.body).backgroundColor};
+  const bad=[];
+  D.querySelectorAll('body *').forEach(el=>{
+    if(![...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;
+    const s=cs(el);if(s.display==='none'||s.visibility==='hidden'||!el.offsetParent&&s.position!=='fixed')return;
+    const l1=lum(s.color),l2=lum(bgOf(el));if(l1===null)return;
+    const big=parseFloat(s.fontSize)>=18.66||(parseFloat(s.fontSize)>=14&&parseInt(s.fontWeight)>=700);
+    const r=(Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);
+    if(r<(big?3:4.5))bad.push((el.className||el.tagName)+' 「'+el.textContent.trim().slice(0,10)+'」 '+r.toFixed(2));
+  });
+  return bad;
+}
+
+const CHECKS=[
+  ['頁面載入（等待資料，最多 120 秒）',async()=>{
+    const t0=performance.now();
+    for(let i=0;i<240;i++){if(D.getElementById('app')&&D.getElementById('app').style.display!=='none')break;await sleep(500)}
+    const shown=D.getElementById('app').style.display!=='none';
+    const secs=((performance.now()-t0)/1000).toFixed(1);
+    if(!shown)return {pass:false,detail:'120 秒內沒有離開載入畫面'};
+    return {pass:true,detail:secs+' 秒後顯示；來源：'+D.getElementById('source-note').textContent};
+  }],
+  ['資料狀態',async()=>{
+    // 即時資料可能還在背景更新，等它換成「即時」或放棄
+    for(let i=0;i<120&&/更新中/.test(D.getElementById('source-note').textContent);i++)await sleep(1000);
+    const n=D.querySelectorAll('.machine-group').length;
+    const failed=!!D.querySelector('#table-area [data-action="reload"]')||/讀取失敗/.test(D.getElementById('source-note').textContent);
+    const src=D.getElementById('source-note').textContent;
+    if(failed)return {pass:false,detail:'讀取失敗狀態（沒有顯示假資料，這是正確的失敗畫面）；來源：'+src};
+    return {pass:n>0,detail:n+' 台機台；來源：'+src};
+  }],
+  ['沒有殘留的 inline 事件屬性',async()=>{
+    const n=D.querySelectorAll('[onclick],[onchange],[oninput]').length;
+    return {pass:n===0,detail:n+' 個'};
+  }],
+  ['對比度 ≥ 4.5:1（淺色）',async()=>{
+    W.lsSet('theme','light');W.applyTheme();await sleep(400);
+    const bad=contrastFails();return {pass:bad.length===0,detail:bad.length?bad.slice(0,5).join('；'):'0 處不合格'};
+  }],
+  ['對比度 ≥ 4.5:1（深色）',async()=>{
+    W.lsSet('theme','dark');W.applyTheme();await sleep(400);
+    const bad=contrastFails();
+    W.lsSet('theme','light');W.applyTheme();await sleep(200);
+    return {pass:bad.length===0,detail:bad.length?bad.slice(0,5).join('；'):'0 處不合格'};
+  }],
+  ['機台列欄位對齊（subgrid）',async()=>{
+    const rows=[...D.querySelectorAll('.machine-header')];
+    if(rows.length<2)return {pass:true,detail:'機台不足兩台，略過'};
+    if(W.getComputedStyle(D.getElementById('table-area')).display!=='grid')return {pass:true,detail:'窄版排法（非 subgrid），略過'};
+    const cols={};rows.forEach(h=>[...h.children].forEach((c,i)=>{(cols[i]=cols[i]||new Set()).add(Math.round(c.getBoundingClientRect().left))}));
+    const off=Object.entries(cols).filter(([,s])=>s.size>1).map(([i,s])=>'第 '+(+i+1)+' 欄 '+[...s].join('/'));
+    return {pass:off.length===0,detail:off.length?off.join('；'):rows.length+' 列 × '+Object.keys(cols).length+' 欄全部對齊'};
+  }],
+  ['甘特圖：近期模式不需左右捲動、今天膠囊在軌道內、刻度與格子對齊',async()=>{
+    W.setGanttRange('focus');await sleep(300);
+    const g=D.getElementById('gantt'),wrap=g.parentElement;
+    const scroll=g.scrollWidth>wrap.clientWidth+1;
+    const pill=g.querySelector('.today-label');
+    const pillOk=!pill||pill.getBoundingClientRect().top>=wrap.getBoundingClientRect().top-0.5;
+    const ticks=[...g.querySelectorAll('.gantt-wk')],cells=[...(g.querySelector('.gantt-row-tl')?g.querySelector('.gantt-row-tl').querySelectorAll('.gantt-cell'):[])];
+    const aligned=ticks.length&&cells.length?Math.abs(ticks[ticks.length-1].getBoundingClientRect().right-cells[cells.length-1].getBoundingClientRect().right)<1:true;
+    const problems=[];if(scroll)problems.push('需要左右捲動');if(!pillOk)problems.push('今天膠囊被裁切');if(!aligned)problems.push('刻度與格子沒對齊');
+    return {pass:problems.length===0,detail:problems.length?problems.join('；'):W.getWeeks().length+' 週，週寬 '+W.getComputedStyle(g).getPropertyValue('--wk').trim()+(pill?'，今天膠囊正常':'，今天不在範圍內')};
+  }],
+  ['甘特圖：全部模式點數 = 有日期的里程碑數',async()=>{
+    W.setGanttRange('all');await sleep(300);
+    const dots=D.querySelectorAll('#gantt .g-dot').length;
+    const expect=[...W.getFilteredMachines().values()].reduce((n,st)=>n+st.filter(s=>s.type==='里程碑'&&(s.planEnd||s.actualEnd||s.planStart)).length,0);
+    W.setGanttRange('focus');
+    return {pass:dots===expect,detail:dots+' 個點／預期 '+expect};
+  }],
+  ['彈窗：新增機台開得起來、取消關得掉',async()=>{
+    const b=D.querySelector('[data-action="openAddMachine"]');if(!b)return {pass:false,detail:'找不到按鈕'};
+    b.click();await sleep(250);const open=D.getElementById('modal-bg').open;
+    const c=D.getElementById('modal-bg').querySelector('[data-action="closeModal"]');if(c)c.click();await sleep(250);
+    return {pass:open&&!D.getElementById('modal-bg').open,detail:open?'開→關正常':'沒有開起來'};
+  }],
+  ['彈窗：編輯階段表單預填正確',async()=>{
+    const eb=D.querySelector('[data-action="openEditStage"]');if(!eb)return {pass:true,detail:'沒有階段列，略過'};
+    const s=W._stageByEl(eb);eb.click();await sleep(250);
+    const ok=s&&D.getElementById('e-stage')&&D.getElementById('e-stage').value===s.stage&&D.getElementById('e-ps').value===(s.planStart||'')&&D.getElementById('e-note').value===(s.note||'');
+    const c=D.getElementById('modal-bg').querySelector('[data-action="closeModal"]');if(c)c.click();await sleep(250);
+    return {pass:!!ok&&!D.getElementById('modal-bg').open,detail:ok?'階段、日期、備註一致':'欄位與資料不一致'};
+  }],
+  ['分頁：切到 AB 再切回',async()=>{
+    D.getElementById('tabbtn-abtest').click();await sleep(400);
+    const ab=D.getElementById('tabbtn-abtest').getAttribute('aria-selected')==='true'&&!D.getElementById('tab-abtest').hidden&&D.getElementById('tab-timeline').hidden;
+    const rows=D.querySelectorAll('.ab-timeline-row').length,dots=D.querySelectorAll('.ab-dot').length;
+    const expect=D.querySelector('#ab-table-area [data-action="reload"]')?null:W.getFilteredAB().reduce((n,g)=>n+g.versions.filter(v=>v.date).length,0);
+    D.getElementById('tabbtn-timeline').click();await sleep(200);
+    const back=D.getElementById('tabbtn-timeline').getAttribute('aria-selected')==='true'&&D.getElementById('tab-abtest').hidden;
+    const dotsOk=expect===null||dots===expect;
+    return {pass:ab&&back&&dotsOk,detail:(ab&&back?'分頁切換正常':'分頁狀態錯誤')+'；AB '+rows+' 列、'+dots+' 個版本點'+(expect===null?'（AB 讀取失敗）':'／預期 '+expect)};
+  }],
+  ['Console 沒有 JS 例外',async()=>{
+    return {pass:errors.length===0,detail:errors.length?errors.slice(0,3).join('；'):'0 個'};
+  }],
+];
+
+const errors=[];
+async function run(){
+  $('run').disabled=true;$('copy').disabled=true;results.length=0;errors.length=0;
+  $('results').querySelector('tbody').innerHTML='';$('summary').textContent='';$('raw').textContent='';
+  $('status').textContent='載入受測頁面…';
+  const f=$('frame');
+  await new Promise(res=>{f.onload=res;f.src=$('src').value+($('src').value.includes('?')?'&':'?')+'smoke='+Date.now()});
+  W=f.contentWindow;D=f.contentDocument;
+  W.addEventListener('error',e=>errors.push(e.message));
+  W.addEventListener('unhandledrejection',e=>errors.push(String(e.reason&&e.reason.message||e.reason)));
+  // 記住受測頁的偏好，測完還原
+  const keep={};['theme','ganttRange','ganttView','activeTab'].forEach(k=>{try{keep[k]=W.localStorage.getItem(k)}catch(e){}});
+  let pass=0,fail=0;
+  for(let i=0;i<CHECKS.length;i++){
+    const [name,fn]=CHECKS[i];row(i+1,name,'run','');$('status').textContent='執行中：'+name;
+    let r;try{r=await fn()}catch(e){r={pass:false,detail:'例外：'+(e.message||e)}}
+    results.push({name,pass:r.pass,detail:r.detail});row(i+1,name,r.pass?'pass':'fail',r.detail);
+    if(r.pass)pass++;else fail++;
+  }
+  try{
+    Object.entries(keep).forEach(([k,v])=>{if(v===null)W.localStorage.removeItem(k);else W.localStorage.setItem(k,v)});
+    W.applyTheme();W.setGanttRange(keep.ganttRange==='all'?'all':'focus');if(keep.ganttRange===null)W.localStorage.removeItem('ganttRange');
+    if(keep.activeTab==='abtest')W.switchTab('abtest');
+  }catch(e){}
+  $('summary').textContent=fail?('❌ '+fail+' 項失敗，'+pass+' 項通過'):('✅ 全部 '+pass+' 項通過');
+  $('summary').className='summary '+(fail?'fail':'pass');
+  $('status').textContent='完成 '+new Date().toLocaleTimeString();
+  $('raw').textContent=JSON.stringify({when:new Date().toISOString(),page:$('src').value,width:f.clientWidth,results},null,2);
+  $('run').disabled=false;$('copy').disabled=false;
+}
+$('run').addEventListener('click',run);
+$('copy').addEventListener('click',()=>navigator.clipboard.writeText($('raw').textContent).then(()=>{$('status').textContent='已複製'}));
+const q=new URLSearchParams(location.search);if(q.get('src'))$('src').value=q.get('src');if(q.get('auto'))run();
+</script>
+</body>
+</html>
