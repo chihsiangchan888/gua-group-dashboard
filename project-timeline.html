@@ -139,7 +139,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .g-dot .ms-label{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;color:var(--ink-2);white-space:nowrap;pointer-events:none;background:var(--surface);padding:0 3px;border-radius:3px}
 .g-dot-green{background:var(--good-mark)}.g-dot-yellow{background:var(--warn-mark)}.g-dot-red{background:var(--crit-mark)}
 .g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;display:none;z-index:20}
-.g-dot:hover .g-tooltip,.g-dot:focus-visible .g-tooltip{display:block}
+.g-dot:hover .g-tooltip,.g-dot:focus .g-tooltip{display:block}
 .gantt-row-tl{overflow:visible}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--ink-muted)}
 .legend-item{display:flex;align-items:center;gap:5px}
@@ -182,7 +182,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-dot.winner.lane1{top:17px}
 .ab-gap{display:block;font-size:9px;font-weight:600;color:var(--warn-text);line-height:1.3;margin-top:1px;white-space:normal;max-width:150px}
 .ab-dot-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:3px 6px;border-radius:4px;font-size:9px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
-.ab-dot:hover .ab-dot-tip{opacity:1}
+.ab-dot:hover .ab-dot-tip,.ab-dot:focus .ab-dot-tip{opacity:1}
 .ab-connect{position:absolute;top:18px;height:2px;background:var(--line-strong);z-index:1}
 .ab-status-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600}
 .ab-status-打磨中{background:var(--warn-bg);color:var(--warn-ink)}
@@ -864,7 +864,7 @@ function renderGanttMilestone(machines,weeks,total){
       const room=!nxt||(nxt.pos-it.pos)*tlPx/100>64;
       const isNext=nm&&nm.stage===it.s.stage&&!it.s.actualEnd;
       const label=(isNext&&room)?`<div class="ms-label${it.pos>88?' ms-label-l':''}">${esc(it.s.stage)}</div>`:'';
-      html+=`<div class="g-dot g-dot-${st}" style="left:${Math.min(it.pos,99.4)}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
+      html+=`<div class="g-dot g-dot-${st}" tabindex="0" role="img" aria-label="${esc(it.s.stage)} ${fmtDate(it.dt)}，${it.s.actualEnd?'已完成':st==='green'?'如期':st==='yellow'?'即將到期':'逾期'}" style="left:${Math.min(it.pos,99.4)}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
     });
     if(past.length){const p=past[past.length-1];html+=`<div class="g-edge g-edge-l" title="${past.length} 個里程碑在範圍之前，最近的是 ${esc(p.s.stage)} ${fmtDate(p.dt)}">◂ ${past.length}${items.length?'':' · '+esc(p.s.stage)+' '+fmtDate(p.dt)}</div>`}
     if(future.length){const f=future[0],lastPos=items.length?items[items.length-1].pos:-1,tight=lastPos>70;html+=`<div class="g-edge g-edge-r${lastPos>93?' g-edge-b':''}" title="${future.length} 個里程碑在範圍之後，下一個是 ${esc(f.s.stage)} ${fmtDate(f.dt)}">${tight?'':esc(f.s.stage)+' '+fmtDate(f.dt)+' '}▸ ${future.length}</div>`}
@@ -882,7 +882,7 @@ function renderGanttDetail(machines,weeks,total){
       html+=ganttCells(weeks);
       const color=STAGE_COLORS[s.stage]||'#6366f1';
       if(s.planStart&&s.planEnd){const l=datePos(weeks,s.planStart)*100,r=datePos(weeks,s.planEnd)*100;if(!(l===r&&(l===0||l===100)))html+=`<div class="g-plan" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:${color}"></div>`}
-      else if(s.planEnd&&!s.planStart){const p=datePosRaw(weeks,s.planEnd)*100;if(p>=0&&p<=100)html+=`<div class="g-milestone" style="left:calc(${Math.min(p,99.2)}% - 6px);border-color:${color}"></div>`}
+      else if(s.planEnd&&!s.planStart){const p=datePosRaw(weeks,s.planEnd)*100;if(p>=0&&p<=100)html+=`<div class="g-milestone" tabindex="0" role="img" title="${esc(s.stage)} ${fmtDate(s.planEnd)}" aria-label="${esc(s.stage)} ${fmtDate(s.planEnd)}" style="left:calc(${Math.min(p,99.2)}% - 6px);border-color:${color}"></div>`}
       if(s.actualStart){const l=datePos(weeks,s.actualStart)*100,r=(s.actualEnd?datePos(weeks,s.actualEnd):datePos(weeks,TODAY))*100;if(!(l===r&&(l===0||l===100)))html+=`<div class="g-actual" style="left:${l}%;width:${Math.max(r-l,.5)}%;background:${color}"></div>`}
       html+=`</div></div>`;
     });
@@ -1702,7 +1702,7 @@ function renderABTimeline(){
     placed.forEach(x=>{x.lane=(x.p-lastP<3)?(lastLane===0?1:0):0;lastP=x.p;lastLane=x.lane});
     placed.forEach(({v,vi,p,lane})=>{
       const c=colors[vi%colors.length];
-      html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}${v.running?' cmp':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}${v.running?' ·本次比較':''}</div>${v.label}</div>`;
+      html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}${v.running?' cmp':''}" tabindex="0" role="img" aria-label="${esc(v.label)}版 ${fmtDate(v.date)}${v.winner?'，勝出':''}${v.running?'，本次比較':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}${v.running?' ·本次比較':''}</div>${v.label}</div>`;
     });
     const pd=abPolishDays(g),pOver=!wv&&abAvgPolish()!=null&&pd!=null&&pd>abAvgPolish();
     html+=`</div><div class="ab-note" style="color:${wv?'var(--good-text)':pOver?'var(--crit-ink)':'var(--ink-2)'}">${pd==null?'':(wv?'定版 '+pd+' 天':'打磨中 '+pd+' 天'+(pOver?' ⚠':''))}</div></div>`;
