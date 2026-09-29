@@ -965,7 +965,12 @@ function askWriteKey(){
 async function apiPost(body,_afterKey){
   // 後端支援去重時才帶 reqId，也只有帶了 reqId 才敢重送（沒帶的話重送可能多寫一列）
   if(BACKEND_CAPS.reqId&&!body.reqId)body.reqId=newReqId();
-  if(BACKEND_CAPS.writeKey){const k=lsGet('writeKey');if(k)body.key=k}
+  if(BACKEND_CAPS.writeKey){
+    let k=lsGet('writeKey');
+    // no key on this device yet: ask now instead of after a slow refusal from the backend
+    if(!k&&!_afterKey){k=await askWriteKey();if(!k){toast('⚠ 沒有寫入密鑰，這次沒有存檔','err');return{success:false}}lsSet('writeKey',k)}
+    if(k)body.key=k;
+  }
   const tries=body.reqId?3:1;
   let j=null,lastErr=null;
   for(let i=0;i<tries;i++){
