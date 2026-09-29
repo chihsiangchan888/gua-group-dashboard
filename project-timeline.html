@@ -566,6 +566,7 @@ function applyRead(r){
   machStatusMap=r.statuses||{};
   issuesList=Array.isArray(r.issues)?r.issues:[];
   linksList=Array.isArray(r.links)?r.links:[];
+  BACKEND_CAPS=r.caps||{};
   dataLoadFailed=false;sideDataFailed=false;
 }
 
@@ -941,17 +942,50 @@ function toast(msg,type){
 }
 let _okToastT;
 function okToast(){clearTimeout(_okToastT);_okToastT=setTimeout(()=>toast('✓ 已儲存','ok'),400)}
-async function apiPost(body){
-  try{
-    const params=encodeURIComponent(JSON.stringify(body));
-    const r=await fetch(CONFIG.APPS_SCRIPT_URL+'?payload='+params,{redirect:'follow'});
-    const j=await r.json();
-    if(j&&j.success===false){
-      toast('⚠ 儲存失敗：'+(j.error||'未知錯誤')+'（'+(body.action||'')+'）— 後端可能尚未部署最新版','err');
-    }else if(j&&j.success===true){ okToast(); }
-    return j;
+// 後端在 readAll 回的 caps：reqId＝支援去重（寫入可安全重送）、writeKey＝有設寫入密鑰
+let BACKEND_CAPS={};
+function newReqId(){return (crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(16).slice(2)}
+// 問使用者要寫入密鑰；用 confirm-dlg 這個獨立 dialog，可以疊在其他彈窗上
+function askWriteKey(){
+  return new Promise(resolve=>{
+    const d=document.getElementById('confirm-dlg');
+    d.innerHTML='<h3 id="confirm-title" style="margin-bottom:8px">需要寫入密鑰</h3>'
+      +'<p style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:10px">這個儀表板的後端已啟用寫入保護。請輸入管理者給你的密鑰，之後會記在這台裝置的瀏覽器裡。</p>'
+      +'<div class="fg"><label for="wk-input">寫入密鑰</label><input id="wk-input" type="password" autocomplete="off" value="'+esc(lsGet('writeKey')||'')+'"></div>'
+      +'<div class="modal-btns"><button type="button" class="btn btn-cancel" data-act="cancel">取消</button><button type="button" class="btn btn-primary" data-act="ok">確定</button></div>';
+    let done=false;
+    const finish=v=>{if(done)return;done=true;if(d.open)d.close();resolve(v)};
+    d.querySelector('[data-act="ok"]').onclick=()=>finish((document.getElementById('wk-input').value||'').trim()||null);
+    d.querySelector('[data-act="cancel"]').onclick=()=>finish(null);
+    d.querySelector('#wk-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();d.querySelector('[data-act="ok"]').click()}});
+    if(!d.open)d.showModal();
+    d.querySelector('#wk-input').focus();
+  });
+}
+async function apiPost(body,_afterKey){
+  // 後端支援去重時才帶 reqId，也只有帶了 reqId 才敢重送（沒帶的話重送可能多寫一列）
+  if(BACKEND_CAPS.reqId&&!body.reqId)body.reqId=newReqId();
+  if(BACKEND_CAPS.writeKey){const k=lsGet('writeKey');if(k)body.key=k}
+  const tries=body.reqId?3:1;
+  let j=null,lastErr=null;
+  for(let i=0;i<tries;i++){
+    if(i>0){toast('後端回應不穩，重送中（第 '+(i+1)+'/'+tries+' 次）…','');await new Promise(ok=>setTimeout(ok,1000*i))}
+    try{
+      const params=encodeURIComponent(JSON.stringify(body));
+      const r=await fetchT(CONFIG.APPS_SCRIPT_URL+'?payload='+params,{redirect:'follow'},30000);
+      j=await r.json();lastErr=null;break;
+    }catch(e){lastErr=e;j=null}
   }
-  catch(e){toast('⚠ 操作失敗（連線錯誤）：'+(e.message||e),'err');return{success:false}}
+  if(lastErr){toast('⚠ 操作失敗（連線錯誤）：'+(lastErr.message||lastErr),'err');return{success:false}}
+  if(j&&j.success===false){
+    if(j.error==='unauthorized'&&!_afterKey){
+      const k=await askWriteKey();
+      if(k){lsSet('writeKey',k);return apiPost(body,true)}
+      toast('⚠ 沒有寫入密鑰，這次沒有存檔','err');return j;
+    }
+    toast('⚠ 儲存失敗：'+(j.error==='unauthorized'?'寫入密鑰不正確':(j.error||'未知錯誤'))+'（'+(body.action||'')+'）'+(j.error==='unauthorized'?'':' — 後端可能尚未部署最新版'),'err');
+  }else if(j&&j.success===true){ okToast(); }
+  return j;
 }
 
 // === Modals ===
@@ -1450,6 +1484,8 @@ function openSettings(){
       <input type="text" id="new-launch-name" placeholder="新檢查項目" style="flex:1;padding:5px 8px;border:1px solid var(--line-strong);border-radius:4px;font-size:12px">
       <button class="btn btn-sm btn-add-stage" data-action="addSettingItem" data-list="settings-launch" data-field="launch">新增</button>
     </div>
+    <h4 style="font-size:13px;color:var(--ink-muted);margin:16px 0 8px">🔑 寫入密鑰</h4>
+    <div class="fg"><label for="set-key">後端啟用寫入保護時才需要；只存在這台裝置</label><input id="set-key" type="password" autocomplete="off" value="${esc(lsGet('writeKey')||'')}" placeholder="未設定"></div>
     <div class="modal-btns"><button class="btn btn-cancel" data-action="closeModal">取消</button><button class="btn btn-primary" data-action="saveSettings">儲存</button></div>`);
 }
 function addSettingItem(listId,field){
@@ -1472,6 +1508,7 @@ function moveStageInType(type,localIdx,dir){
   openSettings();
 }
 async function saveSettings(){
+  const sk=document.getElementById('set-key');if(sk){const v=sk.value.trim();if(v)lsSet('writeKey',v);else try{localStorage.removeItem('writeKey')}catch(e){}}
   const stages=[];
   document.querySelectorAll('#settings-ms .settings-item, #settings-ws .settings-item').forEach(li=>{
     const n=li.querySelector('[data-field=name]').value.trim(),c=li.querySelector('[data-field=color]').value,t=li.dataset.type;

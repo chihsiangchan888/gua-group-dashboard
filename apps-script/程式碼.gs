@@ -22,7 +22,39 @@ function doGet(e) {
 }
 function doPost(e) { return processAction(JSON.parse(e.postData.contents)); }
 
+// === 寫入保護與去重 ===
+// 寫入密鑰：在 Apps Script 的「專案設定 → 指令碼屬性」新增 WRITE_KEY 後才會啟用；沒設就跟以前一樣不擋。
+// 去重：前端每次寫入帶一個 reqId，同一個 reqId 在 6 小時內只會執行一次，之後回同一份結果，
+//       所以前端遇到 Google 端的 404／逾時可以放心重送，不會多寫一列或多刪一列。
+var WRITE_ACTIONS = {addMachine:1,addStage:1,update:1,'delete':1,deleteMachine:1,setPriority:1,archiveMachine:1,setMachineStatus:1,launchMachine:1,setLaunchChecklist:1,setIssues:1,setLinks:1,setStages:1,setABOptions:1,writeAB:1,addABGame:1,addABVersion:1,setABWinner:1,deleteABVersion:1,deleteABGame:1};
+function writeKey() { try { return PropertiesService.getScriptProperties().getProperty('WRITE_KEY') || ''; } catch (e) { return ''; } }
+function caps() { return { reqId: true, writeKey: !!writeKey() }; }
+
 function processAction(body) {
+  var a = body.action;
+  if (a === 'caps') return jsonResponse({ success: true, caps: caps() });
+  if (WRITE_ACTIONS[a]) {
+    var k = writeKey();
+    if (k && String(body.key || '') !== k) return jsonResponse({ success: false, error: 'unauthorized' });
+    if (body.reqId) return dedup(String(body.reqId), function () { return dispatchAction(body); });
+  }
+  return dispatchAction(body);
+}
+
+function dedup(id, run) {
+  var cache = CacheService.getScriptCache(), key = 'req:' + id;
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var hit = cache.get(key);
+    if (hit) return ContentService.createTextOutput(hit).setMimeType(ContentService.MimeType.JSON);
+    var out = run();
+    try { cache.put(key, out.getContent(), 21600); } catch (e) { /* 結果太大放不進快取也沒關係 */ }
+    return out;
+  } finally { lock.releaseLock(); }
+}
+
+function dispatchAction(body) {
   var a = body.action;
   if (a === 'addMachine') return jsonResponse(addMachine(body.name, body.owner, body.priority));
   if (a === 'addStage') return jsonResponse(addStage(body.data));
@@ -66,7 +98,7 @@ function readAll() {
   var lcResult = getLaunchChecklist();
   var issResult = getIssues();
   var lkResult = getLinks();
-  return { success: true, data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets, statuses: msResult.statuses, launchChecklist: lcResult.items, issues: issResult.issues, links: lkResult.links };
+  return { success: true, caps: caps(), data: rows, stages: stagesResult.stages, abTags: abOptionsResult.tags, abMarkets: abOptionsResult.markets, statuses: msResult.statuses, launchChecklist: lcResult.items, issues: issResult.issues, links: lkResult.links };
 }
 
 function addMachine(name, owner, priority) {
