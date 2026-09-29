@@ -1,0 +1,1 @@
+﻿{ "name": "gua-dashboard-relay", "private": true, "type": "module", "scripts": { "test": "node test/run.js", "dev": "wrangler dev", "deploy": "wrangler deploy" } }

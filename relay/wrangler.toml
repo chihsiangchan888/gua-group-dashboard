@@ -1,0 +1,15 @@
+name = "gua-dashboard-relay"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+
+# Non-secret settings. Secrets (GOOGLE_SA_JSON, WRITE_KEY) are set with `wrangler secret put`,
+# never written here; for local `wrangler dev` put them in relay/.dev.vars (git-ignored).
+[vars]
+SHEET_ID = "10_RMNf8IluvwZyPUUGrLDupcK09aaXGTVqJxEkXLSt8"
+ALLOWED_ORIGINS = "https://chihsiangchan888.github.io,http://localhost:8765,http://127.0.0.1:8765"
+
+# Request de-duplication store. Create once with:  wrangler kv namespace create DEDUP
+# then paste the id it prints below.
+[[kv_namespaces]]
+binding = "DEDUP"
+id = "REPLACE_WITH_KV_ID"
