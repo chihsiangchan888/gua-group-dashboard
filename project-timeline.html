@@ -976,7 +976,12 @@ async function apiPost(body,_afterKey){
       j=await r.json();lastErr=null;break;
     }catch(e){lastErr=e;j=null}
   }
-  if(lastErr){toast('⚠ 操作失敗（連線錯誤）：'+(lastErr.message||lastErr),'err');return{success:false}}
+  if(lastErr){
+    // Google 端 404／HTML：Apps Script 多半已經執行完寫入，只是結果送不回來；不能當成沒寫
+    const htmlBack=lastErr instanceof SyntaxError;
+    toast(htmlBack?'⚠ 後端回應異常（Google 端 404）。這筆變更可能已經寫入，請重新整理確認後再決定是否重做。':'⚠ 操作失敗（連線錯誤）：'+(lastErr.message||lastErr),'err');
+    return{success:false}
+  }
   if(j&&j.success===false){
     if(j.error==='unauthorized'&&!_afterKey){
       const k=await askWriteKey();
