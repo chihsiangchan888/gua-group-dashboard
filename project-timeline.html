@@ -1655,12 +1655,20 @@ function abPairWarn(g){
 }
 
 function abWinner(g){return (g.versions||[]).find(v=>v.winner&&v.date)||null}
-// days from launch to the winning version; still-polishing games count up to today
+// 打磨天數＝上線日 → 打磨到的最新版本（英文字母最大的那一版）的日期。
+// 只看單一字母的版本標籤；R1／R2 這類另開的測試（如新手機率）不算。沒有字母版本時退回最晚的版本日。
+function abLatestVersion(g){
+  const dated=(g&&g.versions||[]).filter(v=>v.date);
+  const letters=dated.filter(v=>/^[A-Za-z]$/.test(String(v.label||'').trim()));
+  const pool=letters.length?letters:dated;
+  if(!pool.length)return null;
+  const key=v=>letters.length?String(v.label).trim().toUpperCase():v.date;
+  return pool.reduce((best,v)=>key(v)>key(best)||(key(v)===key(best)&&v.date>best.date)?v:best);
+}
 function abPolishDays(g){
   if(!g||!g.launchDate)return null;
-  const w=abWinner(g);
-  const end=w?w.date:TODAY;
-  return end?diffDays(g.launchDate,end):null;
+  const v=abLatestVersion(g);
+  return v?diffDays(g.launchDate,v.date):null;
 }
 // average over finalised games only — that is the yardstick a running game is measured against
 function abAvgPolish(){
@@ -1672,8 +1680,10 @@ function abPolishHtml(g){
   if(d==null)return '<span style="color:var(--ink-3)">—</span>';
   const done=!!abWinner(g),avg=abAvgPolish();
   const over=!done&&avg!=null&&d>avg;
+  const lv=abLatestVersion(g);
+  const tip='上線 '+fmtDate(g.launchDate)+' → '+esc(lv.label)+' 版 '+fmtDate(lv.date)+(over?'（已超過已定版平均 '+avg+' 天）':'');
   return '<span style="white-space:nowrap;font-weight:600;color:'+(done?'var(--good-text)':over?'var(--crit-ink)':'var(--ink-2)')+'"'
-    +(over?' title="已超過已定版平均 '+avg+' 天"':'')+'>'+(done?'':'已 ')+d+' 天'+(over?' ⚠':'')+'</span>';
+    +' title="'+tip+'">'+(done?'':'已 ')+d+' 天'+(over?' ⚠':'')+'</span>';
 }
 
 function renderABKPI(){
