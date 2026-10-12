@@ -22,7 +22,7 @@
   --accent:#4f46e5;--accent-tint:#ecedfb;--plan:#6366f1;
   --good-ink:#047857;--good-text:#15803d;--good-bg:#d1fae5;--good-mark:#22c55e;
   --warn-ink:#754d00;--warn-bg:#fbefd6;--warn-mark:#eab308;--warn-text:#9a6206;--warn-ring:#b45309;
-  --crit-ink:#b3211f;--crit-bg:#fde5e4;--crit-mark:#ef4444;--crit-line:#fecaca;
+  --crit-ink:#b3211f;--crit-bg:#fde5e4;--crit-mark:#ef4444;--crit-line:#fecaca;--late-bg:#fdf3f2;
   --info-ink:#0369a1;--info-bg:#e0f2fe;--err-text:#dc2626;--err-bg:#fef2f2;--kpi-crit:#e5484d;--kpi-crit-bg:#fdecec;--kpi-warn:#d98908;--kpi-warn-bg:#fdf3e2;--kpi-accent:#5b5bd6;
   --shadow-sm:0 1px 3px rgba(16,24,40,.05);--shadow-hover:0 8px 22px rgba(16,24,40,.09);
   --shadow-md:0 2px 8px rgba(0,0,0,.05);--shadow-lg:0 16px 48px rgba(0,0,0,.15);
@@ -34,7 +34,7 @@
   --accent:#8f8ffa;--accent-tint:#262a4a;--plan:#8b8df5;
   --good-ink:#5ed88a;--good-text:#6fdc95;--good-bg:#12362a;--good-mark:#34d17a;
   --warn-ink:#f3bb46;--warn-bg:#3b2e12;--warn-mark:#e5b62a;--warn-text:#f0b94a;--warn-ring:#f59e0b;
-  --crit-ink:#fb8380;--crit-bg:#3d1c1c;--crit-mark:#f26b6b;--crit-line:#5a2a2a;
+  --crit-ink:#fb8380;--crit-bg:#3d1c1c;--crit-mark:#f26b6b;--crit-line:#5a2a2a;--late-bg:#271a1d;
   --info-ink:#6fc3f2;--info-bg:#12303f;--err-text:#fb8380;--err-bg:#331a1a;--kpi-crit:#f47c80;--kpi-crit-bg:#3a1e20;--kpi-warn:#f0b94a;--kpi-warn-bg:#3a2f16;--kpi-accent:#9b9bfc;
   --shadow-sm:0 1px 3px rgba(0,0,0,.4);--shadow-hover:0 8px 22px rgba(0,0,0,.55);
   --shadow-md:0 2px 8px rgba(0,0,0,.35);--shadow-lg:0 16px 48px rgba(0,0,0,.6);
@@ -76,19 +76,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .btn-add-stage{background:var(--good-bg);color:var(--good-ink)}
 .mach-panel{container-type:inline-size}
 .machine-group{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;overflow:clip}
-.machine-header{display:grid;grid-template-columns:14px minmax(56px,1fr) minmax(30px,46px) minmax(40px,64px) minmax(60px,100px) minmax(80px,118px) minmax(90px,132px) minmax(48px,76px) minmax(max-content,208px);align-items:center;gap:10px;padding:12px 16px;background:var(--surface-2);cursor:pointer;user-select:none}
+/* 欄寬：機台名稱拿剩下的空間，其餘欄依內容給固定或小範圍寬度，避免名稱被擠到只剩幾個字 */
+.machine-header,.mach-colhdr{display:grid;grid-template-columns:12px minmax(112px,1fr) 32px minmax(44px,60px) minmax(64px,112px) minmax(92px,124px) 80px 48px max-content;align-items:center;gap:8px}
+.machine-header{padding:12px 16px;background:var(--surface-2);cursor:pointer;user-select:none}
 .machine-header:hover{background:var(--surface-tint)}
+.mach-colhdr{padding:0 17px 6px;font-size:11px;font-weight:600;color:var(--ink-3);white-space:nowrap}
 @supports (grid-template-columns:subgrid){
   /* 所有機台列共用同一組欄寬；內容較寬的列（例如已上線）不再把欄位推開 */
-  #table-area{display:grid;grid-template-columns:auto minmax(56px,1fr) minmax(30px,46px) minmax(40px,64px) minmax(60px,100px) minmax(80px,118px) minmax(90px,132px) minmax(48px,76px) minmax(max-content,208px);column-gap:10px}
+  #table-area{display:grid;grid-template-columns:auto minmax(112px,1fr) 32px minmax(44px,60px) minmax(64px,112px) minmax(92px,124px) 80px 48px max-content;column-gap:8px}
   #table-area>*{grid-column:1/-1}
   .machine-group{display:grid;grid-template-columns:subgrid;gap:normal}
-  .machine-header{grid-column:1/-1;grid-template-columns:subgrid;gap:normal}
+  .machine-header,.mach-colhdr{grid-column:1/-1;grid-template-columns:subgrid;gap:normal}
   .stage-table{grid-column:1/-1}
 }
 .machine-name{font-weight:600;font-size:14px;color:var(--ink)}
+.machine-header .machine-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.machine-group.is-late{border-color:var(--crit-line)}
+.machine-group.is-late>.machine-header{background:var(--late-bg)}
+.machine-group.is-late>.machine-header:hover,.machine-group.is-late>.machine-header:focus-within{background:var(--surface-tint)}
+.health{width:10px;height:10px;border-radius:50%;justify-self:center;background:var(--good-mark);box-shadow:0 0 0 3px color-mix(in srgb,var(--good-mark) 16%,transparent)}
+.health-yellow{background:var(--warn-mark);box-shadow:0 0 0 3px color-mix(in srgb,var(--warn-mark) 20%,transparent)}
+.health-red{background:var(--crit-mark);box-shadow:0 0 0 3px color-mix(in srgb,var(--crit-mark) 20%,transparent)}
+.health-done{background:transparent;box-shadow:inset 0 0 0 2px var(--ink-3)}
+.mach-upd{font-size:11px;text-align:right;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.mach-upd.is-stale{color:var(--warn-text);font-weight:600}
+.mach-colhdr .upd-h{text-align:right}
+.upd-pfx{display:none}
+.badge-muted{background:var(--surface-3);color:var(--ink-2)}
+.ic{flex-shrink:0;display:block}
+.btn-icon{display:inline-grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:none;color:var(--ink-3);cursor:pointer;transition:background-color .15s,color .15s}
+.btn-icon:hover{background:var(--surface-3);color:var(--ink)}
+.btn-icon-danger:hover{background:var(--crit-bg);color:var(--crit-ink)}
+.btn-launch{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 9px;border:1px solid color-mix(in srgb,var(--good-ink) 35%,transparent);border-radius:6px;background:none;color:var(--good-ink);font:inherit;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;transition:background-color .15s}
+.btn-launch:hover{background:var(--good-bg)}
 .machine-meta{font-size:12px;color:var(--ink-2);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.machine-actions{display:flex;gap:6px}
+.machine-actions{display:flex;gap:2px;align-items:center}
 .progress-bar{width:80px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .progress-fill{height:100%;border-radius:3px}
 .stage-table{width:100%;border-collapse:collapse;display:none}
@@ -211,8 +233,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .settings-item input[type=color]{width:32px;height:28px;border:none;cursor:pointer;border-radius:4px}
 :where(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .machine-header:focus-within{background:var(--surface-tint)}
-@container (max-width:740px){#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
-@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}#ab-timeline{--ab-lbl-w:80px;--ab-note-w:74px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-note{font-size:9.5px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
+@container (max-width:757px){.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
+@media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl{width:120px;min-width:120px;font-size:10px}.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}#ab-timeline{--ab-lbl-w:80px;--ab-note-w:74px}.ab-timeline-lbl{width:80px;min-width:80px;font-size:10px}.ab-note{font-size:9.5px}.ab-table{font-size:11px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{font-size:9px;padding:2px 5px;margin:1px}.section-hdr{flex-direction:column;align-items:flex-start}.machine-meta{font-size:11px}.machine-actions .btn-sm{padding:2px 6px;font-size:10px}}
 @media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px}.kpi-ico{width:36px;height:36px;font-size:18px;border-radius:10px}.kpi-label{font-size:11px}.kpi{padding:10px;border-left-width:3px}.kpi-val{font-size:22px}.gantt-lbl,.gantt-row-lbl{width:70px;min-width:70px;font-size:9px}.gantt-wk{font-size:8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{flex-direction:column;gap:6px}.toolbar select,.toolbar input{width:100%}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}#ab-timeline{--ab-lbl-w:60px;--ab-note-w:60px}.ab-timeline-lbl{width:60px;min-width:60px;font-size:9px}.ab-note{font-size:9px;padding:0 4px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(8),.ab-table td:nth-child(8){display:none}.ab-version{display:inline-block;font-size:9px;padding:1px 4px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:12px}.footer{font-size:10px}.modal{padding:16px;width:95%}}@media print{
   @page{margin:12mm}
   body{padding:0;background:#fff}
@@ -370,6 +392,14 @@ function normDate(s){
 }
 function fmtDate(s){if(!s)return '—';var m=s.match(/(\d{4})-(\d{2})-(\d{2})/);return m?m[2]+'/'+m[3]:'—'}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+// 線條圖示（同一套 24 格、2px 線寬），取代按鈕上的 emoji／符號
+const IC={
+  activity:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  check:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+  trash:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
+};
+function ic(n,s){s=s||16;return '<svg class="ic" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+IC[n]+'</svg>'}
 
 /* ---- P1-1: WCAG-safe badge colours. Keep the stage hue; force text dark (OKLCH L~.45) and background pale (L~.955). ---- */
 function _hexRgb(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');if(!/^[0-9a-f]{6}$/i.test(h))h='9ca3af';return [0,2,4].map(i=>parseInt(h.substr(i,2),16)/255)}
@@ -727,7 +757,9 @@ function renderKPI(){
 }
 
 function renderTable(){
-  const machines=getFilteredMachines();let html='';
+  const machines=getFilteredMachines();
+  // 欄位標題列（只在寬版顯示）；每格內容另有自己的 aria-label，所以這列不給螢幕閱讀器
+  let html=machines.size?'<div class="mach-colhdr" aria-hidden="true"><span></span><span>機台</span><span>優先</span><span>負責人</span><span>狀態</span><span>下一里程碑</span><span>進度</span><span class="upd-h">更新</span><span></span></div>':'';
   let _machIdx=0;
   machines.forEach((stages,name)=>{
     const owner=machineOwner(stages);
@@ -745,26 +777,28 @@ function renderTable(){
     const statusText=launched?'✓ 已上線':((info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始')));
     const statusStyle=launched?'background:var(--good-bg);color:var(--good-ink)':badgeStyle('#6366f1');
     const health=machHealth(stages);
-    const hColor=health==='red'?'#ef4444':health==='yellow'?'#eab308':'#22c55e';
     const nm=nextMilestone(stages);
     const upd=(info&&info.updated)?info.updated:'';
     const stale=upd?diffDays(upd,TODAY)>14:false;
     const nmTxt=nm?(nm.daysLeft<0?'逾期'+(-nm.daysLeft)+'天':nm.daysLeft===0?'今天':'剩'+nm.daysLeft+'天'):'';
-    html+=`<div class="machine-group">
+    // 已上線的機台不再用紅黃綠燈表達進度（剩下的里程碑多半只是沒勾完成），改成灰色空心圈
+    const late=launched?null:stages.filter(s=>!s.actualEnd&&s.planEnd&&stageStatus(s)==='red').sort((a,b)=>a.planEnd<b.planEnd?-1:a.planEnd>b.planEnd?1:0)[0];
+    const hTip='健康狀態：'+(launched?'已上線':health==='red'?'落後':health==='yellow'?'注意':'順利')+(late?'（'+late.stage+' 逾期 '+(-diffDays(TODAY,late.planEnd))+' 天）':'');
+    html+=`<div class="machine-group${launched?' is-launched':health==='red'?' is-late':''}">
       <div class="machine-header" data-toggle="${id}">
-        <span role="img" aria-label="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" title="健康狀態：${health==='red'?'落後':health==='yellow'?'注意':'順利'}" style="width:11px;height:11px;border-radius:50%;background:${hColor};box-shadow:0 0 0 3px ${hColor}22;justify-self:center"></span>
-        <button type="button" class="as-btn machine-name" aria-expanded="false" aria-controls="${id}" data-action="toggleMachine" data-id="${id}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</button>
+        <span class="health health-${launched?'done':health}" role="img" aria-label="${esc(hTip)}" title="${esc(hTip)}"></span>
+        <button type="button" class="as-btn machine-name" aria-expanded="false" aria-controls="${id}" data-action="toggleMachine" data-id="${id}" title="${esc(name)}">${esc(name)}</button>
         <button type="button" class="as-btn badge priority-${esc(priority)}" aria-label="優先級 ${esc(priority)}，點擊切換" style="cursor:pointer;transition:transform .15s;justify-self:start" data-action="cyclePriority" data-name="${esc(name)}">${esc(priority)}</button>
         <button type="button" class="as-btn machine-owner" style="cursor:pointer;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;${owner?'color:var(--ink-muted)':'color:var(--ink-3);font-style:italic'}" data-action="editOwner" data-name="${esc(name)}" data-owner="${esc(owner)}" title="${mixed?'⚠ 各階段的負責人不一致，設定一次即可統一。':'點擊設定負責人'}" aria-label="負責人：${owner?esc(owner):'未指派'}${mixed?'（各階段不一致）':''}，點擊設定">${owner?esc(owner):'未指派'}${mixed?' ⚠':''}</button>
         <button type="button" class="as-btn badge" style="${statusStyle};cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:start;max-width:100%" data-action="openMachStatus" data-name="${esc(name)}" title="點擊更新目前狀態／進度" aria-label="目前狀態：${esc(statusText)}，點擊更新">${esc(statusText)}</button>
-        ${nm?`<span class="badge badge-${nm.st}" style="justify-self:start;white-space:nowrap" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
+        ${nm?`<span class="badge ${launched?'badge-muted':'badge-'+nm.st}" style="justify-self:start;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis" title="下一里程碑：${esc(nm.stage)} ${fmtDate(nm.date)}">${esc(nm.stage)}·${nmTxt}</span>`:'<span></span>'}
         <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)"><button type="button" class="as-btn" style="cursor:pointer;min-width:30px" data-action="openMachStatus" data-name="${esc(name)}" aria-label="進度 ${prog}%，點擊更新">${prog}%</button><div class="progress-bar" role="progressbar" aria-valuenow="${prog}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(name)} 進度" style="flex:1"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div></div>
-        <span style="font-size:10px;text-align:right;color:${upd?(stale?'var(--warn-text)':'var(--ink-3)'):'var(--ink-3)'}" title="最後更新">${upd?('更新 '+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
-        ${canEdit()?`<div class="machine-actions" style="justify-self:start">
-          <button class="btn btn-sm btn-edit" data-action="openMachStatus" data-name="${esc(name)}" title="更新目前狀態與進度">狀態</button>
-          <button class="btn btn-sm btn-add-stage" data-action="openAddStage" data-name="${esc(name)}" data-owner="${esc(owner)}">+階段</button>
-          ${launched?'':`<button class="btn btn-sm" style="background:var(--good-bg);color:var(--good-ink)" data-action="openLaunch" data-name="${esc(name)}">✅ 確定上線</button>`}
-          <button class="btn btn-sm btn-delete" data-action="delMachine" data-name="${esc(name)}">✕</button>
+        <span class="mach-upd${stale?' is-stale':''}" title="${upd?'最後更新 '+upd+(stale?'，已超過 14 天':''):'還沒有手動更新過狀態'}">${upd?('<span class="upd-pfx">更新 </span>'+fmtDate(upd)+(stale?' ⚠':'')):'未更新'}</span>
+        ${canEdit()?`<div class="machine-actions">
+          <button type="button" class="btn-icon" data-action="openMachStatus" data-name="${esc(name)}" title="更新目前狀態與進度" aria-label="更新「${esc(name)}」的狀態與進度">${ic('activity')}</button>
+          <button type="button" class="btn-icon" data-action="openAddStage" data-name="${esc(name)}" data-owner="${esc(owner)}" title="新增階段" aria-label="為「${esc(name)}」新增階段">${ic('plus')}</button>
+          ${launched?'':`<button type="button" class="btn-launch" data-action="openLaunch" data-name="${esc(name)}" aria-label="確定「${esc(name)}」上線">${ic('check',14)}確定上線</button>`}
+          <button type="button" class="btn-icon btn-icon-danger" data-action="delMachine" data-name="${esc(name)}" title="刪除機台" aria-label="刪除機台「${esc(name)}」">${ic('trash')}</button>
         </div>`:'<span></span>'}
       </div>
       <table class="stage-table" id="${id}">
