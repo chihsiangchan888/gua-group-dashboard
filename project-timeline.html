@@ -238,6 +238,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .settings-item input[type=color]{width:32px;height:28px;border:none;cursor:pointer;border-radius:4px}
 :where(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .machine-header:focus-within{background:var(--surface-tint)}
+.skip-link{position:absolute;left:12px;top:-60px;z-index:3000;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none}
+.skip-link:focus{top:12px}
+#app:focus{outline:none}
 @container (max-width:757px){.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
 @media(max-width:768px){body{padding:12px}.header h1{font-size:18px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:120px;min-width:120px}.gantt-row-lbl{padding-left:14px}.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto auto minmax(0,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-nav{gap:2px}.tab-btn{padding:8px 14px;font-size:12px}#ab-timeline{--ab-lbl-w:84px;--ab-note-w:84px}.ab-timeline-lbl{width:84px;min-width:84px;font-size:11px}.ab-note{font-size:11px}.ab-table{font-size:12px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{padding:2px 6px;margin:1px}.machine-meta{font-size:11px}.machine-header{row-gap:8px}.machine-actions{gap:4px}.btn-icon{width:36px;height:36px}.btn-launch{height:36px;padding:0 12px}.stage-table .btn-sm{min-width:32px;min-height:32px}.links-row{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding-inline:16px;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}.links-row::-webkit-scrollbar{display:none}.links-row .link-card{flex:0 0 auto;max-width:220px;scroll-snap-align:start}}
 @media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px;padding:10px 12px}.kpi-ico{width:32px;height:32px;border-radius:9px}.kpi-ico svg{width:18px;height:18px}.kpi-label{font-size:11px}.kpi-val{font-size:20px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:88px;min-width:88px}.gantt-lbl{padding:6px 8px}.gantt-row-lbl{padding:4px 6px 4px 8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar select,.toolbar input{width:100%;min-width:0;min-height:36px}.toolbar input{grid-column:1/-1}.tab-nav{flex-wrap:wrap;justify-content:center}.tab-btn{padding:7px 12px;font-size:11px;flex:1;text-align:center;min-width:0}#ab-timeline{--ab-lbl-w:72px;--ab-note-w:72px}.ab-timeline-lbl{width:72px;min-width:72px;padding:0 6px}.ab-note{padding:0 4px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(8),.ab-table td:nth-child(8){display:none}.ab-version{display:inline-block;padding:1px 5px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:13px}.modal{padding:16px;width:95%}}@media print{
@@ -254,15 +257,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </style>
 </head>
 <body>
+<a class="skip-link" href="#app">跳到主要內容</a>
 <div class="header">
   <button type="button" class="btn-theme" id="btn-theme" data-action="cycleTheme"></button>
-  <button class="btn-gear edit-only" data-action="openSettings" style="display:none" title="設定">⚙</button>
+  <button type="button" class="btn-gear edit-only" data-action="openSettings" style="display:none" title="設定" aria-label="設定">⚙</button>
   <h1>機率部門專案時程管理儀表板</h1>
   <p><span id="gen-time"></span> | 呱集團 機率部門 | <span id="source-note"></span></p>
 </div>
 <div class="error-banner" id="error-banner"></div>
 <div class="loading" id="loading">正在載入資料</div>
-<div id="app" style="display:none">
+<main id="app" tabindex="-1" style="display:none">
   <div class="tab-nav" role="tablist" aria-label="儀表板分頁">
     <button type="button" class="tab-btn active" role="tab" id="tabbtn-timeline" aria-controls="tab-timeline" aria-selected="true" data-action="switchTab" data-tab="timeline">專案時程</button>
     <button type="button" class="tab-btn" role="tab" id="tabbtn-abtest" aria-controls="tab-abtest" aria-selected="false" tabindex="-1" data-action="switchTab" data-tab="abtest">AB 測試追蹤</button>
@@ -330,11 +334,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
   </div>
 </div><!-- end tab-abtest -->
-</div>
-<div class="footer">由 呱集團 AI Fleet 自動產生</div>
+</main>
+<footer class="footer">由 呱集團 AI Fleet 自動產生</footer>
 <dialog class="modal" id="modal-bg"><div id="modal-content"></div></dialog>
 <dialog class="modal modal-sm" id="confirm-dlg" aria-labelledby="confirm-title"></dialog>
-<div class="toast-wrap" id="toast-wrap"></div>
+<div class="toast-wrap" id="toast-wrap" role="status" aria-live="polite"></div>
 
 <script>
 window.onerror=function(msg,url,line){document.getElementById('error-banner').textContent='JS Error: '+msg+' (line '+line+')';document.getElementById('error-banner').style.display='block';};
@@ -818,7 +822,7 @@ function renderTable(){
           <td>${done?'<span class="badge badge-muted">已完成</span>':!s.planEnd?'<span style="color:var(--ink-3)">—</span>':`<span class="badge badge-${st}">${st==='green'?'如期':st==='yellow'?'即將到期':'逾期'}</span>`}</td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
           <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${esc(s.note)}</td>
-          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" data-action="openEditStage" data-row="${s.row||0}" data-machine="${esc(name)}" data-stage="${esc(s.stage)}">✎</button> <button class="btn btn-sm btn-delete" data-action="delStage" data-row="${s.row||0}">✕</button></td>`:''}</tr>`}).join('')}</tbody>
+          ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" data-action="openEditStage" data-row="${s.row||0}" data-machine="${esc(name)}" data-stage="${esc(s.stage)}" title="編輯階段" aria-label="編輯階段「${esc(s.stage)}」">✎</button> <button class="btn btn-sm btn-delete" data-action="delStage" data-row="${s.row||0}" title="刪除階段" aria-label="刪除階段「${esc(s.stage)}」">✕</button></td>`:''}</tr>`}).join('')}</tbody>
       </table></div>`;
   });
   document.getElementById('table-area').innerHTML=html||(dataLoadFailed?loadFailHtml('機台資料讀取失敗'):'<p style="color:var(--ink-2);text-align:center;padding:20px">無符合條件的機台</p>');
@@ -837,6 +841,7 @@ function renderGantt(){
   document.getElementById('btn-detail').className='btn btn-sm'+(ganttView==='detail'?' active':'');
   document.getElementById('btn-range-focus').className='btn btn-sm'+(ganttRange==='focus'?' active':'');
   document.getElementById('btn-range-all').className='btn btn-sm'+(ganttRange==='all'?' active':'');
+  [['btn-milestone',ganttView==='milestone'],['btn-detail',ganttView==='detail'],['btn-range-focus',ganttRange==='focus'],['btn-range-all',ganttRange==='all']].forEach(([id,on])=>document.getElementById(id).setAttribute('aria-pressed',on?'true':'false'));
   const lg=document.getElementById('gantt-legend');if(lg)lg.dataset.view=ganttView==='detail'?'detail':'milestone';
   const machines=getFilteredMachines();
   const weeks=getWeeks(),total=weeks.length;
@@ -982,7 +987,7 @@ function datePos(weeks,dateStr){
 // === API ===
 function toast(msg,type){
   const wrap=document.getElementById('toast-wrap');if(!wrap)return;
-  const t=document.createElement('div');t.className='toast toast-'+(type||'ok');t.textContent=msg;
+  const t=document.createElement('div');t.className='toast toast-'+(type||'ok');if(type==='err')t.setAttribute('role','alert');t.textContent=msg;
   wrap.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));
   setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)}, type==='err'?5500:2200);
 }
@@ -1763,7 +1768,7 @@ function renderABTable(){
     });
     html+=`</td>`;
     html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:var(--accent);text-decoration:none;font-size:14px">&#128279; 詳情</a>`:''}</td>`;
-    if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" data-action="openAddABVersion" data-gi="${gi}">+版本</button> <button class="btn btn-sm btn-edit" data-action="openEditABGame" data-gi="${gi}">✎</button> <button class="btn btn-sm btn-delete" data-action="delABGame" data-gi="${gi}">✕</button></td>`;
+    if(canEdit())html+=`<td style="white-space:nowrap"><button class="btn btn-sm btn-add-stage" data-action="openAddABVersion" data-gi="${gi}" aria-label="為「${esc(g.gameName)}」新增版本">+版本</button> <button class="btn btn-sm btn-edit" data-action="openEditABGame" data-gi="${gi}" title="編輯遊戲" aria-label="編輯「${esc(g.gameName)}」">✎</button> <button class="btn btn-sm btn-delete" data-action="delABGame" data-gi="${gi}" title="刪除遊戲" aria-label="刪除「${esc(g.gameName)}」">✕</button></td>`;
     html+=`</tr>`;
   });
   html+=`</tbody></table>`;
