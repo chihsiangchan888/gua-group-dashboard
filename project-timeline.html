@@ -13,7 +13,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>機率部門專案時程管理儀表板</title>
-<script>(function(){try{var p=localStorage.getItem('theme');var d=p==='dark'||(p!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}})()</script>
+<script>(function(){try{var p=localStorage.getItem('theme');var d=p!=='light'&&(p!=='auto'||matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}})()</script>
 <style>
 :root{color-scheme:light;
   --bg:#f8f9fa;--surface:#fff;--surface-2:#fafafa;--surface-3:#f1f1f1;--surface-tint:#f3f0ff;
@@ -472,7 +472,8 @@ function badgeStyle(hex){const c=badgeColors(hex);return 'background:'+c.bg+';co
 function dotBg(hex){const rgb=_hexRgb(hex);if(_ratio([1,1,1],rgb)>=4.5)return hex;const o=_toOklch(rgb);let L=Math.min(o.L,.5),c=_fromOklch(L,o.C,o.h);while(_ratio([1,1,1],c)<4.5&&L>.2){L-=.02;c=_fromOklch(L,o.C,o.h)}return _css(c)}
 // --- P2-1b: 深色模式 ---
 // 偏好三態：auto / light / dark；實際套用到 <html data-theme> 的只有 light|dark
-function themePref(){const v=lsGet('theme');return v==='light'||v==='dark'?v:'auto'}
+// 預設深色；「自動」要使用者自己切過去才會跟隨系統
+function themePref(){const v=lsGet('theme');return v==='light'||v==='auto'?v:'dark'}
 function isDark(){return document.documentElement.dataset.theme==='dark'}
 function applyTheme(){
   const p=themePref();
@@ -494,7 +495,7 @@ function applyTheme(){
     if(ab&&!ab.hidden&&typeof renderAB==='function')renderAB();
   }
 }
-function cycleTheme(){const p=themePref();lsSet('theme',p==='auto'?'light':p==='light'?'dark':'auto');applyTheme()}
+function cycleTheme(){const p=themePref();lsSet('theme',p==='dark'?'light':p==='light'?'auto':'dark');applyTheme()}
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);
 // 列印一律用淺色 token；列印完恢復使用者的選擇
 let _printTheme=null;
