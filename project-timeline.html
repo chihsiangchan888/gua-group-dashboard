@@ -191,12 +191,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:none}
 .tab-content{display:none}.tab-content.active{display:block}.tab-content[hidden]{display:none}
 .ab-table{width:100%;border-collapse:collapse;font-size:13px}
-.ab-table th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);color:var(--ink-2);font-size:11px;text-transform:uppercase}
-.ab-table td{padding:8px 10px;border-bottom:1px solid var(--line-soft)}
+.ab-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-strong);color:var(--ink-2);font-size:12px;font-weight:600;white-space:nowrap}
+.ab-table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;font-variant-numeric:tabular-nums}
 .ab-table tr:hover{background:var(--surface-2)}
 .ab-winner{background:var(--good-bg);color:var(--good-ink);font-weight:700;border-radius:4px;padding:2px 6px}
-.ab-version{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;cursor:pointer;border:2px solid transparent}
-.ab-version:hover{opacity:.8}
+.ab-version{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;border:2px solid transparent;white-space:nowrap;font-variant-numeric:tabular-nums}
 .ab-version.winner{border-color:var(--warn-ring);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(180,83,9,.5)}
 .links-row{display:flex;flex-wrap:wrap;gap:10px}
 .link-card{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:44px;text-decoration:none;color:var(--accent);background:var(--link-bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px}
@@ -209,24 +208,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-legend-item{display:inline-flex;align-items:center;gap:6px}
 .ab-legend-chip{cursor:default;margin:0;background:var(--surface);color:var(--ink-mid);border:2px solid var(--line-strong)}
 .ab-legend-chip.is-running{background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-mark)}
-.ab-timeline-row{display:flex;align-items:center;min-height:46px;border-bottom:1px solid var(--line-soft);padding:4px 0}
-.ab-timeline-row:hover{background:var(--surface-2)}
-.ab-timeline-lbl{width:160px;min-width:160px;font-size:12px;font-weight:600;color:var(--ink);padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#ab-timeline{--ab-lbl-w:160px;--ab-note-w:92px}
-.ab-timeline-bar{flex:1;position:relative;height:38px}
+.ab-timeline-row{display:flex;align-items:center;min-height:52px;border-bottom:1px solid var(--line)}
+.ab-timeline-row:hover,.ab-timeline-row:hover .ab-timeline-lbl{background:var(--surface-2)}
+/* 名稱欄在左右捲動時固定在左邊，跟甘特圖一樣 */
+.ab-timeline-lbl{width:160px;min-width:160px;align-self:stretch;display:flex;flex-direction:column;justify-content:center;font-size:13px;font-weight:600;color:var(--ink);padding:0 10px;position:sticky;left:0;z-index:11;background:var(--surface);border-right:1px solid var(--line-2)}
+.ab-tl-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ab-timeline{--ab-lbl-w:160px;--ab-note-w:92px;min-width:calc(var(--ab-lbl-w) + var(--ab-note-w) + var(--ab-wks,0) * 44px)}
+.ab-tl-hdr{display:flex;border-bottom:1px solid var(--line-strong)}
+.ab-tl-hlbl{width:var(--ab-lbl-w);min-width:var(--ab-lbl-w);padding:6px 10px;font-size:12px;font-weight:600;color:var(--ink-2);position:sticky;left:0;z-index:11;background:var(--surface);border-right:1px solid var(--line-2)}
+.ab-tl-wks{display:flex;flex:1;min-width:0}
+.ab-wk{flex:1 1 0;min-width:0;overflow:hidden;text-align:center;padding:4px 2px;font-size:11px;color:var(--ink-3);border-left:1px solid var(--line-faint);font-variant-numeric:tabular-nums}
+.ab-timeline-bar{flex:1;position:relative;height:44px}
 .ab-note{width:var(--ab-note-w);min-width:var(--ab-note-w);max-width:var(--ab-note-w);flex:0 0 var(--ab-note-w);box-sizing:border-box;text-align:right;padding:0 8px 0 4px;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ab-dot.cmp{outline:2px dashed var(--warn-ring);outline-offset:2px}
-.ab-dot{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid var(--surface);box-shadow:0 0 0 2px var(--surface),0 1px 3px rgba(0,0,0,.2);z-index:5}
-.ab-dot.lane1{top:19px}
-.ab-dot.winner{width:20px;height:20px;top:1px;transform:translateX(-10px);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
-.ab-dot.winner.lane1{top:17px}
+.ab-dot{position:absolute;top:1px;width:20px;height:20px;border-radius:50%;transform:translateX(-10px);cursor:default;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid var(--surface);box-shadow:0 0 0 2px var(--surface),0 1px 3px rgba(0,0,0,.2);z-index:5}
+.ab-dot.lane1{top:23px}
+.ab-dot.winner{width:24px;height:24px;top:-1px;transform:translateX(-12px);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(251,191,36,.6),0 2px 4px rgba(0,0,0,.2)}
+.ab-dot.winner.lane1{top:21px}
 .ab-gap{display:block;font-size:11px;font-weight:600;color:var(--warn-text);line-height:1.3;margin-top:1px;white-space:normal;max-width:150px}
 .ab-dot-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:3px 6px;border-radius:4px;font-size:11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
 .ab-dot:hover .ab-dot-tip,.ab-dot:focus .ab-dot-tip{opacity:1}
-.ab-connect{position:absolute;top:18px;height:2px;background:var(--line-strong);z-index:1}
-.ab-status-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600}
-.ab-status-打磨中{background:var(--warn-bg);color:var(--warn-ink)}
-.ab-status-已定版{background:var(--good-bg);color:var(--good-ink)}
+.ab-connect{position:absolute;top:20px;height:2px;background:var(--line-strong);z-index:1}
+.ab-status-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.ab-status-打磨中{background:var(--accent-tint);color:var(--accent)}
+.ab-status-已定版{background:var(--surface-3);color:var(--ink-2)}
 .footer{text-align:center;margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3)}
 .toast-wrap{position:fixed;right:16px;bottom:16px;z-index:2000;display:flex;flex-direction:column;gap:8px}
 .toast{background:var(--tip-bg);color:var(--tip-ink);padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow-toast);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;max-width:340px}
@@ -255,8 +260,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .skip-link:focus{top:12px}
 #app:focus{outline:none}
 @container (max-width:757px){.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto minmax(0,auto) minmax(min-content,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
-@media(max-width:768px){body{padding:12px}.header{gap:10px;margin-bottom:16px}.brand{gap:10px}.brand-mark{width:34px;height:34px;border-radius:9px;font-size:18px}.header h1{font-size:16px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:120px;min-width:120px}.gantt-row-lbl{padding-left:14px}.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto minmax(0,auto) minmax(min-content,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-btn{padding:10px 14px;font-size:13px}#ab-timeline{--ab-lbl-w:84px;--ab-note-w:84px}.ab-timeline-lbl{width:84px;min-width:84px;font-size:11px}.ab-note{font-size:11px}.ab-table{font-size:12px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{padding:2px 6px;margin:1px}.machine-meta{font-size:11px}.machine-header{row-gap:8px}.machine-actions{gap:4px}.btn-icon{width:36px;height:36px}.btn-launch{height:36px;padding:0 12px}.ab-table .btn-sm{min-height:32px}.links-row{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding-inline:16px;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}.links-row::-webkit-scrollbar{display:none}.links-row .link-card{flex:0 0 auto;max-width:220px;scroll-snap-align:start}}
-@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px;padding:10px 12px}.kpi-ico{width:32px;height:32px;border-radius:9px}.kpi-ico svg{width:18px;height:18px}.kpi-label{font-size:11px}.kpi-val{font-size:20px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:88px;min-width:88px}.gantt-lbl{padding:6px 8px}.gantt-row-lbl{padding:4px 6px 4px 8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar select,.toolbar input{width:100%;min-width:0;min-height:36px}.toolbar input{grid-column:1/-1}.tab-btn{flex:1;text-align:center;min-width:0;padding:10px 8px}#ab-timeline{--ab-lbl-w:72px;--ab-note-w:72px}.ab-timeline-lbl{width:72px;min-width:72px;padding:0 6px}.ab-note{padding:0 4px}.ab-table th:nth-child(1),.ab-table td:nth-child(1){max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-table th:nth-child(3),.ab-table td:nth-child(3),.ab-table th:nth-child(4),.ab-table td:nth-child(4),.ab-table th:nth-child(8),.ab-table td:nth-child(8){display:none}.ab-version{display:inline-block;padding:1px 5px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:13px}.header h1{font-size:15px}.brand-meta{font-size:11px}.brand-meta .org{display:none}.modal{padding:16px;width:95%}}@media print{
+@media(max-width:768px){body{padding:12px}.header{gap:10px;margin-bottom:16px}.brand{gap:10px}.brand-mark{width:34px;height:34px;border-radius:9px;font-size:18px}.header h1{font-size:16px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:120px;min-width:120px}.gantt-row-lbl{padding-left:14px}.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto minmax(0,auto) minmax(min-content,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-btn{padding:10px 14px;font-size:13px}#ab-timeline{--ab-lbl-w:104px;--ab-note-w:84px}.ab-timeline-lbl{width:104px;min-width:104px;font-size:12px}.ab-note{font-size:11px}.ab-table{font-size:12px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{padding:2px 6px;margin:1px}.machine-meta{font-size:11px}.machine-header{row-gap:8px}.machine-actions{gap:4px}.btn-icon{width:36px;height:36px}.btn-launch{height:36px;padding:0 12px}.ab-table .btn-sm{min-height:32px}.links-row{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding-inline:16px;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}.links-row::-webkit-scrollbar{display:none}.links-row .link-card{flex:0 0 auto;max-width:220px;scroll-snap-align:start}}
+@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px;padding:10px 12px}.kpi-ico{width:32px;height:32px;border-radius:9px}.kpi-ico svg{width:18px;height:18px}.kpi-label{font-size:11px}.kpi-val{font-size:20px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:88px;min-width:88px}.gantt-lbl{padding:6px 8px}.gantt-row-lbl{padding:4px 6px 4px 8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar select,.toolbar input{width:100%;min-width:0;min-height:36px}.toolbar input{grid-column:1/-1}.tab-btn{flex:1;text-align:center;min-width:0;padding:10px 8px}#ab-timeline{--ab-lbl-w:96px;--ab-note-w:76px}.ab-timeline-lbl{width:96px;min-width:96px;padding:0 8px}.ab-note{padding:0 6px 0 4px}.ab-version{display:inline-block;padding:1px 6px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:13px}.header h1{font-size:15px}.brand-meta{font-size:11px}.brand-meta .org{display:none}.modal{padding:16px;width:95%}}
+@media(max-width:600px){
+  #ab-table-area{overflow-x:visible!important}
+  .ab-table,.ab-table tbody{display:block}
+  .ab-table thead{display:none}
+  .ab-table tr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:12px 2px;border-bottom:1px solid var(--line)}
+  .ab-table tr:hover{background:none}
+  .ab-table td{display:block;padding:0;border:0}
+  .ab-table td:nth-child(1){order:1;flex:1 1 calc(100% - 96px);min-width:0;font-size:14px}
+  .ab-table td:nth-child(5){order:2;margin-left:auto}
+  .ab-table td:nth-child(2),.ab-table td:nth-child(3),.ab-table td:nth-child(4),.ab-table td:nth-child(6){order:3;font-size:12px;color:var(--ink-2)}
+  .ab-table td:nth-child(3)::before,.ab-table td:nth-child(4)::before,.ab-table td:nth-child(6)::before{color:var(--ink-3);margin-right:8px}
+  .ab-table td:nth-child(3)::before{content:"·"}
+  .ab-table td:nth-child(4)::before{content:"· 上線"}
+  .ab-table td:nth-child(6)::before{content:"· 打磨"}
+  .ab-table td:nth-child(7){order:4;flex:1 1 100%}
+  .ab-table td:nth-child(8){order:5}
+  .ab-table td:nth-child(9){order:6;margin-left:auto;display:flex;gap:4px}
+  .ab-table td:empty{display:none}
+}
+@media print{
   @page{margin:12mm}
   body{padding:0;background:#fff}
   .btn-theme,.btn-gear,.tab-nav,.toolbar,.machine-actions,.edit-only,.gantt-toggle,.error-banner,.toast,dialog,#slow-hint,.section-hdr .btn{display:none!important}
@@ -348,7 +373,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="gantt-wrap"><div id="ab-timeline"></div></div>
     <div class="legend">
       <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:var(--plan)"></div>版本上線點</div>
-      <div class="legend-item"><div style="width:18px;height:18px;border-radius:50%;background:#6366f1;border:3px solid #fbbf24"></div>勝出版本</div>
+      <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:var(--plan);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(251,191,36,.6);margin:0 3px"></div>勝出版本</div>
       <div class="legend-item"><div style="width:14px;height:14px;border-radius:50%;background:var(--plan);outline:2px dashed var(--warn-ring);outline-offset:2px;margin:2px"></div>本次比較的版本</div>
       <div class="legend-item"><div class="legend-today"></div>今天</div>
     </div>
@@ -816,7 +841,7 @@ function renderTable(){
     const prog=(info&&info.progress!=null&&info.progress!=='')?Number(info.progress):pct;
     const progColor=prog>=100?'var(--good-mark)':'var(--plan)';
     const statusText=launched?'✓ 已上線':((info&&info.status)?info.status:(currentStage?currentStage.stage:(ms==='done'?'完成':'未開始')));
-    const statusStyle=launched?'background:var(--good-bg);color:var(--good-ink)':badgeStyle('#6366f1');
+    const statusStyle=launched?'background:var(--surface-3);color:var(--ink-2)':badgeStyle('#6366f1');
     const health=machHealth(stages);
     const nm=nextMilestone(stages);
     const upd=(info&&info.updated)?info.updated:'';
@@ -1761,7 +1786,7 @@ function abPolishHtml(g){
   const over=!done&&avg!=null&&d>avg;
   const lv=abLatestVersion(g);
   const tip='上線 '+fmtDate(g.launchDate)+' → '+esc(lv.label)+' 版 '+fmtDate(lv.date)+(over?'（已超過已定版平均 '+avg+' 天）':'');
-  return '<span style="white-space:nowrap;font-weight:600;color:'+(done?'var(--good-text)':over?'var(--crit-ink)':'var(--ink-2)')+'"'
+  return '<span style="white-space:nowrap;font-weight:600;color:'+(done?'var(--ink-3)':over?'var(--crit-ink)':'var(--ink-2)')+'"'
     +' title="'+tip+'">'+(done?'':'已 ')+d+' 天'+(over?' ⚠':'')+'</span>';
 }
 
@@ -1771,12 +1796,8 @@ function renderABKPI(){
   const finalized=abData.filter(g=>g.status==='已定版').length;
   const avgVersions=total?Math.round(abData.reduce((s,g)=>s+g.versions.length,0)/total*10)/10:0;
   const avgPolish=abAvgPolish();
-  document.getElementById('ab-kpis').innerHTML=`
-    <div class="kpi"><div class="kpi-label">總遊戲數</div><div class="kpi-val">${total}</div></div>
-    <div class="kpi"><div class="kpi-label">打磨中</div><div class="kpi-val">${tuning}</div></div>
-    <div class="kpi"><div class="kpi-label">已定版</div><div class="kpi-val">${finalized}</div></div>
-    <div class="kpi"><div class="kpi-label">平均打磨天數</div><div class="kpi-val">${avgPolish==null?'—':avgPolish}</div></div>
-    <div class="kpi"><div class="kpi-label">平均版本數</div><div class="kpi-val">${avgVersions}</div></div>`;
+  const k=(label,val)=>`<div class="kpi"><div class="kpi-body"><div class="kpi-val">${val}</div><div class="kpi-label">${label}</div></div></div>`;
+  document.getElementById('ab-kpis').innerHTML=k('總遊戲數',total)+k('打磨中',tuning)+k('已定版',finalized)+k('平均打磨天數',avgPolish==null?'—':avgPolish)+k('平均版本數',avgVersions);
 }
 
 function renderABTable(){
@@ -1796,7 +1817,7 @@ function renderABTable(){
     });
     html+=`</td>`;
     html+=`<td>${g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener" title="${esc(g.link)}" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">${ic('link',13)}詳情</a>`:''}</td>`;
-    if(canEdit())html+=`<td style="white-space:nowrap"><button type="button" class="btn btn-sm btn-add-stage" data-action="openAddABVersion" data-gi="${gi}" aria-label="為「${esc(g.gameName)}」新增版本">+版本</button> <button type="button" class="btn-icon" data-action="openEditABGame" data-gi="${gi}" title="編輯遊戲" aria-label="編輯「${esc(g.gameName)}」">${ic('pencil',15)}</button><button type="button" class="btn-icon btn-icon-danger" data-action="delABGame" data-gi="${gi}" title="刪除遊戲" aria-label="刪除「${esc(g.gameName)}」">${ic('trash',15)}</button></td>`;
+    if(canEdit())html+=`<td style="white-space:nowrap"><button type="button" class="btn-icon" data-action="openAddABVersion" data-gi="${gi}" title="新增版本" aria-label="為「${esc(g.gameName)}」新增版本">${ic('plus')}</button><button type="button" class="btn-icon" data-action="openEditABGame" data-gi="${gi}" title="編輯遊戲" aria-label="編輯「${esc(g.gameName)}」">${ic('pencil',15)}</button><button type="button" class="btn-icon btn-icon-danger" data-action="delABGame" data-gi="${gi}" title="刪除遊戲" aria-label="刪除「${esc(g.gameName)}」">${ic('trash',15)}</button></td>`;
     html+=`</tr>`;
   });
   html+=`</tbody></table>`;
@@ -1821,8 +1842,8 @@ function renderABTimeline(){
   const weeks=[];let wk=new Date(startMs);wk.setDate(wk.getDate()-((wk.getDay()+6)%7));
   while(wk.getTime()<=endMs){weeks.push(new Date(wk));wk=new Date(wk.getTime()+7*86400000)}
 
-  let html=`<div class="gantt-today-lane"></div><div style="display:flex;border-bottom:2px solid var(--line)"><div style="width:var(--ab-lbl-w);min-width:var(--ab-lbl-w);padding:6px 10px;font-size:11px;color:var(--ink-2)">遊戲</div><div style="display:flex;flex:1;min-width:0">`;
-  weeks.forEach(w=>{html+=`<div style="flex:1;min-width:0;overflow:hidden;text-align:center;padding:4px 2px;font-size:9px;color:var(--ink-3);border-left:1px solid var(--line-faint)">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
+  let html=`<div class="gantt-today-lane"></div><div class="ab-tl-hdr"><div class="ab-tl-hlbl">遊戲</div><div class="ab-tl-wks">`;
+  weeks.forEach(w=>{html+=`<div class="ab-wk">${String(w.getMonth()+1).padStart(2,'0')}/${String(w.getDate()).padStart(2,'0')}</div>`});
   html+=`</div><div class="ab-note"></div></div>`;
 
   games.forEach(g=>{
@@ -1830,7 +1851,7 @@ function renderABTimeline(){
     const codes=g.versions.map(v=>(v.label||'').trim().toUpperCase()).filter(l=>/^[A-Z]$/.test(l)).map(l=>l.charCodeAt(0)).sort((a,b)=>a-b);
     const missing=[];if(codes.length){for(let cc=codes[0];cc<=codes[codes.length-1];cc++){if(!codes.includes(cc))missing.push(String.fromCharCode(cc))}}
     const gapHtml=missing.length?`<span class="ab-gap" title="版本字母不連續，缺 ${missing.join('、')}：可能刪過版本或輸入跳號">⚠ 缺 ${missing.join(',')}</span>`:'';
-    html+=`<div class="ab-timeline-row"><div class="ab-timeline-lbl" title="${esc(g.gameName)}${missing.length?'（版本字母不連續，缺 '+missing.join('、')+'）':''}">${esc(g.gameName)}${gapHtml}</div><div class="ab-timeline-bar">`;
+    html+=`<div class="ab-timeline-row"><div class="ab-timeline-lbl" title="${esc(g.gameName)}${missing.length?'（版本字母不連續，缺 '+missing.join('、')+'）':''}"><span class="ab-tl-name">${esc(g.gameName)}</span>${gapHtml}</div><div class="ab-timeline-bar">`;
     // Connection line
     const dates=g.versions.filter(v=>v.date).map(v=>v.date).sort();
     if(dates.length>1){const l=pos(dates[0]),r=pos(dates[dates.length-1]);html+=`<div class="ab-connect" style="left:${l}%;width:${r-l}%"></div>`}
@@ -1845,13 +1866,18 @@ function renderABTimeline(){
       html+=`<div class="ab-dot${v.winner?' winner':''}${lane?' lane1':''}${v.running?' cmp':''}" tabindex="0" role="img" aria-label="${esc(v.label)}版 ${fmtDate(v.date)}${v.winner?'，勝出':''}${v.running?'，本次比較':''}" style="left:${p}%;background:${dotBg(c)}"><div class="ab-dot-tip">${v.label}版 ${fmtDate(v.date)}${v.winner?' 🏆':''}${v.running?' ·本次比較':''}</div>${v.label}</div>`;
     });
     const pd=abPolishDays(g),pOver=!wv&&abAvgPolish()!=null&&pd!=null&&pd>abAvgPolish();
-    html+=`</div><div class="ab-note" style="color:${wv?'var(--good-text)':pOver?'var(--crit-ink)':'var(--ink-2)'}">${pd==null?'':(wv?'定版 '+pd+' 天':'打磨中 '+pd+' 天'+(pOver?' ⚠':''))}</div></div>`;
+    html+=`</div><div class="ab-note" style="color:${wv?'var(--ink-3)':pOver?'var(--crit-ink)':'var(--ink-2)'}">${pd==null?'':(wv?'定版 '+pd+' 天':'打磨中 '+pd+' 天'+(pOver?' ⚠':''))}</div></div>`;
   });
 
   // Today line
   const todayPos=pos(TODAY);
   if(todayPos>0&&todayPos<100){html+=`<div style="position:absolute;top:17px;bottom:0;left:calc(var(--ab-lbl-w) + (100% - var(--ab-lbl-w) - var(--ab-note-w))*${todayPos}/100);width:2px;background:var(--crit-mark);opacity:.7;z-index:10;pointer-events:none"><div class="today-label">今天</div></div>`}
-  document.getElementById('ab-timeline').innerHTML=`<div style="position:relative">${html}</div>`;
+  const tl=document.getElementById('ab-timeline');
+  // 每週至少 44px，窄螢幕改成左右捲動（跟甘特圖一樣），日期標籤不會被擠掉
+  tl.style.setProperty('--ab-wks',weeks.length);
+  tl.innerHTML=`<div style="position:relative">${html}</div>`;
+  const lane=tl.querySelector('.gantt-today-lane'),wrapEl=tl.parentElement;
+  if(lane)lane.textContent=(wrapEl&&wrapEl.scrollWidth>wrapEl.clientWidth+1)?'↔ 左右捲動可看完整時間軸':'';
 }
 
 // === AB CRUD ===
