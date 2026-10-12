@@ -281,6 +281,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .skip-link{position:absolute;left:12px;top:-60px;z-index:3000;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none}
 .skip-link:focus{top:12px}
 #app:focus{outline:none}
+.no-trans,.no-trans *{transition:none!important}
 @media(max-width:900px){.shell{display:block}.side{width:auto;position:static;height:auto;overflow:visible;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand tools" "status status" "nav nav" "links links";gap:10px 12px;padding:14px 16px 0;background:none;border-right:0}.side-brand{grid-area:brand;padding:0}.side-foot{display:contents}.side-status{grid-area:status;flex-direction:row;flex-wrap:wrap;column-gap:8px}.side-tools{grid-area:tools;align-self:center}.tab-nav{grid-area:nav;flex-direction:row;gap:4px;border-bottom:1px solid var(--line-strong)}.tab-btn{flex:1;justify-content:center;padding:10px 8px;margin-bottom:-1px;border-radius:6px 6px 0 0;border-bottom:2px solid transparent}.tab-btn.active{background:none;border-bottom-color:var(--accent)}.side-links{grid-area:links;margin:0}.side-grp{padding:0 0 6px}.side-list{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 -16px;padding:0 16px 2px}.side-list::-webkit-scrollbar{display:none}.side-link{flex:0 0 auto;max-width:220px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;white-space:nowrap}.side-link .link-intra{margin-left:0}.main-col{padding:16px}}
 /* 640–757px：保留表格對齊，藏進度條、「確定上線」只留圖示（文字仍在 aria-label） */
 @container (min-width:640px) and (max-width:757px){#table-area{grid-template-columns:auto minmax(104px,1fr) 32px minmax(40px,56px) minmax(60px,100px) minmax(88px,116px) 44px 48px max-content}.machine-header .progress-bar{display:none}.btn-launch{width:28px;padding:0;justify-content:center;border-color:transparent}.btn-launch .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
@@ -537,7 +538,9 @@ function applyTheme(){
   const p=themePref();
   const dark=p==='dark'||(p==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
   const was=document.documentElement.dataset.theme,now=dark?'dark':'light';
-  document.documentElement.dataset.theme=now;
+  // 切主題的那一刻先關掉所有過渡，新顏色直接到位；不然背景還在淡出時文字已換色，會短暫看不清
+  if(was&&was!==now){document.documentElement.classList.add('no-trans');document.documentElement.dataset.theme=now;void document.documentElement.offsetWidth;setTimeout(()=>document.documentElement.classList.remove('no-trans'),0)}
+  else document.documentElement.dataset.theme=now;
   const b=document.getElementById('btn-theme');
   if(b){
     const lbl={auto:'自動',light:'淺色',dark:'深色'}[p],ico=ic({auto:'contrast',light:'sun',dark:'moon'}[p],15);
