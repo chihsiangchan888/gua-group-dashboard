@@ -17,41 +17,65 @@
 <style>
 :root{color-scheme:light;
   --bg:#f8f9fa;--surface:#fff;--surface-2:#fafafa;--surface-3:#f1f1f1;--surface-tint:#f3f0ff;
-  --line:#eee;--line-2:#eceef2;--line-soft:#f5f5f5;--line-faint:#f0f0f0;--line-card:#f2f2f2;--line-row:#f8f8f8;--line-strong:#ddd;--month-bg:#f7f8fa;--month-alt:#f3f4f8;--month-alt-cell:rgba(16,24,40,.035);--link-bg:#f7f7fb;
-  --ink:#1a1a2e;--ink-2:#4a5160;--ink-3:#68707f;--text:#333;--ink-muted:#666;--ink-mid:#555;--ink-soft:#667085;--kpi-val:#101828;--on-accent:#fff;--tip-bg:#1a1a2e;--tip-ink:#fff;
+  --line:#eee;--line-2:#eceef2;--line-soft:#f5f5f5;--line-faint:#f0f0f0;--line-card:#f2f2f2;--line-row:#f8f8f8;--line-strong:#ddd;--month-bg:#f7f8fa;--month-alt:#f3f4f8;--month-alt-cell:rgba(16,24,40,.035);
+  --ink:#1a1a2e;--ink-2:#4a5160;--ink-3:#68707f;--text:#333;--ink-muted:#666;--ink-mid:#555;--ink-soft:#667085;--on-accent:#fff;--tip-bg:#1a1a2e;--tip-ink:#fff;
   --accent:#4f46e5;--accent-tint:#ecedfb;--plan:#6366f1;
   --good-ink:#047857;--good-text:#15803d;--good-bg:#d1fae5;--good-mark:#22c55e;
   --warn-ink:#754d00;--warn-bg:#fbefd6;--warn-mark:#eab308;--warn-text:#9a6206;--warn-ring:#b45309;
   --crit-ink:#b3211f;--crit-bg:#fde5e4;--crit-mark:#ef4444;--crit-line:#fecaca;--late-bg:#fdf3f2;
-  --info-ink:#0369a1;--info-bg:#e0f2fe;--err-text:#dc2626;--err-bg:#fef2f2;--kpi-crit:#e5484d;--kpi-crit-bg:#fdecec;--kpi-warn:#d98908;--kpi-warn-bg:#fdf3e2;--kpi-accent:#5b5bd6;
-  --shadow-sm:0 1px 3px rgba(16,24,40,.05);--shadow-hover:0 8px 22px rgba(16,24,40,.09);
+  --info-ink:#0369a1;--info-bg:#e0f2fe;--err-text:#dc2626;--err-bg:#fef2f2;
+  --shadow-sm:0 1px 3px rgba(16,24,40,.05);
   --shadow-md:0 2px 8px rgba(0,0,0,.05);--shadow-lg:0 16px 48px rgba(0,0,0,.15);
   --shadow-toast:0 6px 20px rgba(0,0,0,.22);--ring:rgba(16,24,40,.15);--backdrop:rgba(0,0,0,.35)}
 :root[data-theme=dark]{color-scheme:dark;
   --bg:#0d0f13;--surface:#161a21;--surface-2:#1d222b;--surface-3:#242a34;--surface-tint:#23233d;
-  --line:#262b34;--line-2:#2a3039;--line-soft:#1f242d;--line-faint:#22272f;--line-card:#20252e;--line-row:#1a1f27;--line-strong:#39404c;--month-bg:#1a1f27;--month-alt:#1e232c;--month-alt-cell:rgba(255,255,255,.045);--link-bg:#1b1f2b;
-  --ink:#f0f2f6;--ink-2:#b2bac7;--ink-3:#8d96a5;--text:#dfe4ec;--ink-muted:#9aa3b2;--ink-mid:#a9b1be;--ink-soft:#98a2b3;--kpi-val:#f5f7fa;--on-accent:#0f1117;--tip-bg:#e9ecf2;--tip-ink:#14161c;
+  --line:#262b34;--line-2:#2a3039;--line-soft:#1f242d;--line-faint:#22272f;--line-card:#20252e;--line-row:#1a1f27;--line-strong:#39404c;--month-bg:#1a1f27;--month-alt:#1e232c;--month-alt-cell:rgba(255,255,255,.045);
+  --ink:#f0f2f6;--ink-2:#b2bac7;--ink-3:#8d96a5;--text:#dfe4ec;--ink-muted:#9aa3b2;--ink-mid:#a9b1be;--ink-soft:#98a2b3;--on-accent:#0f1117;--tip-bg:#e9ecf2;--tip-ink:#14161c;
   --accent:#8f8ffa;--accent-tint:#262a4a;--plan:#8b8df5;
   --good-ink:#5ed88a;--good-text:#6fdc95;--good-bg:#12362a;--good-mark:#34d17a;
   --warn-ink:#f3bb46;--warn-bg:#3b2e12;--warn-mark:#e5b62a;--warn-text:#f0b94a;--warn-ring:#f59e0b;
   --crit-ink:#fb8380;--crit-bg:#3d1c1c;--crit-mark:#f26b6b;--crit-line:#5a2a2a;--late-bg:#271a1d;
-  --info-ink:#6fc3f2;--info-bg:#12303f;--err-text:#fb8380;--err-bg:#331a1a;--kpi-crit:#f47c80;--kpi-crit-bg:#3a1e20;--kpi-warn:#f0b94a;--kpi-warn-bg:#3a2f16;--kpi-accent:#9b9bfc;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.4);--shadow-hover:0 8px 22px rgba(0,0,0,.55);
+  --info-ink:#6fc3f2;--info-bg:#12303f;--err-text:#fb8380;--err-bg:#331a1a;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.4);
   --shadow-md:0 2px 8px rgba(0,0,0,.35);--shadow-lg:0 16px 48px rgba(0,0,0,.6);
   --shadow-toast:0 6px 20px rgba(0,0,0,.6);--ring:rgba(255,255,255,.16);--backdrop:rgba(0,0,0,.6)}
 
 *{margin:0;padding:0;box-sizing:border-box}
 html{scrollbar-color:var(--line-strong) transparent;accent-color:var(--accent)}
 ::selection{background:color-mix(in srgb,var(--accent) 26%,transparent)}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding:24px;line-height:1.5}
-.header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
-.brand{display:flex;align-items:center;gap:12px;min-width:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+/* 版面：左側固定欄＋主區（參考 Linear／Asana 的側欄） */
+.shell{display:grid;grid-template-columns:208px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:18px 12px 14px;background:var(--surface-2);border-right:1px solid var(--line)}
+.side-brand{display:flex;align-items:center;gap:10px;padding:0 6px 16px}
+.side-brand .brand-mark{width:34px;height:34px;border-radius:9px;font-size:18px}
+.side-name{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.side-name b{font-size:15px;color:var(--ink)}
+.side-name small{font-size:12px;color:var(--ink-2)}
+.side-links{margin-top:18px;min-width:0}
+.side-grp{display:flex;align-items:center;justify-content:space-between;padding:0 8px 4px}
+.side-grp h2{font-size:12px;font-weight:700;color:var(--ink-3)}
+.side-edit{background:none;border:0;font:inherit;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer;padding:2px 6px;border-radius:5px}
+.side-edit:hover{color:var(--ink);background:var(--surface-3)}
+.side-list{list-style:none}
+.side-link{display:flex;align-items:center;gap:8px;min-width:0;padding:6px 8px;border-radius:7px;font-size:13px;color:var(--ink-2);text-decoration:none}
+.side-link:hover{background:var(--surface-3);color:var(--ink)}
+.side-link .ic{color:var(--ink-3)}
+.side-link .lt-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-link .link-intra{margin-left:auto}
+.side-empty{font-size:12px;color:var(--ink-3);padding:4px 8px}
+.side-foot{margin-top:auto;padding:14px 6px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.side-status{display:flex;flex-direction:column;font-size:12px;color:var(--ink-2);line-height:1.45;font-variant-numeric:tabular-nums}
+.side-status #gen-time{color:var(--ink-3)}
+.side-tools{display:flex;gap:8px}
+.main-col{min-width:0;padding:24px}
+.page-hd h1{font-size:22px;color:var(--ink);font-weight:700;line-height:1.25}
+.stat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.stat-pill{display:inline-flex;align-items:baseline;gap:8px;padding:7px 12px;border-radius:9px;border:1px solid var(--line-2);background:var(--surface);box-shadow:var(--shadow-sm);font-size:13px;color:var(--ink-2);white-space:nowrap}
+.stat-pill b{font-size:17px;font-weight:700;line-height:1.2;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat-pill.crit{background:var(--crit-bg);border-color:var(--crit-line);color:var(--crit-ink)}.stat-pill.crit b{color:var(--crit-ink)}
+.stat-pill.warn{background:var(--warn-bg);border-color:transparent;color:var(--warn-ink)}.stat-pill.warn b{color:var(--warn-ink)}
 .brand-mark{flex-shrink:0;display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:var(--accent);color:var(--on-accent);font-size:22px;font-weight:800;line-height:1}
-.brand-text{min-width:0}
-.header h1{font-size:22px;color:var(--ink);font-weight:700;line-height:1.25;text-wrap:balance}
-.brand-meta{font-size:12px;color:var(--ink-2);margin-top:2px;font-variant-numeric:tabular-nums}
-.brand-meta .sep{color:var(--ink-3);margin:0 6px}
-.header-tools{display:flex;gap:8px;flex-shrink:0}
 .btn-gear{display:inline-grid;place-items:center;padding:0;background:none;border:1px solid var(--line-strong);border-radius:8px;width:36px;height:36px;cursor:pointer;color:var(--ink-muted)}
 .btn-gear:hover{background:var(--surface-tint);border-color:var(--plan);color:var(--plan)}
 .btn-theme{height:36px;padding:0 10px;background:none;border:1px solid var(--line-strong);border-radius:8px;font-size:12px;font-weight:600;color:var(--ink-muted);cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit}
@@ -60,12 +84,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .loading{text-align:center;padding:40px;color:var(--ink-2)}
 .loading::after{content:'';display:inline-block;width:14px;height:14px;border:2px solid var(--line-strong);border-top-color:var(--plan);border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.kpi{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm)}
-.kpi-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.kpi-body{display:flex;flex-direction:column;gap:3px;min-width:0}
-.kpi-label{font-size:12px;color:var(--ink-soft);font-weight:500;white-space:nowrap}
-.kpi-val{font-size:28px;font-weight:700;line-height:1;color:var(--kpi-val);font-variant-numeric:tabular-nums}
 .section{background:var(--surface);border-radius:10px;padding:20px;margin-top:20px;box-shadow:var(--shadow-md)}
 .section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
 .section-hdr h2{font-size:16px;color:var(--ink);font-weight:600}
@@ -185,10 +203,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .legend-dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 1px var(--ring)}
 .legend-dot.done{background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink-3)}
 .legend[data-view=milestone] .lg-detail,.legend[data-view=detail] .lg-ms{display:none}
-.tab-nav{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--line-strong)}
-.tab-btn{padding:10px 16px;margin-bottom:-1px;border:0;border-bottom:2px solid transparent;border-radius:6px 6px 0 0;background:none;font:inherit;font-size:14px;font-weight:600;cursor:pointer;color:var(--ink-muted);transition:background-color .15s}
-.tab-btn:hover{color:var(--ink);background:var(--surface-2)}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:none}
+.tab-nav{display:flex;flex-direction:column;gap:2px}
+.tab-btn{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:0;border-radius:8px;background:none;font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer;color:var(--ink-2);transition:background-color .15s}
+.tab-btn:hover{color:var(--ink);background:var(--surface-3)}
+.tab-btn.active{color:var(--accent);background:var(--accent-tint)}
 .tab-content{display:none}.tab-content.active{display:block}.tab-content[hidden]{display:none}
 .ab-table{width:100%;border-collapse:collapse;font-size:13px}
 .ab-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-strong);color:var(--ink-2);font-size:12px;font-weight:600;white-space:nowrap}
@@ -197,12 +215,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ab-winner{background:var(--good-bg);color:var(--good-ink);font-weight:700;border-radius:4px;padding:2px 6px}
 .ab-version{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;border:2px solid transparent;white-space:nowrap;font-variant-numeric:tabular-nums}
 .ab-version.winner{border-color:var(--warn-ring);box-shadow:0 0 0 2px var(--surface),0 0 0 4px rgba(180,83,9,.5)}
-.links-row{display:flex;flex-wrap:wrap;gap:10px}
-.link-card{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:44px;text-decoration:none;color:var(--accent);background:var(--link-bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:120px;max-width:260px}
-.link-card:hover{background:var(--surface-tint);border-color:var(--plan)}
-.link-title{display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;font-weight:600;color:inherit}
-.link-title>.lt-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.link-desc{font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .link-intra{flex-shrink:0;font-size:11px;font-weight:700;line-height:16px;padding:0 5px;border-radius:6px;background:var(--warn-bg);color:var(--warn-ink)}
 .ab-legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-2)}
 .ab-legend-item{display:inline-flex;align-items:center;gap:6px}
@@ -259,9 +271,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .skip-link{position:absolute;left:12px;top:-60px;z-index:3000;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none}
 .skip-link:focus{top:12px}
 #app:focus{outline:none}
-@container (max-width:757px){.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto minmax(0,auto) minmax(min-content,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
-@media(max-width:768px){body{padding:12px}.header{gap:10px;margin-bottom:16px}.brand{gap:10px}.brand-mark{width:34px;height:34px;border-radius:9px;font-size:18px}.header h1{font-size:16px}.grid{grid-template-columns:1fr 1fr}.kpi{padding:12px}.kpi-val{font-size:20px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:120px;min-width:120px}.gantt-row-lbl{padding-left:14px}.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto minmax(0,auto) minmax(min-content,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-btn{padding:10px 14px;font-size:13px}#ab-timeline{--ab-lbl-w:104px;--ab-note-w:84px}.ab-timeline-lbl{width:104px;min-width:104px;font-size:12px}.ab-note{font-size:11px}.ab-table{font-size:12px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{padding:2px 6px;margin:1px}.machine-meta{font-size:11px}.machine-header{row-gap:8px}.machine-actions{gap:4px}.btn-icon{width:36px;height:36px}.btn-launch{height:36px;padding:0 12px}.ab-table .btn-sm{min-height:32px}.links-row{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding-inline:16px;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}.links-row::-webkit-scrollbar{display:none}.links-row .link-card{flex:0 0 auto;max-width:220px;scroll-snap-align:start}}
-@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{gap:10px;padding:10px 12px}.kpi-ico{width:32px;height:32px;border-radius:9px}.kpi-ico svg{width:18px;height:18px}.kpi-label{font-size:11px}.kpi-val{font-size:20px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:88px;min-width:88px}.gantt-lbl{padding:6px 8px}.gantt-row-lbl{padding:4px 6px 4px 8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar select,.toolbar input{width:100%;min-width:0;min-height:36px}.toolbar input{grid-column:1/-1}.tab-btn{flex:1;text-align:center;min-width:0;padding:10px 8px}#ab-timeline{--ab-lbl-w:96px;--ab-note-w:76px}.ab-timeline-lbl{width:96px;min-width:96px;padding:0 8px}.ab-note{padding:0 6px 0 4px}.ab-version{display:inline-block;padding:1px 6px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:13px}.header h1{font-size:15px}.brand-meta{font-size:11px}.brand-meta .org{display:none}.modal{padding:16px;width:95%}}
+@media(max-width:900px){.shell{display:block}.side{position:static;height:auto;overflow:visible;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand tools" "status status" "nav nav" "links links";gap:10px 12px;padding:14px 16px 0;background:none;border-right:0}.side-brand{grid-area:brand;padding:0}.side-foot{display:contents}.side-status{grid-area:status;flex-direction:row;flex-wrap:wrap;column-gap:8px}.side-tools{grid-area:tools;align-self:center}.tab-nav{grid-area:nav;flex-direction:row;gap:4px;border-bottom:1px solid var(--line-strong)}.tab-btn{flex:1;justify-content:center;padding:10px 8px;margin-bottom:-1px;border-radius:6px 6px 0 0;border-bottom:2px solid transparent}.tab-btn.active{background:none;border-bottom-color:var(--accent)}.side-links{grid-area:links;margin:0}.side-grp{padding:0 0 6px}.side-list{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 -16px;padding:0 16px 2px}.side-list::-webkit-scrollbar{display:none}.side-link{flex:0 0 auto;max-width:220px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;white-space:nowrap}.side-link .link-intra{margin-left:0}.main-col{padding:16px}}
+/* 640–757px：保留表格對齊，藏進度條、「確定上線」只留圖示（文字仍在 aria-label） */
+@container (min-width:640px) and (max-width:757px){#table-area{grid-template-columns:auto minmax(104px,1fr) 32px minmax(40px,56px) minmax(60px,100px) minmax(88px,116px) 44px 48px max-content}.machine-header .progress-bar{display:none}.btn-launch{width:28px;padding:0;justify-content:center;border-color:transparent}.btn-launch .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+@container (max-width:639px){.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto minmax(0,auto) minmax(min-content,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52cqw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}}
+@media(max-width:768px){.side{padding:12px 12px 0}.side-list{margin:0 -12px;padding:0 12px 2px}.main-col{padding:12px}.page-hd h1{font-size:18px}.section{padding:14px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:120px;min-width:120px}.gantt-row-lbl{padding-left:14px}.mach-colhdr{display:none}.upd-pfx{display:inline}#table-area,.machine-group{display:block}.machine-header{grid-template-columns:auto minmax(0,auto) minmax(min-content,1fr) auto;grid-auto-rows:auto;column-gap:8px;row-gap:5px;align-items:center;padding:9px 12px}.machine-header>:nth-child(1){grid-column:1;grid-row:1}.machine-header>:nth-child(2){grid-column:2;grid-row:1;font-size:13px;max-width:52vw}.machine-header>:nth-child(4){grid-column:3;grid-row:1;font-size:11px;justify-self:start!important}.machine-header>:nth-child(3){grid-column:4;grid-row:1;justify-self:end!important}.machine-header>:nth-child(5){grid-column:1/4;grid-row:2;justify-self:start!important}.machine-header>:nth-child(6){grid-column:4;grid-row:2;justify-self:end!important}.machine-header>:nth-child(7){grid-column:1/4;grid-row:3}.machine-header>:nth-child(8){grid-column:4;grid-row:3;justify-self:end;text-align:right}.machine-header>:nth-child(9){grid-column:1/-1;grid-row:4;justify-self:start!important;flex-wrap:wrap}.g-dot .ms-label{display:none}.g-date-label{display:none}.tab-btn{padding:10px 14px;font-size:13px}#ab-timeline{--ab-lbl-w:104px;--ab-note-w:84px}.ab-timeline-lbl{width:104px;min-width:104px;font-size:12px}.ab-note{font-size:11px}.ab-table{font-size:12px}.ab-table th,.ab-table td{padding:6px 5px}.ab-version{padding:2px 6px;margin:1px}.machine-meta{font-size:11px}.machine-header{row-gap:8px}.machine-actions{gap:4px}.btn-icon{width:36px;height:36px}.btn-launch{height:36px;padding:0 12px}.ab-table .btn-sm{min-height:32px}}
+@media(max-width:480px){.stat-pill{padding:6px 10px}.stat-pill b{font-size:15px}.gantt-lbl,.gantt-row-lbl,.gantt-mhdr-lbl{width:88px;min-width:88px}.gantt-lbl{padding:6px 8px}.gantt-row-lbl{padding:4px 6px 4px 8px}.g-dot{width:10px;height:10px;transform:translateX(-5px)}.g-date-label{display:none}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar select,.toolbar input{width:100%;min-width:0;min-height:36px}.toolbar input{grid-column:1/-1}.tab-btn{flex:1;text-align:center;min-width:0;padding:10px 8px}#ab-timeline{--ab-lbl-w:96px;--ab-note-w:76px}.ab-timeline-lbl{width:96px;min-width:96px;padding:0 8px}.ab-note{padding:0 6px 0 4px}.ab-version{display:inline-block;padding:1px 6px;margin:1px}.section{padding:10px;margin-top:14px}.section-hdr h2{font-size:14px}.btn-theme{padding:0 9px}.btn-theme .lbl{display:none}.machine-name{font-size:13px}.side-name small{display:none}.modal{padding:16px;width:95%}}
 @media(max-width:600px){
   #ab-table-area{overflow-x:visible!important}
   .ab-table,.ab-table tbody{display:block}
@@ -284,8 +299,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 @media print{
   @page{margin:12mm}
   body{padding:0;background:#fff}
+  .side{display:none!important}.shell{display:block}.main-col{padding:0}
   .btn-theme,.btn-gear,.tab-nav,.toolbar,.machine-actions,.edit-only,.gantt-toggle,.error-banner,.toast,dialog,#slow-hint,.section-hdr .btn{display:none!important}
-  .section,.kpi,.machine-group,.link-card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .section,.stat-pill,.machine-group{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
   .machine-header,.gantt-row,.ab-timeline-row,.issue-card{break-inside:avoid}
   .gantt-wrap{overflow:visible}
   .g-tooltip,.ab-dot-tip{display:none!important}
@@ -296,34 +312,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </head>
 <body>
 <a class="skip-link" href="#app">跳到主要內容</a>
-<header class="header">
-  <div class="brand">
-    <span class="brand-mark" aria-hidden="true">呱</span>
-    <div class="brand-text">
-      <h1>機率部門專案時程管理儀表板</h1>
-      <p class="brand-meta"><span id="gen-time"></span><span class="sep org" aria-hidden="true">·</span><span class="org">呱集團 機率部門</span><span class="sep" aria-hidden="true">·</span><span id="source-note"></span></p>
+<div class="shell">
+<header class="side">
+  <div class="side-brand"><span class="brand-mark" aria-hidden="true">呱</span><span class="side-name"><b>機率部門</b><small>專案時程管理儀表板</small></span></div>
+  <nav class="tab-nav" role="tablist" aria-label="儀表板分頁" aria-orientation="vertical">
+    <button type="button" class="tab-btn active" role="tab" id="tabbtn-timeline" aria-controls="tab-timeline" aria-selected="true" data-action="switchTab" data-tab="timeline"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 5h10M7 12h12M5 19h8"/></svg><span>專案時程</span></button>
+    <button type="button" class="tab-btn" role="tab" id="tabbtn-abtest" aria-controls="tab-abtest" aria-selected="false" tabindex="-1" data-action="switchTab" data-tab="abtest"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg><span>AB 測試追蹤</span></button>
+  </nav>
+  <section class="side-links" aria-labelledby="side-links-h">
+    <div class="side-grp"><h2 id="side-links-h">常用連結</h2><button type="button" class="side-edit edit-only" data-action="openLinksEdit" style="display:none">編輯</button></div>
+    <div id="links-area"></div>
+  </section>
+  <div class="side-foot">
+    <p class="side-status"><span id="source-note"></span><span id="gen-time"></span></p>
+    <div class="side-tools">
+      <button type="button" class="btn-theme" id="btn-theme" data-action="cycleTheme"></button>
+      <button type="button" class="btn-gear edit-only" data-action="openSettings" style="display:none" title="設定" aria-label="設定"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </div>
   </div>
-  <div class="header-tools">
-    <button type="button" class="btn-theme" id="btn-theme" data-action="cycleTheme"></button>
-    <button type="button" class="btn-gear edit-only" data-action="openSettings" style="display:none" title="設定" aria-label="設定"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-  </div>
 </header>
+<div class="main-col">
 <div class="error-banner" id="error-banner"></div>
 <div class="loading" id="loading">正在載入資料</div>
 <main id="app" tabindex="-1" style="display:none">
-  <div class="tab-nav" role="tablist" aria-label="儀表板分頁">
-    <button type="button" class="tab-btn active" role="tab" id="tabbtn-timeline" aria-controls="tab-timeline" aria-selected="true" data-action="switchTab" data-tab="timeline">專案時程</button>
-    <button type="button" class="tab-btn" role="tab" id="tabbtn-abtest" aria-controls="tab-abtest" aria-selected="false" tabindex="-1" data-action="switchTab" data-tab="abtest">AB 測試追蹤</button>
-  </div>
   <div class="tab-content active" id="tab-timeline" role="tabpanel" aria-labelledby="tabbtn-timeline" tabindex="0">
-  <div class="grid" id="kpis"></div>
-  <div class="section" style="margin-top:16px;padding:12px 16px">
-    <div class="section-hdr" style="margin-bottom:8px"><h2 style="font-size:14px;display:flex;align-items:center;gap:6px"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>常用連結</h2><button type="button" class="btn btn-ghost btn-sm edit-only" data-action="openLinksEdit" style="display:none">編輯</button></div>
-    <div id="links-area"></div>
-  </div>
+  <div class="page-hd"><h1>專案時程</h1></div>
+  <div class="stat-pills" id="kpis"></div>
   <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:20px">
-    <div class="section mach-panel" style="flex:2 1 620px;min-width:0;margin-top:0">
+    <div class="section mach-panel" style="flex:3 1 620px;min-width:0;margin-top:0">
       <div class="section-hdr"><h2>機台追蹤</h2><button class="btn btn-primary edit-only" data-action="openAddMachine" style="display:none">+ 新增機台</button></div>
       <div class="toolbar">
         <select id="filter-status" aria-label="篩選機台狀態"><option value="active">進行中</option><option value="done">已完成</option><option value="all">全部</option></select>
@@ -332,7 +348,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       </div>
       <div id="table-area" style="overflow-x:auto"></div>
     </div>
-    <div class="section" style="flex:1 1 300px;min-width:0;margin-top:0">
+    <div class="section" style="flex:1 1 280px;min-width:0;margin-top:0">
       <div class="section-hdr"><h2>議題追蹤</h2><button class="btn btn-primary edit-only" data-action="openIssueNew" style="display:none">+ 新增議題</button></div>
       <div class="toolbar">
         <select id="issue-filter" aria-label="篩選議題狀態"><option value="open">未解決</option><option value="blocker">只看阻塞</option><option value="all">全部</option></select>
@@ -357,8 +373,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </div>
 </div><!-- end tab-timeline -->
 <div class="tab-content" id="tab-abtest" role="tabpanel" aria-labelledby="tabbtn-abtest" tabindex="0" hidden>
-  <div class="error-banner" id="ab-stale"></div>
-  <div class="grid" id="ab-kpis"></div>
+  <div class="page-hd"><h1>AB 測試追蹤</h1></div>
+  <div class="error-banner" id="ab-stale" style="margin-top:12px"></div>
+  <div class="stat-pills" id="ab-kpis"></div>
   <div class="section">
     <div class="section-hdr"><h2>AB 測試管理</h2><button class="btn btn-primary edit-only" data-action="openAddABGame" style="display:none">+ 新增遊戲</button></div>
     <div class="toolbar">
@@ -381,6 +398,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </div><!-- end tab-abtest -->
 </main>
 <footer class="footer">由 呱集團 AI Fleet 自動產生</footer>
+</div><!-- /main-col -->
+</div><!-- /shell -->
 <dialog class="modal" id="modal-bg"><div id="modal-content"></div></dialog>
 <dialog class="modal modal-sm" id="confirm-dlg" aria-labelledby="confirm-title"></dialog>
 <div class="toast-wrap" id="toast-wrap" role="status" aria-live="polite"></div>
@@ -808,18 +827,14 @@ function renderKPI(){
     if(s.type==='里程碑'&&s.stage==='上線(OKBet)'&&s.planEnd&&s.planEnd.slice(0,7)===curMonth)launchM++;
   });
   const blockers=(typeof issuesList!=='undefined'?issuesList:[]).filter(i=>i.status!=='已解決'&&i.severity==='阻塞').length;
-  const svg={
-    alert:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    clock:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
-    cal:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>',
-    ban:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>'
-  };
-  const cell=(ic,label,val,accent,bg,urgent)=>dataLoadFailed?`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val">—</div><div class="kpi-label">${label}</div></div></div>`:`<div class="kpi"><div class="kpi-ico" style="background:${bg};color:${accent}">${ic}</div><div class="kpi-body"><div class="kpi-val"${urgent&&val>0?' style="color:'+accent+'"':''}>${val}</div><div class="kpi-label">${label}</div></div></div>`;
+  // 一排指標膠囊：只有數字大於 0 才上紅／黃底
+  const pill=(label,val,tone)=>`<span class="stat-pill${tone&&val>0?' '+tone:''}"><b>${val}</b>${label}</span>`;
+  const f=dataLoadFailed;
   document.getElementById('kpis').innerHTML=
-    cell(svg.alert,'逾期里程碑',overdue,'var(--kpi-crit)','var(--kpi-crit-bg)',true)+
-    cell(svg.clock,'本週到期',due7,'var(--kpi-warn)','var(--kpi-warn-bg)',false)+
-    cell(svg.cal,'本月上線',launchM,'var(--kpi-accent)','var(--accent-tint)',false)+
-    cell(svg.ban,'阻塞議題',sideDataFailed?'—':blockers,'var(--kpi-crit)','var(--kpi-crit-bg)',true);
+    pill('逾期里程碑',f?'—':overdue,'crit')+
+    pill('本週到期',f?'—':due7,'warn')+
+    pill('本月上線',f?'—':launchM,'')+
+    pill('阻塞議題',(f||sideDataFailed)?'—':blockers,'crit');
 }
 
 function renderTable(){
@@ -863,7 +878,7 @@ function renderTable(){
         ${canEdit()?`<div class="machine-actions">
           <button type="button" class="btn-icon" data-action="openMachStatus" data-name="${esc(name)}" title="更新目前狀態與進度" aria-label="更新「${esc(name)}」的狀態與進度">${ic('activity')}</button>
           <button type="button" class="btn-icon" data-action="openAddStage" data-name="${esc(name)}" data-owner="${esc(owner)}" title="新增階段" aria-label="為「${esc(name)}」新增階段">${ic('plus')}</button>
-          ${launched?'':`<button type="button" class="btn-launch" data-action="openLaunch" data-name="${esc(name)}" aria-label="確定「${esc(name)}」上線">${ic('check',14)}確定上線</button>`}
+          ${launched?'':`<button type="button" class="btn-launch" data-action="openLaunch" data-name="${esc(name)}" aria-label="確定「${esc(name)}」上線" title="確定上線">${ic('check',14)}<span class="lbl">確定上線</span></button>`}
           <button type="button" class="btn-icon btn-icon-danger" data-action="delMachine" data-name="${esc(name)}" title="刪除機台" aria-label="刪除機台「${esc(name)}」">${ic('trash')}</button>
         </div>`:'<span></span>'}
       </div>
@@ -898,9 +913,9 @@ function renderGantt(){
   const lg=document.getElementById('gantt-legend');if(lg)lg.dataset.view=ganttView==='detail'?'detail':'milestone';
   const machines=getFilteredMachines();
   const weeks=getWeeks(),total=weeks.length;
-  // 週寬：至少 60px（手機 40px），近期模式週數少時放大填滿容器，刻度與資料點共用同一個寬度
+  // 週寬：至少 52px（手機 40px），近期模式週數少時放大填滿容器，刻度與資料點共用同一個寬度
   const gEl=document.getElementById('gantt');
-  const lblW=innerWidth<=480?88:innerWidth<=768?120:180,minWk=innerWidth<=480?40:60;
+  const lblW=innerWidth<=480?88:innerWidth<=768?120:180,minWk=innerWidth<=480?40:52;
   GANTT_WK=Math.max(minWk,Math.floor(((gEl.parentElement.clientWidth||0)-lblW)/total));
   gEl.style.setProperty('--wk',GANTT_WK+'px');
   let mh='<div class="gantt-mhdr"><div class="gantt-mhdr-lbl"></div>';
@@ -972,7 +987,7 @@ function renderGanttMilestone(machines,weeks,total){
       const label=(isNext&&room)?`<div class="ms-label${it.pos>88?' ms-label-l':''}">${esc(it.s.stage)}</div>`:'';
       // 已完成的里程碑畫成灰色空心點：綠色只代表「還沒到、來得及」
       const stTxt=it.s.actualEnd?'已完成':st==='green'?'如期':st==='yellow'?'即將到期':'逾期';
-      html+=`<div class="g-dot ${it.s.actualEnd?'g-dot-done':'g-dot-'+st}" tabindex="0" role="img" aria-label="${esc(it.s.stage)} ${fmtDate(it.dt)}，${stTxt}" style="left:${Math.min(it.pos,99.4)}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} · ${stTxt}</div></div>`;
+      html+=`<div class="g-dot ${it.s.actualEnd?'g-dot-done':'g-dot-'+st}" tabindex="0" role="img" aria-label="${esc(it.s.stage)} ${fmtDate(it.dt)}，${stTxt}" style="left:min(${it.pos.toFixed(3)}%,calc(100% - 8px));top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} · ${stTxt}</div></div>`;
     });
     if(past.length){const p=past[past.length-1];html+=`<div class="g-edge g-edge-l" title="${past.length} 個里程碑在範圍之前，最近的是 ${esc(p.s.stage)} ${fmtDate(p.dt)}">◂ ${past.length}${items.length?'':' · '+esc(p.s.stage)+' '+fmtDate(p.dt)}</div>`}
     if(future.length){const f=future[0],lastPos=items.length?items[items.length-1].pos:-1,tight=lastPos>70;html+=`<div class="g-edge g-edge-r${lastPos>93?' g-edge-b':''}" title="${future.length} 個里程碑在範圍之後，下一個是 ${esc(f.s.stage)} ${fmtDate(f.dt)}">${tight?'':esc(f.s.stage)+' '+fmtDate(f.dt)+' '}▸ ${future.length}</div>`}
@@ -1455,16 +1470,15 @@ function isIntranetUrl(url){
 }
 function renderLinks(){
   const area=document.getElementById('links-area');if(!area)return;
-  if(!linksList.length){area.innerHTML=(dataLoadFailed||sideDataFailed)?'<span style="color:var(--crit-ink);font-size:12px;font-weight:600">\u26a0 常用連結讀取失敗，請重新整理</span>':('<span style="color:var(--ink-3);font-size:12px">尚無連結'+(canEdit()?'，點右上「編輯」新增':'')+'</span>');return}
-  area.innerHTML='<div class="links-row">'+linksList.map(l=>{
+  if(!linksList.length){area.innerHTML=(dataLoadFailed||sideDataFailed)?'<p class="side-empty" style="color:var(--crit-ink);font-weight:600">\u26a0 常用連結讀取失敗，請重新整理</p>':('<p class="side-empty">尚無連結'+(canEdit()?'，點「編輯」新增':'')+'</p>');return}
+  area.innerHTML='<ul class="side-list">'+linksList.map(l=>{
     let url=(l.url||'').trim();if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
     const intra=isIntranetUrl(url);
     const name=l.name||l.url||'連結';
-    return `<a class="link-card" href="${esc(url)}" target="_blank" rel="noopener noreferrer"${intra?' title="內部網路連結，只有在辦公室網路才開得起來"':''}>
-      <span class="link-title">${ic('link',13)}<span class="lt-name">${esc(name)}</span>${intra?'<span class="link-intra" aria-label="內部網路">內網</span>':''}</span>
-      ${l.desc?`<span class="link-desc">${esc(l.desc)}</span>`:''}
-    </a>`;
-  }).join('')+'</div>';
+    // 側欄空間有限：說明文字改放在滑鼠提示裡
+    const tip=[l.desc||'',intra?'內部網路連結，只有在辦公室網路才開得起來':''].filter(Boolean).join('｜');
+    return `<li><a class="side-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer"${tip?` title="${esc(tip)}"`:''}>${ic('link',14)}<span class="lt-name">${esc(name)}</span>${intra?'<span class="link-intra" aria-label="內部網路">內網</span>':''}</a></li>`;
+  }).join('')+'</ul>';
 }
 function openLinksEdit(){
   openModal(`<h3>編輯常用連結</h3>
@@ -1657,11 +1671,14 @@ function switchTab(tab,focusTab){
     c.hidden=!on; // hidden removes the panel from the accessibility tree, not just from view
   });
   lsSet('activeTab',tab);
-  if(tab==='abtest')renderAB();
+  // 甘特圖的週寬是依可見寬度算的；在隱藏的分頁裡算會得到 0，切回來時重算
+  if(tab==='abtest')renderAB();else if(rawData.length)renderGantt();
 }
+let _rzT;
+window.addEventListener('resize',()=>{clearTimeout(_rzT);_rzT=setTimeout(()=>{if(!rawData.length)return;if(!document.getElementById('tab-timeline').hidden)renderGantt();else if(!abLoadFailed)renderABTimeline()},200)});
 // left/right (and Home/End) move between tabs, as a tablist is expected to
 function _tabKeys(e){
-  const dir={ArrowLeft:-1,ArrowRight:1,Home:'first',End:'last'};
+  const dir={ArrowLeft:-1,ArrowRight:1,ArrowUp:-1,ArrowDown:1,Home:'first',End:'last'};
   if(!(e.key in dir))return;
   const btns=[...document.querySelectorAll('.tab-nav [role="tab"]')];
   if(!btns.length)return;
@@ -1796,7 +1813,7 @@ function renderABKPI(){
   const finalized=abData.filter(g=>g.status==='已定版').length;
   const avgVersions=total?Math.round(abData.reduce((s,g)=>s+g.versions.length,0)/total*10)/10:0;
   const avgPolish=abAvgPolish();
-  const k=(label,val)=>`<div class="kpi"><div class="kpi-body"><div class="kpi-val">${val}</div><div class="kpi-label">${label}</div></div></div>`;
+  const k=(label,val)=>`<span class="stat-pill"><b>${val}</b>${label}</span>`;
   document.getElementById('ab-kpis').innerHTML=k('總遊戲數',total)+k('打磨中',tuning)+k('已定版',finalized)+k('平均打磨天數',avgPolish==null?'—':avgPolish)+k('平均版本數',avgVersions);
 }
 
