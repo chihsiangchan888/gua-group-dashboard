@@ -1,0 +1,13 @@
+# 這個 repo 是公開的（GitHub Pages）。以下只留在本機，不要推上去。
+
+# 交接與施工文件
+交接文件.md
+DASHBOARD-REVAMP.md
+dashboard-redesign-reference.html
+
+# 本機預覽：對照頁、舊版副本、版面 demo；api-cache.json 是真實資料快照
+.preview/
+開預覽伺服器.bat
+
+# Impeccable 設計評估紀錄
+.impeccable/
