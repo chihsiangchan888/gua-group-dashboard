@@ -115,8 +115,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .progress-fill{height:100%;border-radius:3px}
 .stage-table{width:100%;border-collapse:collapse;display:none}
 .stage-table.open{display:table}
-.stage-table th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);color:var(--ink-2);font-size:11px;text-transform:uppercase}
-.stage-table td{padding:8px 12px;border-bottom:1px solid var(--line-soft);font-size:13px}
+.stage-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink-2);font-size:12px;font-weight:600;white-space:nowrap}
+.stage-table td{padding:8px 10px;border-bottom:1px solid var(--line-soft);font-size:13px;font-variant-numeric:tabular-nums}
+.stage-table td:nth-child(-n+3){white-space:nowrap}
 .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
 .badge-green{background:var(--good-bg);color:var(--good-ink)}
 .badge-yellow{background:var(--warn-bg);color:var(--warn-ink)}
@@ -159,7 +160,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ms-row .g-bar{top:17px;height:4px;border-radius:2px}
 .g-dot{position:absolute;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid var(--surface);cursor:pointer;transform:translateX(-7px);z-index:5;box-shadow:0 0 0 1px var(--ring)}
 .g-dot .ms-label{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;color:var(--ink-2);white-space:nowrap;pointer-events:none;background:var(--surface);padding:0 3px;border-radius:3px}
-.g-dot-green{background:var(--good-mark)}.g-dot-yellow{background:var(--warn-mark)}.g-dot-red{background:var(--crit-mark)}
+.g-dot-green{background:var(--good-mark)}.g-dot-yellow{background:var(--warn-mark)}.g-dot-red{background:var(--crit-mark)}.g-dot-done{background:var(--surface);border-color:var(--ink-3)}
 .g-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--tip-bg);color:var(--tip-ink);padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;pointer-events:none;display:none;z-index:20}
 .g-dot:hover .g-tooltip,.g-dot:focus .g-tooltip{display:block}
 .gantt-row-tl{overflow:visible}
@@ -169,6 +170,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .legend-actual{width:16px;height:8px;border-radius:3px;background:var(--plan)}
 .legend-ms{width:8px;height:8px;transform:rotate(45deg);border:2px solid var(--plan);background:var(--surface)}
 .legend-today{width:16px;height:2px;background:var(--crit-mark)}
+.legend-dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 1px var(--ring)}
+.legend-dot.done{background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink-3)}
+.legend[data-view=milestone] .lg-detail,.legend[data-view=detail] .lg-ms{display:none}
 .tab-nav{display:flex;gap:4px;justify-content:center;margin-bottom:20px}
 .tab-btn{padding:10px 24px;border:1px solid var(--line-strong);border-radius:8px 8px 0 0;background:var(--bg);font-size:14px;font-weight:600;cursor:pointer;color:var(--ink-muted);border-bottom:none;transition:all .2s}
 .tab-btn.active{background:var(--surface);color:var(--accent);border-color:var(--accent);border-bottom:2px solid var(--surface);margin-bottom:-1px}
@@ -289,11 +293,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div class="section">
     <div class="section-hdr"><h2>甘特圖（週粒度）</h2><div class="gantt-toggle"><button class="btn btn-sm" id="btn-milestone" data-action="setGanttView" data-view="milestone">里程碑</button><button class="btn btn-sm" id="btn-detail" data-action="setGanttView" data-view="detail">詳細</button><span class="gantt-sep" aria-hidden="true"></span><button class="btn btn-sm" id="btn-range-focus" data-action="setGanttRange" data-range="focus" title="今天前 3 週到後 10 週">近期</button><button class="btn btn-sm" id="btn-range-all" data-action="setGanttRange" data-range="all" title="所有資料的時間範圍">全部</button></div></div>
     <div class="gantt-wrap"><div class="gantt" id="gantt"></div></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-plan"></div>計畫區間</div>
-      <div class="legend-item"><div class="legend-actual"></div>實際執行</div>
-      <div class="legend-item"><div class="legend-ms"></div>Deadline</div>
-      <div class="legend-item"><div style="width:16px;height:6px;border-radius:3px;background:var(--plan);opacity:.25"></div>機台整體時間範圍</div>
+    <div class="legend" id="gantt-legend">
+      <div class="legend-item lg-ms"><div class="legend-dot" style="background:var(--good-mark)"></div>如期</div>
+      <div class="legend-item lg-ms"><div class="legend-dot" style="background:var(--warn-mark)"></div>即將到期</div>
+      <div class="legend-item lg-ms"><div class="legend-dot" style="background:var(--crit-mark)"></div>逾期</div>
+      <div class="legend-item lg-ms"><div class="legend-dot done"></div>已完成</div>
+      <div class="legend-item lg-detail"><div class="legend-plan"></div>計畫區間</div>
+      <div class="legend-item lg-detail"><div class="legend-actual"></div>實際執行</div>
+      <div class="legend-item lg-detail"><div class="legend-ms"></div>Deadline</div>
+      <div class="legend-item lg-ms"><div style="width:16px;height:6px;border-radius:3px;background:var(--plan);opacity:.25"></div>機台整體時間範圍</div>
       <div class="legend-item"><div class="legend-today"></div>今天</div>
     </div>
   </div>
@@ -806,7 +814,7 @@ function renderTable(){
         <tbody>${stages.map(s=>{const st=stageStatus(s);const done=!!s.actualEnd;return`<tr style="${done?'opacity:.55':''}">
           ${canEdit()?`<td><input type="checkbox" aria-label="標記「${esc(s.stage)}」完成" ${done?'checked':''} data-change="toggleStageDone" data-row="${s.row||0}" data-machine="${esc(name)}" data-stage="${esc(s.stage)}" style="width:16px;height:16px;cursor:pointer;accent-color:var(--good-mark)"></td>`:''} 
           <td>${s.type==='里程碑'?'📌 ':''}<span class="badge" style="${badgeStyle(STAGE_COLORS[s.stage]||'#9ca3af')}">${esc(s.stage)}</span></td>
-          <td><span class="badge badge-${st}">${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</span></td>
+          <td>${done?'<span class="badge badge-muted">已完成</span>':!s.planEnd?'<span style="color:var(--ink-3)">—</span>':`<span class="badge badge-${st}">${st==='green'?'如期':st==='yellow'?'即將到期':'逾期'}</span>`}</td>
           <td>${fmtDate(s.planStart)}</td><td>${fmtDate(s.planEnd)}</td>
           <td>${fmtDate(s.actualStart)}</td><td>${fmtDate(s.actualEnd)}</td><td>${esc(s.note)}</td>
           ${canEdit()?`<td style="white-space:nowrap"><button class="btn btn-sm btn-edit" data-action="openEditStage" data-row="${s.row||0}" data-machine="${esc(name)}" data-stage="${esc(s.stage)}">✎</button> <button class="btn btn-sm btn-delete" data-action="delStage" data-row="${s.row||0}">✕</button></td>`:''}</tr>`}).join('')}</tbody>
@@ -828,6 +836,7 @@ function renderGantt(){
   document.getElementById('btn-detail').className='btn btn-sm'+(ganttView==='detail'?' active':'');
   document.getElementById('btn-range-focus').className='btn btn-sm'+(ganttRange==='focus'?' active':'');
   document.getElementById('btn-range-all').className='btn btn-sm'+(ganttRange==='all'?' active':'');
+  const lg=document.getElementById('gantt-legend');if(lg)lg.dataset.view=ganttView==='detail'?'detail':'milestone';
   const machines=getFilteredMachines();
   const weeks=getWeeks(),total=weeks.length;
   // 週寬：至少 60px（手機 40px），近期模式週數少時放大填滿容器，刻度與資料點共用同一個寬度
@@ -902,7 +911,9 @@ function renderGanttMilestone(machines,weeks,total){
       const room=!nxt||(nxt.pos-it.pos)*tlPx/100>64;
       const isNext=nm&&nm.stage===it.s.stage&&!it.s.actualEnd;
       const label=(isNext&&room)?`<div class="ms-label${it.pos>88?' ms-label-l':''}">${esc(it.s.stage)}</div>`:'';
-      html+=`<div class="g-dot g-dot-${st}" tabindex="0" role="img" aria-label="${esc(it.s.stage)} ${fmtDate(it.dt)}，${it.s.actualEnd?'已完成':st==='green'?'如期':st==='yellow'?'即將到期':'逾期'}" style="left:${Math.min(it.pos,99.4)}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} ${st==='green'?'✓':st==='yellow'?'⚠':'✗'}</div></div>`;
+      // 已完成的里程碑畫成灰色空心點：綠色只代表「還沒到、來得及」
+      const stTxt=it.s.actualEnd?'已完成':st==='green'?'如期':st==='yellow'?'即將到期':'逾期';
+      html+=`<div class="g-dot ${it.s.actualEnd?'g-dot-done':'g-dot-'+st}" tabindex="0" role="img" aria-label="${esc(it.s.stage)} ${fmtDate(it.dt)}，${stTxt}" style="left:${Math.min(it.pos,99.4)}%;top:${4+it.lane*16}px">${label}<div class="g-tooltip">${esc(it.s.stage)} ${fmtDate(it.dt)} · ${stTxt}</div></div>`;
     });
     if(past.length){const p=past[past.length-1];html+=`<div class="g-edge g-edge-l" title="${past.length} 個里程碑在範圍之前，最近的是 ${esc(p.s.stage)} ${fmtDate(p.dt)}">◂ ${past.length}${items.length?'':' · '+esc(p.s.stage)+' '+fmtDate(p.dt)}</div>`}
     if(future.length){const f=future[0],lastPos=items.length?items[items.length-1].pos:-1,tight=lastPos>70;html+=`<div class="g-edge g-edge-r${lastPos>93?' g-edge-b':''}" title="${future.length} 個里程碑在範圍之後，下一個是 ${esc(f.s.stage)} ${fmtDate(f.dt)}">${tight?'':esc(f.s.stage)+' '+fmtDate(f.dt)+' '}▸ ${future.length}</div>`}
@@ -1761,7 +1772,8 @@ function renderABTable(){
 function renderABTimeline(){
   const games=getFilteredAB();
   if(!games.length){document.getElementById('ab-timeline').innerHTML='';return}
-  const colors=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#3b82f6','#eab308','#ec4899'];
+  // 版本只是分類色：避開紅／綠／黃，免得 D 版看起來像「出錯」、B 版像「通過」
+  const colors=['#6366f1','#0e7490','#c026d3','#0284c7','#db2777','#7c3aed','#475569','#0f766e'];
   // Compute time range
   let minD=null,maxD=null;
   games.forEach(g=>g.versions.forEach(v=>{if(v.date){if(!minD||v.date<minD)minD=v.date;if(!maxD||v.date>maxD)maxD=v.date}}));
